@@ -1,0 +1,31 @@
+VARIABLES
+int i;
+int i = 1;
+string str = "text";
+
+LOGICAL OPERATORS
+i== //проверка условия на истинность
+!=
+>
+>=
+
+CONSOLE COMMANDS
+Console.WriteLine("text");
+i = Console.ReadLine(); //for string
+i = Convert.ToInt32(Console.ReadLine()); //for number
+
+CONCATENATION
+Console.WriteLine("text" + i + 1);
+
+INTERPOLATION
+Console.WriteLine($"text {i}");
+
+CONVERT
+i = Convert.ToSingle(i);
+
+CYCLES
+//когда есть четкие границы выполнения
+for (int i = 1; i > 10; i++); //задача переменной, условие, шаг 
+
+INCREMENT AND DECREMENT
+i++, i--, ++i, --i; //i + 1 / i - 1
