@@ -29,3 +29,16 @@ for (int i = 1; i > 10; i++); //задача переменной, услови�
 
 INCREMENT AND DECREMENT
 i++, i--, ++i, --i; //i + 1 / i - 1
+
+IF
+if (i > 1) {code} else {code}
+if (i > 1) {code} else if {code} else if {code}
+
+SWITCH //в случае взаимозаключающих вариантов
+switch (i)
+{
+case "option one": code; break;
+case "option two": code; break;
+case "option three": case "option four": code; break;
+default: code; break;
+}
