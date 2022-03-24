@@ -23,10 +23,6 @@ Console.WriteLine($"text {i}");
 CONVERT
 i = Convert.ToSingle(i);
 
-CYCLES
-//когда есть четкие границы выполнения
-for (int i = 1; i > 10; i++); //задача переменной, условие, шаг 
-
 INCREMENT AND DECREMENT
 i++, i--, ++i, --i; //i + 1 / i - 1
 
@@ -42,3 +38,12 @@ case "option two": code; break;
 case "option three": case "option four": code; break;
 default: code; break;
 }
+
+WHILE
+while (i-- > 0)
+{code}
+end of while - if with break;
+skip iteration - if with continue;
+
+FOR //когда есть четкие границы выполнения
+for (int i = 1; i > 10; i++); //задача переменной, условие, шаг 
