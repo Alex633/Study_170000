@@ -1,3 +1,6 @@
+DATA TYPES
+int32 - whole numbers
+
 VARIABLES
 int i;
 int i = 1;
@@ -47,3 +50,7 @@ skip iteration - if with continue;
 
 FOR //когда есть четкие границы выполнения
 for (int i = 1; i > 10; i++); //задача переменной, условие, шаг 
+
+RANDOM
+Random randVarient - new Random(); //initialization
+i = randVarient.Next(0,10); //from-to (last number don't included)
