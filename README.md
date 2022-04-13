@@ -1,17 +1,18 @@
-#DATA TYPES
+# 170000
+
+# DATA TYPES
 int32 - whole numbers
 
-#VARIABLES
+# VARIABLES
 int i;
 int i = 1;
 string str = "text";
 
-#LOGICAL OPERATORS
+# LOGICAL OPERATORS
 i== //проверка условия на истинность
 !=
 >
 >=
-
 #CONSOLE COMMANDS
 Console.WriteLine("text");
 i = Console.ReadLine(); //for string
