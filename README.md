@@ -12,6 +12,9 @@ i== //проверка условия на истинность
 >
 >=
 
+# instamath
+i -= b //тоже самое что и i=i-b
+
 # CONSOLE COMMANDS
 Console.WriteLine("text"); <br>
 i = Console.ReadLine(); //for string <br>
