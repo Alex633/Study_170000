@@ -16,7 +16,7 @@ namespace _170000Courses
             int imageLeft;
 
             rowNumber = imageNumber / rowLength;
-            imageLeft = imageNumber - (rowNumber * rowLength);
+            imageLeft = imageNumber % rowLenght;
             Console.WriteLine($"Number of rows is {rowNumber}\n{imageLeft} image(s) remaining"); 
         }
     }
