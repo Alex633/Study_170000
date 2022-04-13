@@ -1,5 +1,3 @@
-# 170000
-
 # DATA TYPES
 int32 - whole numbers
 
@@ -13,28 +11,29 @@ i== //проверка условия на истинность
 !=
 >
 >=
-#CONSOLE COMMANDS
+
+# CONSOLE COMMANDS
 Console.WriteLine("text");
 i = Console.ReadLine(); //for string
 i = Convert.ToInt32(Console.ReadLine()); //for number
 
-#CONCATENATION
+# CONCATENATION
 Console.WriteLine("text" + i + 1);
 
-#INTERPOLATION
+# INTERPOLATION
 Console.WriteLine($"text {i}");
 
-#CONVERT
+# CONVERT
 i = Convert.ToSingle(i);
 
-#INCREMENT AND DECREMENT
+# INCREMENT AND DECREMENT
 i++, i--, ++i, --i; //i + 1 / i - 1
 
-#IF
+# IF
 if (i > 1) {code} else {code}
 if (i > 1) {code} else if {code} else if {code}
 
-#SWITCH //в случае взаимозаключающих вариантов
+# SWITCH //в случае взаимозаключающих вариантов
 switch (i)
 {
 case "option one": code; break;
@@ -43,21 +42,21 @@ case "option three": case "option four": code; break;
 default: code; break;
 }
 
-#WHILE
+# WHILE
 while (i-- > 0)
 {code}
 end of while - if with break;
 skip iteration - if with continue;
 
-#FOR //когда есть четкие границы выполнения
+# FOR //когда есть четкие границы выполнения
 for (int i = 1; i > 10; i++); //задача переменной, условие, шаг 
 {code}
 
-#RANDOM
+# RANDOM
 Random randVarient - new Random(); //initialization
 i = randVarient.Next(0,10); //from-to (last number don't included)
 
-#CONSOLE
+# CONSOLE
 \n //перенос строки
 \b //удалить последний символ
 Console.Clear();
