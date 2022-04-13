@@ -13,8 +13,8 @@ i== //проверка условия на истинность
 >=
 
 # CONSOLE COMMANDS
-Console.WriteLine("text");
-i = Console.ReadLine(); //for string
+Console.WriteLine("text"); \n
+i = Console.ReadLine(); //for string \n
 i = Convert.ToInt32(Console.ReadLine()); //for number
 
 # CONCATENATION
