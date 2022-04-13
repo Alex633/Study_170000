@@ -1,5 +1,3 @@
-# 170000
-
 #DATA TYPES
 int32 - whole numbers
 
