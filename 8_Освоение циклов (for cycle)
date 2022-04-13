@@ -19,11 +19,8 @@ namespace _170000Courses
             repeatCount = Convert.ToInt32(Console.ReadLine());
             for (int i = repeatCount; i > 0; i--)
             {
-                Console.WriteLine("Message");
+                Console.WriteLine(message);
             }
-            
-
-
         }
     }
 }
