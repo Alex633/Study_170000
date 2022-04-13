@@ -10,16 +10,17 @@ namespace _170000Courses
     {
         static void Main(string[] args)
         {
-            string word = "zero";
-            Console.WriteLine("What will you say stranger?");
-            while (word != "end my suffering") 
+            string word = "";
+            string correctWord = "end me";
+
+            Console.WriteLine("The cycle of life and death continues. We will live, they will die");
+            while (word != correctWord)
             {
                 word = Console.ReadLine();
-                Console.WriteLine("The cycle of life and death continues. We will live, they will die");
             }
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Your sacrifice will be accepted");
-            Console.ForegroundColor = ConsoleColor.White;
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Your sacrifice will be accepted");
+                Console.ForegroundColor = ConsoleColor.White;
+            }
         }
     }
-}
