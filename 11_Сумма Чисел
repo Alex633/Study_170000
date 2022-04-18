@@ -19,11 +19,11 @@ namespace _170000Courses
             int ranMin = 0;
             int ranMax = 101;
 
-            Random rand = new Random();
-            rand100 = rand.Next(ranMin, ranMax);
+            Random random = new Random();
+            rand100 = random.Next(ranMin, ranMax);
 
             Console.WriteLine($"Random Number: {rand100}.\n\nNumbers devided by three and five:");
-            
+
             for (int currentNumber = 1; currentNumber < rand100; currentNumber++)
             {
                 if (currentNumber % check3 == 0 || currentNumber % check5 == 0)
