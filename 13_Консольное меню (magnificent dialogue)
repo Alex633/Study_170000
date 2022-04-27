@@ -17,7 +17,6 @@ namespace _170000Courses
             string input = "";
             string loginRegistration = "";
             bool isSuccecfullReg = false;
-            bool isSuccecfullColor = false;
             string commands = "";
             string colorSelection = "";
             string colorExit = "";
@@ -88,7 +87,6 @@ namespace _170000Courses
                                 {
                                     default:
                                         Console.WriteLine($"Please, {name}, be serious");
-                                        isSuccecfullColor = false;
                                         break;
                                     case "text":
                                         Console.WriteLine("I have red, blue and green. What color do you want? ");
