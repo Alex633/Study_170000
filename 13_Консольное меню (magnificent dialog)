@@ -71,7 +71,7 @@ namespace _170000Courses
                             "new look - to make it beautiful\n" +
                             "who am i - to remember yourself\n" +
                             "what is your favorite number - to ask me my favorite number\n" +
-                            "become small - to ask me to become big\n" +
+                            "become small - to ask me to become small\n" +
                             "press esc - to return to your world");
 
                         break;
@@ -82,12 +82,7 @@ namespace _170000Courses
                         Console.WriteLine($"{name}... that's great name. Now where were we? (press ` to see all your options)");
                         break;
                     case "new look":
-                        isSuccecfullColor = false;
                         Console.WriteLine("What do you want to change now? Text or maybe... everything?");
-                        while (colorExit != "yes")
-                        {
-                            while (isSuccecfullColor != true)
-                            { 
                             colorSelection = Console.ReadLine();
                                 switch (colorSelection)
                                 {
@@ -119,9 +114,7 @@ namespace _170000Courses
                                                                 $"So, are you okay with this, {name}?");
                                                 break;
                                         }
-                                        isSuccecfullColor = true;
                                         break;
-
 
                                     case "everything":
                                         Console.WriteLine("Let's see... red, blue and green. That's all we have. What color do you want? ");
@@ -150,28 +143,23 @@ namespace _170000Courses
                                                                 $"So, are you okay with this, {name}?");
                                                 break;
                                         }
-                                        isSuccecfullColor = true;
                                         break;
-                                }
                             }
-
-                            colorExit = Console.ReadLine();
+                         colorExit = Console.ReadLine();
                             switch (colorExit)
                             {
                                 default:
                                     Console.WriteLine($"You're fooling around again, {name}, don't you? Are you okay with your choices?");
                                     break;
                                 case "yes":
-                                    Console.WriteLine("I like it too (press ` to see all your options");
+                                    Console.WriteLine("I like it too (press ` to see all your options)");
                                     break;
                                 case "no":
                                     Console.ForegroundColor = ConsoleColor.White;
                                     Console.BackgroundColor = ConsoleColor.Black;
-                                    isSuccecfullColor = false;
-                                    Console.WriteLine("Let's do it again then. Text or... everything?");
+                                    Console.WriteLine("Okay, I'll make it normal, like it used to be. Maybe next time we will make it pretty (press ` to see all your options)");
                                     break;
                             }
-                        }
                         break;
                     case "who am i":
                         Console.WriteLine($"You are magnificent creature, named {name}");
