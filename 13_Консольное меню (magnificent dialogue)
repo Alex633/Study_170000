@@ -22,14 +22,14 @@ namespace _170000Courses
             string colorExit = "";
 
             Random random = new Random();
-            int ran = random.Next(0,10);
+            int ran = random.Next(0, 10);
 
             Console.WriteLine("Welcome Stranger. Are you new here?");
-             while (isSuccecfullReg != true)
-             {
+            while (isSuccecfullReg != true)
+            {
                 loginRegistration = Console.ReadLine();
-                switch (loginRegistration)             
-                { 
+                switch (loginRegistration)
+                {
                     default:
                         Console.WriteLine("Simple yes or no would be enough");
                         isSuccecfullReg = false;
@@ -37,7 +37,7 @@ namespace _170000Courses
                     case "yes":
                         Console.WriteLine("Tell me your name");
                         name = Console.ReadLine();
-                        Console.WriteLine("Now Password");
+                        Console.WriteLine("Now set your Password");
                         password = Console.ReadLine();
                         Console.WriteLine($"Nice to meet you, {name}");
                         isSuccecfullReg = true;
@@ -54,7 +54,7 @@ namespace _170000Courses
                 }
             }
 
-        Console.WriteLine("What do you want to do today? (press ` to see all your options)");
+            Console.WriteLine("What do you want to do today? (press ` to see all your options)");
 
             while (commands != "esc")
             {
@@ -62,9 +62,12 @@ namespace _170000Courses
                 switch (commands)
                 {
                     default:
-                         Console.WriteLine($"{name}, you don't make any sence");
-                         break;
+                        Console.WriteLine($"{name}, you don't make any sence");
+                        break;
 
+                    case "esc":
+                    Console.WriteLine("That was nice");
+                        break;
                     case "`":
                         Console.WriteLine("change name - to change your name\n" +
                             "new look - to make it beautiful\n" +
@@ -82,82 +85,95 @@ namespace _170000Courses
                         break;
                     case "new look":
                         Console.WriteLine("What do you want to change now? Text or maybe... everything?");
-                            colorSelection = Console.ReadLine();
-                                switch (colorSelection)
+                        colorSelection = Console.ReadLine();
+                        switch (colorSelection)
+                        {
+                            default:
+                                Console.WriteLine($"Hmmmm... It's not text or... everything");
+                                Console.ForegroundColor = ConsoleColor.Green;
+                                Console.BackgroundColor = ConsoleColor.DarkGreen;
+                                Console.WriteLine("Maybe you want it like this? Do you like it?");
+                                break;
+                            case "text":
+                                Console.WriteLine("I have red, blue and green. What color do you want? ");
+                                textColor = Console.ReadLine();
+                                switch (textColor)
                                 {
                                     default:
-                                        Console.WriteLine($"Please, {name}, be serious");
+                                        Console.WriteLine($"It's not a color, {name}. I'll help.");
+                                        Console.ForegroundColor = ConsoleColor.Green;
+                                        Console.WriteLine($"How about this green? Do you like it?");
                                         break;
-                                    case "text":
-                                        Console.WriteLine("I have red, blue and green. What color do you want? ");
-                                        textColor = Console.ReadLine();
-                                        switch (textColor)
-                                        {
-                                            case "red":
-                                                Console.ForegroundColor = ConsoleColor.Blue;
-                                                Console.WriteLine($"What a majestic RED\n" +
-                                                                $"That looks great now, isn't it? You might think that's not RED. But that is. Dont argue, okay?\n" +
-                                                                $"So, are you okay with this, {name}?");
-                                                break;
-                                            case "blue":
-                                                Console.ForegroundColor = ConsoleColor.Red;
-                                                Console.WriteLine($"What a majestic BLUE\n" +
-                                                                $"That looks great now, isn't it? You might think that's not BLUE. But that is. Dont argue, okay?\n" +
-                                                                $"So, are you okay with this, {name}?");
-                                                break;
-                                            case "green":
-                                                Console.ForegroundColor = ConsoleColor.Yellow;
-                                                Console.WriteLine($"What a majestic GREEN\n" +
-                                                                $"That looks great now, isn't it? You might think that's not GREEN. But that is. Dont argue, okay?\n" +
-                                                                $"So, are you okay with this, {name}?");
-                                                break;
-                                        }
+                                    case "red":
+                                        Console.ForegroundColor = ConsoleColor.Blue;
+                                        Console.WriteLine($"What a majestic RED\n" +
+                                                        $"That looks great now, isn't it? You might think that's not RED. But that is. Dont argue, okay?\n" +
+                                                        $"So, are you okay with this, {name}?");
                                         break;
+                                    case "blue":
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine($"What a majestic BLUE\n" +
+                                                        $"That looks great now, isn't it? You might think that's not BLUE. But that is. Dont argue, okay?\n" +
+                                                        $"So, are you okay with this, {name}?");
+                                        break;
+                                    case "green":
+                                        Console.ForegroundColor = ConsoleColor.Yellow;
+                                        Console.WriteLine($"What a majestic GREEN\n" +
+                                                        $"That looks great now, isn't it? You might think that's not GREEN. But that is. Dont argue, okay?\n" +
+                                                        $"So, are you okay with this, {name}?");
+                                        break;
+                                }
+                                break;
 
-                                    case "everything":
-                                        Console.WriteLine("Let's see... red, blue and green. That's all we have. What color do you want? ");
-                                        bgColor = Console.ReadLine();
-                                        switch (bgColor)
-                                        {
-                                            case "red":
-                                                Console.BackgroundColor = ConsoleColor.Blue;
-                                                Console.Clear();
-                                                Console.WriteLine($"Everything became so much more... RED.\n" +
-                                                                $"That looks great now, isn't it? You might think that's not RED. But that is. Dont argue, okay?\n" +
-                                                                $"So, are you okay with this, {name}?");
-                                                break;
-                                            case "blue":
-                                                Console.BackgroundColor = ConsoleColor.Red;
-                                                Console.Clear();
-                                                Console.WriteLine($"Everything became so much more... BLUE.\n" +
-                                                                $"That looks great now, isn't it? You might think that's not BLUE. But that is. Dont argue, okay?\n" +
-                                                                $"So, are you okay with this, {name}?");
-                                                break;
-                                            case "green":
-                                                Console.BackgroundColor = ConsoleColor.Yellow;
-                                                Console.Clear();
-                                                Console.WriteLine($"Everything became so much more... GREEN.\n" +
-                                                                $"That looks great now, isn't it? You might think that's not GREEN. But that is. Dont argue, okay?\n" +
-                                                                $"So, are you okay with this, {name}?");
-                                                break;
-                                        }
+                            case "everything":
+                                Console.WriteLine("Let's see... red, blue and green. That's all we have. What color do you want? ");
+                                bgColor = Console.ReadLine();
+                                switch (bgColor)
+                                {
+                                    default:
+                                        Console.WriteLine($"It's not a color, {name}. I'll help.");
+                                        Console.BackgroundColor = ConsoleColor.DarkGreen;
+                                        Console.WriteLine($"How about this green? Do you like it?");
                                         break;
-                            }
-                         colorExit = Console.ReadLine();
-                            switch (colorExit)
-                            {
-                                default:
-                                    Console.WriteLine($"You're fooling around again, {name}, don't you? Are you okay with your choices?");
-                                    break;
-                                case "yes":
-                                    Console.WriteLine("I like it too (press ` to see all your options)");
-                                    break;
-                                case "no":
-                                    Console.ForegroundColor = ConsoleColor.White;
-                                    Console.BackgroundColor = ConsoleColor.Black;
-                                    Console.WriteLine("Okay, I'll make it normal, like it used to be. Maybe next time we will make it pretty (press ` to see all your options)");
-                                    break;
-                            }
+                                    case "red":
+                                        Console.BackgroundColor = ConsoleColor.DarkBlue;
+                                        Console.Clear();
+                                        Console.WriteLine($"Everything became so much more... RED.\n" +
+                                                        $"That looks great now, isn't it? You might think that's not RED. But that is. Dont argue, okay?\n" +
+                                                        $"So, are you okay with this, {name}?");
+                                        break;
+                                    case "blue":
+                                        Console.BackgroundColor = ConsoleColor.DarkRed;
+                                        Console.Clear();
+                                        Console.WriteLine($"Everything became so much more... BLUE.\n" +
+                                                        $"That looks great now, isn't it? You might think that's not BLUE. But that is. Dont argue, okay?\n" +
+                                                        $"So, are you okay with this, {name}?");
+                                        break;
+                                    case "green":
+                                        Console.BackgroundColor = ConsoleColor.DarkYellow;
+                                        Console.Clear();
+                                        Console.WriteLine($"Everything became so much more... GREEN.\n" +
+                                                        $"That looks great now, isn't it? You might think that's not GREEN. But that is. Dont argue, okay?\n" +
+                                                        $"So, are you okay with this, {name}?");
+                                        break;
+                                }
+                                break;
+                        }
+                        colorExit = Console.ReadLine();
+                        switch (colorExit)
+                        {
+                            default:
+                                Console.WriteLine($"You're fooling around again, {name}, don't you? Then I'll take it as a yes (press ` to see all your options)");
+                                break;
+                            case "yes":
+                                Console.WriteLine("I like it too (press ` to see all your options)");
+                                break;
+                            case "no":
+                                Console.ForegroundColor = ConsoleColor.White;
+                                Console.BackgroundColor = ConsoleColor.Black;
+                                Console.WriteLine("Okay, I'll make it normal, like it used to be. Maybe next time we will make it pretty (press ` to see all your options)");
+                                break;
+                        }
                         break;
                     case "who am i":
                         Console.WriteLine($"You are magnificent creature, named {name}");
@@ -168,14 +184,15 @@ namespace _170000Courses
                         break;
                     case "become small":
                         Console.WriteLine("Small, huh? Alright");
-                        Console.SetWindowSize(40,40);
-                        Console.WriteLine("Now I'm feeling better (press ` to see all your options)     ");
+                        Console.SetWindowSize(40, 40);
+                        Console.WriteLine("Now I'm feeling better (press ` to see all your options)");
                         break;
                     case "move":
-                        Console.SetWindowPosition(1,1);
+                        Console.SetWindowPosition(1, 1);
                         break;
                 }
             }
+            Console.WriteLine($"bye {name}");
         }
     }
 }
