@@ -16,7 +16,7 @@ namespace _170000Courses
             int attempts = 3;
 
             Console.WriteLine("Where is the detonator?");
-            while (attempts-- > 0 & password != correctPassword)
+            while (attempts > 0 & password != correctPassword)
             {
                 password = Console.ReadLine();
                 if (password == correctPassword)
@@ -25,15 +25,15 @@ namespace _170000Courses
                 }
                 else
                 {
+                    attempts--;
                     Console.WriteLine($"{attempts} attempts left");
                 }
             }
 
-            if (attempts == -1 & password != correctPassword)
+            if (attempts == 0 & password != correctPassword)
             {
                 Console.WriteLine("explosion is happening right now");
             }
-
         }
     }
 }
