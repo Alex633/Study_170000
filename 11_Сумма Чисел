@@ -24,7 +24,7 @@ namespace _170000Courses
 
             Console.WriteLine($"Random Number: {rand100}.\n\nNumbers devided by three and five:");
 
-            for (int currentNumber = 1; currentNumber < rand100; currentNumber++)
+            for (int currentNumber = 0; currentNumber <= rand100; currentNumber++)
             {
                 if (currentNumber % check3 == 0 || currentNumber % check5 == 0)
                 {
