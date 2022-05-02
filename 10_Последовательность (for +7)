@@ -16,16 +16,19 @@ namespace _170000Courses
 
             while (initialNumber < finaleNumber)
             {
-                Console.WriteLine(initialNumber);
+                Console.Write($" {initialNumber}");
                 initialNumber += 7;
             }
 
+            Console.WriteLine();
 
             initialNumber = 5;
             for (int i = initialNumber; i < finaleNumber; i += step)
             {
-                Console.WriteLine(i);
+                Console.Write($" {i}");
             }
+
+            Console.WriteLine();
         }
     }
 }
