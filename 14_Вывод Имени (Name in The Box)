@@ -10,31 +10,27 @@ namespace _170000Courses
     {
         static void Main(string[] args)
         {
-            string name;
             char character;
             string nameString = "";
+            string symbolString = "";
 
-            int edgeStringLength;
+            int symbolStringLength;
 
             Console.WriteLine("Name please");
-            name = Console.ReadLine();
+            nameString = Console.ReadLine();
             Console.WriteLine("Symbol Now");
             character = Convert.ToChar(Console.ReadLine());
 
-            nameString = ($"{character}{name}{character}");
+            symbolStringLength = nameString.Length + 2;
 
-            edgeStringLength = nameString.Length;
-            for (int i = 0; i < edgeStringLength; i++)
+            for (int i = 0; i < symbolStringLength; i++)
             {
-                Console.Write(character);
+                symbolString += character;
             }
 
-            Console.WriteLine($"\n{nameString}");
-
-            for (int i = 0; i < edgeStringLength; i++)
-            {
-                Console.Write(character);
-            }
+            Console.WriteLine(symbolString);
+            Console.WriteLine(character + nameString + character);
+            Console.WriteLine(symbolString);
         }
     }
 }
