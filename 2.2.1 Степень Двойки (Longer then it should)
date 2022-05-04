@@ -46,9 +46,22 @@ namespace _170000Courses
                     Console.WriteLine($"Number {numberAbove} <= {inputNumber}");
                     numberAbove *= multiplier;
                     finalDegree++;
+                    doHeOrShe = false;
                 }
-             
-                Console.WriteLine($"Number Found");
+
+                if (doHeOrShe == false)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine($"Number {numberAbove} > {inputNumber}. Number Found!");
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+                else
+                {
+                    Console.WriteLine($"Your favorite number bellow two");
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    Console.WriteLine($"Congratiolation?");
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
                 Console.WriteLine($"\nYour number was: {inputNumber}\n" +
                 $"Degree was: {finalDegree}\n" +
                 $"Minimal number that is degree of two above your number is: {numberAbove}");
