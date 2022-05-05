@@ -1,0 +1,50 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace _170000Courses
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            //( (!) ( (!) ) )
+            string text;
+            int openBracketCounter = 0;
+            int closeBracketCounter = 0;
+
+            Console.WriteLine("Enter your bracket expression. I'm waiting");
+            text = Console.ReadLine();
+
+            for (int i = 0; i < text.Length; i++)
+            {
+                switch (text[i])
+                {
+                    case '(': 
+                    openBracketCounter++; 
+                    break;
+                        
+                    case ')':               
+                    closeBracketCounter++;
+                    break;
+                }
+            }
+
+            if (openBracketCounter == closeBracketCounter)
+            {
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.WriteLine(text + " bracket expression is correct");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine($"There is {--openBracketCounter} bracket embeddings\n");
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(text + " bracket expression is incorrect\n");
+                Console.ForegroundColor = ConsoleColor.White;
+            }
+        }
+    }
+}
