@@ -1,0 +1,297 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace _170000Courses
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            int ahriHP = 25;
+            int azirHP = 30;
+
+            int champSelection;
+            bool isChampSelected = false;
+            string playerChamp = "";
+            string enemyChamp = "";
+            string lockIn = "no";
+            string abilitySelection = "";
+
+
+            string playerAbilities = "";
+            string ahriAbilities = "Ahri abilities:" +
+                            "\n(Q) ORB OF DECEPTION:: Deal 3 Damage. Then deal 5 more damage;" +
+                            "\n(W) FOX FIRE: Deal 3+3+3 damage next round" +
+                            "\n(E) CHARM: Seduces enemy. Enemy takes triple the damage next round. Enemy skips next round" +
+                            "\n(R) SPIRIT RUSH: Ignores next damage. Deal 3 damage";
+            string azirAbilities = "Azir abilities:" +
+                            "\n(Q) CONQUERING SANDS: All soldiers deal 8 damage" +
+                            "\n(W) ARISE!: Summon a Soldier" +
+                            "\n(E) SHIFTING SANDS: Atleast 1 soldier has to be on the battle. Heals for 10 damage. All soldiers deal 4 damage. Can't be used next 3 rounds" +
+                            "\n(R) EMPEROR'S DEVIDE: Deal 10 damage. Stun enemy for 2 rounds";
+
+            int enemyHP = 0;
+            int playerHP = 0;
+
+            int round = 1;
+
+            bool isFoxFireActive = false;
+            bool isCharmActive = false;
+            string ability = "";
+            string abilityEffect = "";
+            int dmg = 0;
+
+            string qAbility = "";
+            string wAbility = "";
+            string eAbility = "";
+            string rAbility = "";
+
+            while (isChampSelected != true)
+            {
+                Console.WriteLine("CHOOSE YOUR CHAMPION:" +
+                    "\n1. Ahri" +
+                    "\n2. Azir");
+
+                champSelection = Convert.ToInt32(Console.ReadLine());
+                switch (champSelection)
+                {
+                    case 1:
+                        playerChamp = "Ahri";
+                        break;
+                    case 2:
+                        playerChamp = "Azir";
+                        break;
+                    default:
+                        Console.WriteLine("Error 404. Champion not Found. Close the Program");
+                        break;
+                }
+
+                switch (playerChamp)
+                {
+                    case "Ahri":
+                        Console.WriteLine(ahriAbilities);
+                        break;
+                    case "Azir":
+                        Console.WriteLine(azirAbilities);
+                        break;
+                }
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("Lock in your champion (y or n)?");
+                Console.ForegroundColor = ConsoleColor.White;
+                lockIn = Console.ReadLine();
+                if (lockIn == "y")
+                {
+                    isChampSelected = true;
+                }
+            }
+                
+            Console.WriteLine("CHOOSE YOUR OPPONENT:" +
+                    "\n1. Ahri" +
+                    "\n2. Azir");
+            champSelection = Convert.ToInt32(Console.ReadLine());
+            switch (champSelection)
+            {
+                case 1:
+                    enemyChamp = "Ahri";
+                    break;
+                case 2:
+                    enemyChamp = "Azir";
+                    break;
+                default:
+                    Console.WriteLine("Error 404. Champion not Found. Close the Program");
+                    break;
+            }
+            Console.WriteLine($"Your opponent is {enemyChamp}");
+
+            switch (enemyChamp) //enemy HP
+            {
+                case "Ahri":
+                    enemyHP = ahriHP;
+                    break;
+                case "Azir":
+                    enemyHP = azirHP;
+                    break;
+            }
+
+            switch (playerChamp) //player HP and abilities
+            {
+                case "Ahri":
+                    playerHP = ahriHP;
+                    playerAbilities = ahriAbilities;
+                    qAbility = "ORB OF DECEPTION (Q)";
+                    wAbility = "FOX FIRE (W)";
+                    eAbility = "CHARM (E)";
+                    rAbility = "SPIRIT RUSH (R)";
+                    break;
+                case "Azir":
+                    playerHP = azirHP;
+                    playerAbilities = azirAbilities;
+                    qAbility = "CONQUERING SANDS (Q)";
+                    wAbility = "ARISE (W)";
+                    eAbility = "SHIFTING SANDS (E)";
+                    rAbility = "EMPEROR'S DEVIDE (R)";
+                    break;
+            }
+
+            while (enemyHP >= 0 & playerHP >= 0)
+            {
+
+                //intro
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.WriteLine($"\nRound {round++}");
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"Your HP: {playerHP}");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"{enemyChamp} HP: {enemyHP}");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine(playerAbilities);
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("Select Ability:");
+                Console.ForegroundColor = ConsoleColor.White;
+                abilitySelection = Console.ReadLine();
+
+                //player turn
+                if (playerChamp == "Ahri")
+                {
+                    switch (abilitySelection)
+                    {
+                        default:
+                            Console.WriteLine("Ability not found. You skipping your turn");
+                            break;
+                        case "q":
+                            if (isCharmActive == true)
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                enemyHP -= 3*3;
+                                Console.WriteLine($"{qAbility} deals 6 damage to {enemyChamp}. Because {eAbility} is active");
+                                Console.ForegroundColor = ConsoleColor.White;
+
+                                Console.WriteLine($"{enemyChamp} HP: {enemyHP}");
+
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                enemyHP -= 5*3;
+                                Console.WriteLine($"{qAbility} deals 10 damage to {enemyChamp}. Because {eAbility} is active");
+                                Console.ForegroundColor = ConsoleColor.White;
+                                isCharmActive = false;
+                            }
+                            else
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                enemyHP -= 3;
+                                Console.WriteLine($"{qAbility} deals 3 damage to {enemyChamp}");
+                                Console.ForegroundColor = ConsoleColor.White;
+
+                                Console.WriteLine($"{enemyChamp} HP: {enemyHP}");
+
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                enemyHP -= 5;
+                                Console.WriteLine($"{qAbility} deals 5 damage to {enemyChamp}");
+                                Console.ForegroundColor = ConsoleColor.White;
+                            }
+                            break;
+                        case "w":
+                            isFoxFireActive = true;
+                            Console.WriteLine($"{wAbility} is active");
+                            break;
+                        case "e":
+                            isCharmActive = true;
+                            Console.WriteLine($"{eAbility} is active on {enemyChamp}");
+                            break;
+                        case "r":
+                            break;
+                    }
+                }
+                else if (playerChamp == "Azir")
+                {
+                    switch (abilitySelection)
+                    {
+                        default:
+                            Console.WriteLine("Ability not found. You're skipping your turn");
+                            break;
+                        case "q":
+                            break;
+                        case "w":
+                            break;
+                        case "e":
+                            break;
+                        case "r":
+                            break;
+                    }
+                }
+
+                //enemy turn
+                Console.ForegroundColor = ConsoleColor.Red;
+                playerHP -= 5;
+                Console.WriteLine($"{playerAbilities} deals 5 damage");
+                Console.ForegroundColor = ConsoleColor.White;
+
+                //dots
+                if (isFoxFireActive == true)
+                {
+                    if (isCharmActive == true)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        enemyHP -= 3*3;
+                        Console.WriteLine($"{wAbility} deals 6 damage to {enemyChamp}. Because {eAbility} is active");
+                        Console.ForegroundColor = ConsoleColor.White;
+
+                        Console.WriteLine($"{enemyChamp} HP: {enemyHP}");
+
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        enemyHP -= 3*3;
+                        Console.WriteLine($"{wAbility} deals 6 damage to {enemyChamp}. Because {eAbility} is active");
+                        Console.ForegroundColor = ConsoleColor.White;
+
+                        Console.WriteLine($"{enemyChamp} HP: {enemyHP}");
+
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        enemyHP -= 3*3;
+                        Console.WriteLine($"{wAbility} deals 6 damage to {enemyChamp}. Because {eAbility} is active");
+                        Console.ForegroundColor = ConsoleColor.White;
+
+                        Console.WriteLine($"{enemyChamp} HP: {enemyHP}");
+                        isCharmActive = false;
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        enemyHP -= 3;
+                        Console.WriteLine($"{wAbility} deals 3 damage to {enemyChamp}");
+                        Console.ForegroundColor = ConsoleColor.White;
+
+                        Console.WriteLine($"{enemyChamp} HP: {enemyHP}");
+
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        enemyHP -= 3;
+                        Console.WriteLine($"{wAbility} deals 3 damage to {enemyChamp}");
+                        Console.ForegroundColor = ConsoleColor.White;
+
+                        Console.WriteLine($"{enemyChamp} HP: {enemyHP}");
+
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        enemyHP -= 3;
+                        Console.WriteLine($"{wAbility} deals 3 damage to {enemyChamp}");
+                        Console.ForegroundColor = ConsoleColor.White;
+
+                        Console.WriteLine($"{enemyChamp} HP: {enemyHP}");
+                    }
+                }
+            }
+            if (playerHP > 0)
+            {
+                Console.WriteLine("You Won");
+            }
+            else if (enemyHP > 0)
+            {
+                Console.WriteLine($"Enemy {enemyChamp} has won the battle");
+            }
+            else if (enemyHP <= 0 || playerHP <= 0)
+            {
+                Console.WriteLine("Everybody Loses");
+            }
+        }
+    }
+}
