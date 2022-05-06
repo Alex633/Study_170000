@@ -1,0 +1,148 @@
+using System;
+
+namespace _170000Courses
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            string text;
+
+
+
+            int depthTemp = 0;
+            int depth = 0;
+
+            int bracketCountA = 0;
+            int bracketCountB = 0;
+
+            int bracketCount = 0;
+            int bracketCountC = 0;
+            bool isZero = false;
+            bool inside = false;
+            int isDefWrong = 0;
+
+
+            bool isCorrectExpression = false;
+
+            Console.WriteLine("Enter your bracket expression. I'm waiting");
+            text = Console.ReadLine();
+
+            for (int i = 0; i < text.Length; i++)
+            {
+
+
+                // 1(  2(  3()3   )2   2()2   )1
+
+
+                // инсайд при открытии скобки
+                // считать инсайд скобки и общее количество скобок. когда общее количество скобок становится 0 то выходить из инсайд
+                // проверять истинность по общему количеству скобок равному нулю
+                // считать временную глубину при каждой закрытой скобки, обнулять при выходе из инсайд (нулевом общем количестве скобок), обнулять при нулевом внутреннем количестве скобок
+
+                //прибавлять к счетчику глубины с каждой открывающей
+                // один счетчику: + с открывающей - с закрывающей. когда 0 открывать новый счетчик +1. если 0 повторяется больше одного раза (новый счетчик 2 и больше) то высчитывать глубину по самому глубокому
+                // по достижению нуля присваивать глубину новой переменной, при достижении нового нуля сравнивать с предыдущим значением переписывать если выше
+                // если общее количество скобок когда либо падает ниже нуля и в конце не ноль то выражение не корректное
+
+                //igronring first and last  brackets
+
+                if (text[0] == ')' || text[text.Length - 1] == '(')
+                {
+                    isDefWrong = 0;
+                    break;
+                }
+
+                switch (text[i])
+                {
+                    case '(':
+                        inside = true;
+                        bracketCount++;
+                        break;
+
+                    case ')':
+                        bracketCount--;
+                        break;
+                }
+
+                if (inside == true && bracketCount == 0)
+                {
+                    inside = false;
+                    if (depth < depthTemp)
+                    {
+                        depth = depthTemp;
+                        depthTemp = 0;
+                    }
+                }
+
+                if (inside == true)
+                {
+                    switch (text[i])
+                    {
+                        case '(':
+                            bracketCountC++;
+                            depthTemp++;
+                            break;
+
+                        case ')':
+                            bracketCountC--;
+                            break;
+                    }
+                }
+
+                if (bracketCountC < 0)
+                {
+                    isZero = false;
+                    isCorrectExpression = false;
+                    break;
+                }
+                else if (bracketCountC == 0)
+                {
+                    isZero = true;
+                }
+                else if (bracketCountC > 0)
+                {
+                    isZero = false;
+                }
+
+                if (isZero == true)
+                {
+                    if (depth < depthTemp)
+                    {
+                        depth = depthTemp;
+                    }
+                    depthTemp = 0;
+                }
+
+                if (text.Length - 1 == i)
+                {
+                    inside = false;
+                }
+
+            }
+
+            if (bracketCount == 0)
+            {
+                if (isDefWrong != 1)
+                {
+                    isCorrectExpression = true;
+                }
+            }
+
+            if (isCorrectExpression == true)
+            {
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.WriteLine(text + " bracket expression is correct");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine($"{depth + 1} bracket depth");
+            }
+            else if (isCorrectExpression == false)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(text + " bracket expression is incorrect");
+                Console.ForegroundColor = ConsoleColor.White;
+            }
+
+        }
+    }
+}
