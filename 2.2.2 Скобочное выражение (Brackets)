@@ -1,8 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace _170000Courses
 {
@@ -10,10 +6,34 @@ namespace _170000Courses
     {
         static void Main(string[] args)
         {
-            //( (!) ( (!) ) )
+
+            // 1(  2(  3()3   )2   2()2   )1
+            // ( () (()) )
+            // ( ( ) ) ( ( ) )
+
+            // инсайд при открытии скобки
+            // считать инсайд скобки и общее количество скобок. когда общее количество скобок становится 0 то выходить из инсайд
+            // проверять истинность по общему количеству скобок равному нулю
+            // считать временную глубину при каждой закрытой скобке, обнулять при выходе из инсайд (нулевом общем количестве скобок), обнулять при нулевом внутреннем количестве скобок
+            // если общее количество скобок когда либо падает ниже нуля и в конце не ноль то выражение не корректное
+
+            //прибавлять к счетчику глубины с каждой открывающей
+            // один счетчику: + с открывающей - с закрывающей. когда 0 открывать новый счетчик +1. если 0 повторяется больше одного раза (новый счетчик 2 и больше) то высчитывать глубину по самому глубокому
+            // по достижению нуля присваивать глубину новой переменной, при достижении нового нуля сравнивать с предыдущим значением переписывать если выше
+
+            //entering inside || counting overall Brackets
+
             string text;
-            int openBracketCounter = 0;
-            int closeBracketCounter = 0;
+
+            int depthTemp = 0;
+            int depth = 0;
+
+            int overallBrackets = 0;
+            int insideBrackets = 0;
+            bool isInside = false;
+            bool justEntered = false;
+            bool isCorrectExpression = false;
+            bool haveOpening = false;
 
             Console.WriteLine("Enter your bracket expression. I'm waiting");
             text = Console.ReadLine();
@@ -23,28 +43,94 @@ namespace _170000Courses
                 switch (text[i])
                 {
                     case '(':
-                        openBracketCounter++;
+                        if (isInside == false)
+                        {
+                            isInside = true;
+                            justEntered = true;
+                        }
+                        overallBrackets++;
                         break;
-
                     case ')':
-                        closeBracketCounter++;
+                        overallBrackets--;
                         break;
+                }
+
+                //counting inside Brackets
+                if (isInside == true && justEntered != true) //here was check on last sym
+                {
+                    switch (text[i])
+                    {
+                        case '(':
+                            insideBrackets++;
+                            haveOpening = true;
+                            break;
+                        case ')':
+                            if (haveOpening == true)
+                            {
+                                insideBrackets--;
+                                depthTemp++;
+                            }
+                            break;
+                    }
+                }
+
+                //getting out completely and counting depth
+                if (overallBrackets == 0) //here was check on last sym
+                {
+                    isInside = false;
+                    haveOpening = false;
+                    if (depthTemp > depth)
+                    {
+                        depth = depthTemp;
+                    }
+                    depthTemp = 0;
+                }
+
+                //getting out expresion inside and couting depth
+                if (justEntered != true && insideBrackets == 0)
+                {
+                    haveOpening = false;
+
+                    if (depthTemp > depth)
+                    {
+                        depth = depthTemp;
+                    }
+                    depthTemp = 0;
+                }
+                
+
+                justEntered = false;
+
+                //expression is incorrect - break out of cycle
+                if (overallBrackets < 0)
+                {
+                    break;
                 }
             }
 
-            if (openBracketCounter == closeBracketCounter && text[0] == '(' && text[text.Length - 1] == ')')
+            if (overallBrackets == 0)
+            {
+                isCorrectExpression = true;
+            }
+
+            if (isCorrectExpression == true)
             {
                 Console.ForegroundColor = ConsoleColor.Blue;
                 Console.WriteLine(text + " bracket expression is correct");
                 Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine($"There is {--openBracketCounter} bracket embeddings\n");
+                Console.WriteLine($"{depth + 1} bracket depth");
             }
-            else
+            else if (isCorrectExpression == false)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(text + " bracket expression is incorrect\n");
+                Console.WriteLine(text + " bracket expression is incorrect");
                 Console.ForegroundColor = ConsoleColor.White;
             }
+
+            //testing
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("\ninside brackets: " + insideBrackets + "\noverall brackets: " + overallBrackets);
+            Console.ForegroundColor = ConsoleColor.White;
         }
     }
 }
