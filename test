@@ -1,0 +1,110 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace _170000Courses
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            string text;
+            int openBracketCounter = 0;
+            int closeBracketCounter = 0;
+            int insideBracket = 0;
+            int depth = 0;
+            bool isCorrectExpression = false;
+            int correctExpresion = 0;
+
+
+                Console.WriteLine("Enter your bracket expression. I'm waiting");
+                text = Console.ReadLine();
+
+                for (int i = 0; i < text.Length; i++)
+                {
+
+                //прибавлять к счетчику глубины с каждой закрывающей
+                // один счетчику: + с открывающей - с закрывающей. когда 0 открывать новый счетчик +1. если 0 повторяется больше одного раза (новый счетчик 2 и больше) то высчитывать глубину по самому глубокому
+                // по достижению нуля присваивать глубину новой переменной, при достижении нового нуля сравнивать с предыдущим значением переписывать если выше
+
+                    //counting brackets
+                    switch (text[i])
+                    {
+                        case '(':
+                            openBracketCounter++;
+                            break;
+
+                        case ')':
+                            closeBracketCounter++;
+                            break;
+                    }
+                    
+                    //countung depth
+                    if (text[i] == '(')
+                    {
+                            depth++;
+                    }
+
+                    //countung complete insideBrackets
+                    if (text[i] == '(' && text[i + 1] == ')')
+                    {
+                        insideBracket++;
+                    }
+
+                    //correct or incorrect expression
+                    correctExpresion = openBracketCounter - closeBracketCounter;
+                    if (correctExpresion == 0)
+                    {
+                        isCorrectExpression = true;
+                    }
+                    else if (correctExpresion > 0 || correctExpresion < 0)
+                    {
+                        isCorrectExpression = false;
+                    }
+
+                }
+
+                if (isCorrectExpression == true)
+                {
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.WriteLine(text + " bracket expression is correct");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.WriteLine($"There is {--openBracketCounter} bracket embeddings inside");
+
+                    if (insideBracket > 1)
+                    {
+                        Console.WriteLine($"{insideBracket} empty inside brackets detected. Real depth is {depth -= insideBracket - 1}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"There was {insideBracket} empty inside bracket(s)");
+                        Console.Write($"{depth} bracket depth\n");
+                    }
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine(text + " bracket expression is incorrect\n");
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+
+            
+        }
+    }
+}
+
+//if (openBracketCounter == closeBracketCounter && text[0] == '(' && text[text.Length - 1] == ')')
+//{
+//isCorrectExpression = true;
+//}
+
+
+//if (text[i] == '(' || i + 1 < text.Length)
+//{
+    //if (text[i + 1] != ')')
+    //{
+       // depth++;
+   // }
+//}
