@@ -6,23 +6,6 @@ namespace _170000Courses
     {
         static void Main(string[] args)
         {
-
-            // 1(  2(  3()3   )2   2()2   )1
-            // ( () (()) )
-            // ( ( ) ) ( ( ) )
-
-            // инсайд при открытии скобки
-            // считать инсайд скобки и общее количество скобок. когда общее количество скобок становится 0 то выходить из инсайд
-            // проверять истинность по общему количеству скобок равному нулю
-            // считать временную глубину при каждой закрытой скобке, обнулять при выходе из инсайд (нулевом общем количестве скобок), обнулять при нулевом внутреннем количестве скобок
-            // если общее количество скобок когда либо падает ниже нуля и в конце не ноль то выражение не корректное
-
-            //прибавлять к счетчику глубины с каждой открывающей
-            // один счетчику: + с открывающей - с закрывающей. когда 0 открывать новый счетчик +1. если 0 повторяется больше одного раза (новый счетчик 2 и больше) то высчитывать глубину по самому глубокому
-            // по достижению нуля присваивать глубину новой переменной, при достижении нового нуля сравнивать с предыдущим значением переписывать если выше
-
-            //entering inside || counting overall Brackets
-
             string text;
 
             int depthTemp = 0;
@@ -56,7 +39,7 @@ namespace _170000Courses
                 }
 
                 //counting inside Brackets
-                if (isInside == true && justEntered != true) //here was check on last sym
+                if (isInside == true && justEntered != true) 
                 {
                     switch (text[i])
                     {
@@ -75,7 +58,7 @@ namespace _170000Courses
                 }
 
                 //getting out completely and counting depth
-                if (overallBrackets == 0) //here was check on last sym
+                if (overallBrackets == 0) 
                 {
                     isInside = false;
                     haveOpening = false;
@@ -86,7 +69,7 @@ namespace _170000Courses
                     depthTemp = 0;
                 }
 
-                //getting out expresion inside and couting depth
+                //getting out expresion's inside and couting depth
                 if (justEntered != true && insideBrackets == 0)
                 {
                     haveOpening = false;
