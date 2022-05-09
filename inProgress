@@ -1,8 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace _170000Courses
 {
@@ -16,30 +12,34 @@ namespace _170000Courses
             int champSelection;
             bool isChampSelected = false;
             string playerChamp = "";
-            string enemyChamp = "";
+            string enemyChamp = "Azir";
             string lockIn = "no";
             string abilitySelection = "";
 
 
             string playerAbilities = "";
             string ahriAbilities = "Ahri abilities:" +
-                            "\n(Q) ORB OF DECEPTION:: Deal 3 Damage. Then deal 5 more damage;" +
-                            "\n(W) FOX FIRE: Deal 3+3+3 damage next round" +
-                            "\n(E) CHARM: Seduces enemy. Enemy takes triple the damage next round. Enemy skips next round" +
-                            "\n(R) SPIRIT RUSH: Ignores next damage. Deal 3 damage";
+                            "\n(Q) ORB OF DECEPTION:: Deal 3 Damage. Then deal 5 more damage. Add stack of spirits help" +
+                            "\n(W) FOX FIRE: Deal 3+3+3 damage next round. Add stack of spirits help in the end of the round" +
+                            "\n(E) CHARM: Seduces enemy. Enemy takes triple the damage next round. Enemy skips next round. Add stack of spirits help" +
+                            "\n(R) SPIRIT RUSH: If atleast 3 stacks of spirits help is active: ignores next damage, deal 5 damage and spends 3 stacks. Else adds 2 stacks of spirits help";
             string azirAbilities = "Azir abilities:" +
                             "\n(Q) CONQUERING SANDS: All soldiers deal 8 damage" +
                             "\n(W) ARISE!: Summon a Soldier" +
                             "\n(E) SHIFTING SANDS: Atleast 1 soldier has to be on the battle. Heals for 10 damage. All soldiers deal 4 damage. Can't be used next 3 rounds" +
-                            "\n(R) EMPEROR'S DEVIDE: Deal 10 damage. Stun enemy for 2 rounds";
+                            "\n(R) EMPEROR'S DEVIDE: Deal 10 damage. Stun enemy for 2 rounds" +
+                            "\n BUT AZIR IS NOT READY SO DON'T PICK HIM OR YOU'll BREAK EVERYTHING";
 
             int enemyHP = 0;
             int playerHP = 0;
 
-            int round = 1;
+            int round = 0;
 
             bool isFoxFireActive = false;
             bool isCharmActive = false;
+            bool isIgnoreActive = false;
+            int spiritsHelp = 0;
+            int spiritHelpRequirement = 3;
             string ability = "";
             string abilityEffect = "";
             int dmg = 0;
@@ -48,6 +48,18 @@ namespace _170000Courses
             string wAbility = "";
             string eAbility = "";
             string rAbility = "";
+
+            int qAbilityDmg1 = 0;
+            int qAbilityDmg2 = 0;
+            int wAbilityDmg = 0;
+            int eAbilityDmg = 0;
+            int eAbilityMP = 0;
+            int rAbilityDmg = 0;
+
+            int enemyAbility = 0;
+
+            Random random = new Random();
+            enemyAbility = random.Next(1, 5);
 
             while (isChampSelected != true)
             {
@@ -87,23 +99,7 @@ namespace _170000Courses
                     isChampSelected = true;
                 }
             }
-                
-            Console.WriteLine("CHOOSE YOUR OPPONENT:" +
-                    "\n1. Ahri" +
-                    "\n2. Azir");
-            champSelection = Convert.ToInt32(Console.ReadLine());
-            switch (champSelection)
-            {
-                case 1:
-                    enemyChamp = "Ahri";
-                    break;
-                case 2:
-                    enemyChamp = "Azir";
-                    break;
-                default:
-                    Console.WriteLine("Error 404. Champion not Found. Close the Program");
-                    break;
-            }
+
             Console.WriteLine($"Your opponent is {enemyChamp}");
 
             switch (enemyChamp) //enemy HP
@@ -122,9 +118,14 @@ namespace _170000Courses
                     playerHP = ahriHP;
                     playerAbilities = ahriAbilities;
                     qAbility = "ORB OF DECEPTION (Q)";
+                    qAbilityDmg1 = 3;
+                    qAbilityDmg2 = 5;
                     wAbility = "FOX FIRE (W)";
+                    wAbilityDmg = 3;
                     eAbility = "CHARM (E)";
+                    eAbilityMP = 3;
                     rAbility = "SPIRIT RUSH (R)";
+                    rAbilityDmg = 5;
                     break;
                 case "Azir":
                     playerHP = azirHP;
@@ -136,16 +137,16 @@ namespace _170000Courses
                     break;
             }
 
-            while (enemyHP >= 0 & playerHP >= 0)
+            while (enemyHP > 0 & playerHP > 0)
             {
 
                 //intro
                 Console.ForegroundColor = ConsoleColor.Blue;
-                Console.WriteLine($"\nRound {round++}");
+                Console.WriteLine($"\nRound {++round}");
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine($"Your HP: {playerHP}");
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"{enemyChamp} HP: {enemyHP}");
+                Console.WriteLine($"Enemy {enemyChamp} HP: {enemyHP}");
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.WriteLine(playerAbilities);
                 Console.ForegroundColor = ConsoleColor.Yellow;
@@ -164,43 +165,67 @@ namespace _170000Courses
                         case "q":
                             if (isCharmActive == true)
                             {
+                                spiritsHelp += 1;
                                 Console.ForegroundColor = ConsoleColor.Red;
-                                enemyHP -= 3*3;
-                                Console.WriteLine($"{qAbility} deals 6 damage to {enemyChamp}. Because {eAbility} is active");
+                                enemyHP -= qAbilityDmg1 * eAbilityMP;
+                                Console.WriteLine($"{qAbility} deals {qAbilityDmg1 * eAbilityMP} damage to enemy {enemyChamp}. Because {eAbility} is active. Stack of {rAbility} is gained. Total stacks: {spiritsHelp}");
                                 Console.ForegroundColor = ConsoleColor.White;
 
-                                Console.WriteLine($"{enemyChamp} HP: {enemyHP}");
+                                Console.WriteLine($"Enemy {enemyChamp} HP: {enemyHP}");
 
                                 Console.ForegroundColor = ConsoleColor.Red;
-                                enemyHP -= 5*3;
-                                Console.WriteLine($"{qAbility} deals 10 damage to {enemyChamp}. Because {eAbility} is active");
+                                enemyHP -= qAbilityDmg2 * eAbilityMP;
+                                Console.WriteLine($"{qAbility} deals {qAbilityDmg1 * eAbilityMP} damage to enemy {enemyChamp}. Because {eAbility} is active. Stack of {rAbility} is gained. Total stacks: {spiritsHelp}");
                                 Console.ForegroundColor = ConsoleColor.White;
-                                isCharmActive = false;
                             }
                             else
                             {
+                                spiritsHelp += 1;
                                 Console.ForegroundColor = ConsoleColor.Red;
-                                enemyHP -= 3;
-                                Console.WriteLine($"{qAbility} deals 3 damage to {enemyChamp}");
+                                enemyHP -= qAbilityDmg1;
+                                Console.WriteLine($"{qAbility} deals {qAbilityDmg1} damage to enemy {enemyChamp}. Stack of {rAbility} is gained. Total stacks: {spiritsHelp}");
                                 Console.ForegroundColor = ConsoleColor.White;
 
-                                Console.WriteLine($"{enemyChamp} HP: {enemyHP}");
+                                Console.WriteLine($"Enemy {enemyChamp} HP: {enemyHP}");
 
                                 Console.ForegroundColor = ConsoleColor.Red;
-                                enemyHP -= 5;
-                                Console.WriteLine($"{qAbility} deals 5 damage to {enemyChamp}");
+                                enemyHP -= qAbilityDmg2;
+                                Console.WriteLine($"{qAbility} deals {qAbilityDmg2} damage to enemy {enemyChamp}. Stack of {rAbility} is gained. Total stacks: {spiritsHelp}");
                                 Console.ForegroundColor = ConsoleColor.White;
                             }
                             break;
                         case "w":
                             isFoxFireActive = true;
-                            Console.WriteLine($"{wAbility} is active");
+                            Console.WriteLine($"{wAbility} is active on {playerChamp}");
                             break;
                         case "e":
                             isCharmActive = true;
                             Console.WriteLine($"{eAbility} is active on {enemyChamp}");
                             break;
                         case "r":
+                            if (spiritsHelp >= spiritHelpRequirement)
+                            {
+                                spiritsHelp -= spiritHelpRequirement;
+                                enemyHP -= rAbilityDmg;
+                                isIgnoreActive = true;
+                                Console.ForegroundColor = ConsoleColor.Magenta;
+                                Console.WriteLine($"{playerChamp} uses {rAbility} and loses {spiritHelpRequirement} stacks of {rAbility}");
+                                Console.ForegroundColor = ConsoleColor.White;
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine($"{rAbility} deals {rAbilityDmg} damage to enemy {enemyChamp}");
+                                Console.ForegroundColor = ConsoleColor.White;
+                                Console.ForegroundColor = ConsoleColor.Blue;
+                                Console.WriteLine($"{rAbility} is active on {playerChamp}");
+                                Console.ForegroundColor = ConsoleColor.White;
+
+                            }
+                            else
+                            {
+                                spiritsHelp += 2;
+                                Console.ForegroundColor = ConsoleColor.Green;
+                                Console.WriteLine($"{playerChamp} uses {rAbility} Because there is less then {spiritHelpRequirement} stacks 2 of {rAbility} is gained. Total stacks: {spiritsHelp}");
+                                Console.ForegroundColor = ConsoleColor.White;
+                            }
                             break;
                     }
                 }
@@ -224,9 +249,43 @@ namespace _170000Courses
 
                 //enemy turn
                 Console.ForegroundColor = ConsoleColor.Red;
-                playerHP -= 5;
-                Console.WriteLine($"{playerAbilities} deals 5 damage");
-                Console.ForegroundColor = ConsoleColor.White;
+                if (enemyChamp == "Azir")
+                {
+                    switch (enemyAbility)
+                    {
+                        case 1:
+                            playerHP -= 5;
+                            Console.ForegroundColor= ConsoleColor.Red;
+                            Console.BackgroundColor = ConsoleColor.DarkGray;
+                            Console.WriteLine($"{enemyChamp} uses {qAbility} and deals 5 damage to {playerChamp}");
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.BackgroundColor = ConsoleColor.DarkGray;
+                            break;
+                        case 2:
+                            playerHP -= 7;
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.BackgroundColor = ConsoleColor.DarkGray;
+                            Console.WriteLine($"{enemyChamp} uses {wAbility} and deals 7 damage to {playerChamp}");
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.BackgroundColor = ConsoleColor.DarkGray;
+                            break;
+                        case 3:
+                            playerHP -= 4;
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.BackgroundColor = ConsoleColor.DarkGray;
+                            Console.WriteLine($"{enemyChamp} uses {eAbility} and deals 5 damage to {playerChamp}");
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.BackgroundColor = ConsoleColor.DarkGray;
+                            break;
+                        case 4:
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.BackgroundColor = ConsoleColor.DarkGray;
+                            Console.WriteLine($"{enemyChamp} uses {rAbility} but for some reason it doesn't work. Lucky you");
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.BackgroundColor = ConsoleColor.DarkGray;
+                            break;
+                    }
+                }
 
                 //dots
                 if (isFoxFireActive == true)
@@ -234,22 +293,27 @@ namespace _170000Courses
                     if (isCharmActive == true)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        enemyHP -= 3*3;
+                        enemyHP -= 3 * 3;
                         Console.WriteLine($"{wAbility} deals 6 damage to {enemyChamp}. Because {eAbility} is active");
                         Console.ForegroundColor = ConsoleColor.White;
 
                         Console.WriteLine($"{enemyChamp} HP: {enemyHP}");
 
                         Console.ForegroundColor = ConsoleColor.Red;
-                        enemyHP -= 3*3;
+                        enemyHP -= 3 * 3;
                         Console.WriteLine($"{wAbility} deals 6 damage to {enemyChamp}. Because {eAbility} is active");
                         Console.ForegroundColor = ConsoleColor.White;
 
                         Console.WriteLine($"{enemyChamp} HP: {enemyHP}");
 
                         Console.ForegroundColor = ConsoleColor.Red;
-                        enemyHP -= 3*3;
+                        enemyHP -= 3 * 3;
                         Console.WriteLine($"{wAbility} deals 6 damage to {enemyChamp}. Because {eAbility} is active");
+                        Console.ForegroundColor = ConsoleColor.White;
+
+                        spiritsHelp += 1;
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.WriteLine($"Stack of {rAbility} is gained. Total stacks: {spiritsHelp}");
                         Console.ForegroundColor = ConsoleColor.White;
 
                         Console.WriteLine($"{enemyChamp} HP: {enemyHP}");
@@ -276,7 +340,18 @@ namespace _170000Courses
                         Console.WriteLine($"{wAbility} deals 3 damage to {enemyChamp}");
                         Console.ForegroundColor = ConsoleColor.White;
 
+                        spiritsHelp += 1;
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.WriteLine($"Stack of {rAbility} is gained. Total stacks: {spiritsHelp}");
+                        Console.ForegroundColor = ConsoleColor.White;
+
                         Console.WriteLine($"{enemyChamp} HP: {enemyHP}");
+                    }
+
+                    //effects time out
+                    if (isCharmActive)
+                    {
+                        isChampSelected = false;
                     }
                 }
             }
@@ -288,7 +363,7 @@ namespace _170000Courses
             {
                 Console.WriteLine($"Enemy {enemyChamp} has won the battle");
             }
-            else if (enemyHP <= 0 || playerHP <= 0)
+            else if (enemyHP < 0 || playerHP < 0)
             {
                 Console.WriteLine("Everybody Loses");
             }
