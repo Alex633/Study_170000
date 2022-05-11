@@ -79,7 +79,6 @@ namespace _170000Courses
             string wAbilityEnemy = "";
             string eAbilityEnemy = "";
             string rAbilityEnemy = "";
-            string stacksEnemy = "";
 
             //enemy effects
             int eAbilityRequirmentEnemy = 1;
@@ -645,5 +644,4 @@ namespace _170000Courses
             }
         }
     }
-}
 }
