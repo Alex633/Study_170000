@@ -137,13 +137,13 @@ namespace _170000Courses
                     $"1. English\n" +
                     $"2. Russian.");
                 localization = Convert.ToInt32(Console.ReadLine());
-                if (localization == 0 || localization == 1)
+                if (localization == 1 || localization == 2)
                 {
                     isLocalizationSelected = true;
                 }
-                else
+                if (isLocalizationSelected != true)
                 {
-                    Console.WriteLine("This language is still in the development. Select one listed below.");
+                    Console.WriteLine("This language is still in the development. Select one listed before.");
                 }
                 Console.Clear();
             }
@@ -214,7 +214,7 @@ namespace _170000Courses
                         Console.WriteLine($"WELCOME TO THE SUMMONERS RIFT");
                         Console.WriteLine($"Round {round}");
                         Console.ForegroundColor = ConsoleColor.DarkBlue;
-                        Console.WriteLine($"Your HP: {playerHP}");
+                        Console.WriteLine($"Ваши очки здоровья: {playerHP}");
                         Console.ForegroundColor = ConsoleColor.DarkMagenta;
                         Console.WriteLine($"Enemy {enemyChamp} HP: {enemyHP}");
                         Console.ForegroundColor = ConsoleColor.White;
@@ -260,7 +260,7 @@ namespace _170000Courses
                                     Console.ForegroundColor = ConsoleColor.White;
 
                                     Console.ForegroundColor = ConsoleColor.DarkBlue;
-                                    Console.WriteLine($"Your HP: {playerHP}");
+                                    Console.WriteLine($"Ваши очки здоровья: {playerHP}");
                                     Console.ForegroundColor = ConsoleColor.White;
 
                                     playerHP += (qAbilityDmg2 * eAbilityMP) * 2;
@@ -275,7 +275,7 @@ namespace _170000Courses
                                     Console.ForegroundColor = ConsoleColor.White;
 
                                     Console.ForegroundColor = ConsoleColor.DarkBlue;
-                                    Console.WriteLine($"Your HP: {playerHP}");
+                                    Console.WriteLine($"Ваши очки здоровья: {playerHP}");
                                     Console.ForegroundColor = ConsoleColor.White;
 
                                     Console.ForegroundColor = ConsoleColor.Magenta;
@@ -320,7 +320,7 @@ namespace _170000Courses
                                     Console.ForegroundColor = ConsoleColor.White;
 
                                     Console.ForegroundColor = ConsoleColor.DarkBlue;
-                                    Console.WriteLine($"Your HP: {playerHP}");
+                                    Console.WriteLine($"Ваши очки здоровья: {playerHP}");
                                     Console.ForegroundColor = ConsoleColor.White;
 
                                     playerHP += qAbilityDmg2 * 2;
@@ -335,7 +335,7 @@ namespace _170000Courses
                                     Console.ForegroundColor = ConsoleColor.White;
 
                                     Console.ForegroundColor = ConsoleColor.DarkBlue;
-                                    Console.WriteLine($"Your HP: {playerHP}");
+                                    Console.WriteLine($"Ваши очки здоровья: {playerHP}");
                                     Console.ForegroundColor = ConsoleColor.White;
 
                                     Console.ForegroundColor = ConsoleColor.Magenta;
@@ -496,7 +496,7 @@ namespace _170000Courses
                                     Console.WriteLine($"{enemyChamp} uses {eAbilityEnemy}. He heals for {rAbilityHealEnemy} HP. {eAbilityEnemy} is on cooldown for {eAbilityCDEnemy}");
                                     Console.ForegroundColor = ConsoleColor.White;
                                     Console.ForegroundColor = ConsoleColor.DarkBlue;
-                                    Console.WriteLine($"Your HP: {playerHP}");
+                                    Console.WriteLine($"Ваши очки здоровья: {playerHP}");
                                     Console.ForegroundColor = ConsoleColor.White;
                                 }
                                 else if (soldiers >= rAbilityRequirementEnemy)
@@ -754,6 +754,616 @@ namespace _170000Courses
                 Console.BackgroundColor = ConsoleColor.DarkBlue;
                 Console.WriteLine("You Won");
                 Console.BackgroundColor = ConsoleColor.Black;
+            }
+            else if (localization == 2)
+            {
+                //russian ------------------------------------------------------------------------
+                //--------------------------------------------------------------------------------
+                {
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    string love = "Nika";
+                    Console.WriteLine($"Добро пожаловать, {love}\n");
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                    //champion select
+                    while (isChampSelected != true)
+                    {
+                        Console.WriteLine("Выберите чемпиона:" +
+                            "\n1. Ahri" +
+                            "\n2. Azir");
+
+                        champSelection = Convert.ToInt32(Console.ReadLine());
+                        switch (champSelection)
+                        {
+                            case 1:
+                                playerChamp = "Ahri";
+                                break;
+                            case 2:
+                                playerChamp = "Azir";
+                                break;
+                            default:
+                                Console.WriteLine("Ошибка 404. Чемпион не найден. Закройте программу");
+                                break;
+                        }
+
+                        switch (playerChamp)
+                        {
+                            case "Ahri":
+                                Console.WriteLine(ahriAbilitiesEN);
+                                break;
+                            case "Azir":
+                                Console.WriteLine(azirAbilitiesEN);
+                                break;
+                        }
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine("Выбрать чемпиона (y or n)?");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        lockIn = Console.ReadLine();
+                        if (lockIn == "y")
+                        {
+                            isChampSelected = true;
+                        }
+                    }
+
+                    enemyChamp = "Azir";
+                    Console.WriteLine($"Ваш соперник {enemyChamp}");
+
+                    Console.Clear();
+
+                    while (enemyHP > 0 && playerHP > 0)
+                    {
+                        Random random = new Random();
+                        enemyAbility = random.Next(1, 5);
+
+                        //first intro
+                        if (round == 0)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+                            round++;
+                            Console.WriteLine($"Добро пожаловать в ущелье призывателей");
+                            Console.WriteLine($"Раунд {round}");
+                            Console.ForegroundColor = ConsoleColor.DarkBlue;
+                            Console.WriteLine($"Ваши ОЗ: {playerHP}");
+                            Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                            Console.WriteLine($"Враг: {enemyChamp} ОЗ: {enemyHP}");
+                            Console.ForegroundColor = ConsoleColor.White;
+                        }
+
+                        Console.WriteLine(playerAbilities);
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine("\nВыберите умение:");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        abilitySelection = Console.ReadLine();
+                        Console.Clear();
+
+                        if (playerHP <= 0)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+                            Console.WriteLine("Вы умираете. Только не это...");
+                            Console.ForegroundColor = ConsoleColor.White;
+                            break;
+                        }
+
+                        //player turn
+                        Console.ForegroundColor = ConsoleColor.Blue;
+                        Console.WriteLine("История:");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        if (playerChamp == "Ahri")
+                        {
+                            switch (abilitySelection)
+                            {
+                                default:
+                                    Console.WriteLine("Умение не найдено. Вы пропускаете ход, Ника");
+                                    break;
+                                case "q":
+                                    if (isCharmActive == true && spiritsHelp >= 2)
+                                    {
+                                        playerHP += (qAbilityDmg1 * eAbilityMP) * 2;
+                                        if (playerHP > ahriHP)
+                                        {
+                                            playerHP = ahriHP;
+                                        }
+
+                                        Console.ForegroundColor = ConsoleColor.DarkGreen;
+                                        Console.WriteLine($"{qAbility} лечит {(qAbilityDmg1 * eAbilityMP)} (Потому что {eAbility} активно.)");
+                                        Console.ForegroundColor = ConsoleColor.White;
+
+                                        Console.ForegroundColor = ConsoleColor.DarkBlue;
+                                        Console.WriteLine($"Ваше ОЗ: {playerHP}");
+                                        Console.ForegroundColor = ConsoleColor.White;
+
+                                        playerHP += (qAbilityDmg2 * eAbilityMP) * 2;
+                                        if (playerHP > ahriHP)
+                                        {
+                                            playerHP = ahriHP;
+                                        }
+                                        spiritsHelp -= qAbilityStacks;
+
+                                        Console.ForegroundColor = ConsoleColor.DarkGreen;
+                                        Console.WriteLine($"{qAbility} лечит {(qAbilityDmg2 * eAbilityMP)} (Потому что {eAbility} активно)");
+                                        Console.ForegroundColor = ConsoleColor.White;
+
+                                        Console.ForegroundColor = ConsoleColor.DarkBlue;
+                                        Console.WriteLine($"Ваши ОЗ: {playerHP}");
+                                        Console.ForegroundColor = ConsoleColor.White;
+
+                                        Console.ForegroundColor = ConsoleColor.Magenta;
+                                        Console.WriteLine($"{qAbilityStacks} духов {stacks} потрачено. Всего духов: {spiritsHelp}");
+                                        Console.ForegroundColor = ConsoleColor.White;
+                                    }
+                                    else if (isCharmActive == true)
+                                    {
+                                        spiritsHelp += qAbilityStacks;
+                                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                                        enemyHP -= qAbilityDmg1 * eAbilityMP;
+                                        Console.WriteLine($"{qAbility} наносит {qAbilityDmg1 * eAbilityMP} урона врагу {enemyChamp} (Потому что {eAbility} активно.");
+                                        Console.ForegroundColor = ConsoleColor.White;
+
+                                        Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                                        Console.WriteLine($"Враг {enemyChamp} ОЗ: {enemyHP}");
+                                        Console.ForegroundColor = ConsoleColor.White;
+
+                                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                                        enemyHP -= qAbilityDmg2 * eAbilityMP;
+                                        Console.WriteLine($"{qAbility} наносит {qAbilityDmg2 * eAbilityMP} урона врагу {enemyChamp} (Потому что {eAbility} активно.");
+                                        Console.ForegroundColor = ConsoleColor.White;
+
+                                        Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                                        Console.WriteLine($"Враг {enemyChamp} ОЗ: {enemyHP}");
+                                        Console.ForegroundColor = ConsoleColor.White;
+
+                                        Console.ForegroundColor = ConsoleColor.Blue;
+                                        Console.WriteLine($"{qAbilityStacks} духов {stacks} получено. Всего духов: {spiritsHelp}");
+                                        Console.ForegroundColor = ConsoleColor.White;
+                                    }
+                                    else if (spiritsHelp >= 2)
+                                    {
+                                        playerHP += qAbilityDmg1 * 2;
+                                        if (playerHP > ahriHP)
+                                        {
+                                            playerHP = ahriHP;
+                                        }
+
+                                        Console.ForegroundColor = ConsoleColor.Green;
+                                        Console.WriteLine($"{qAbility} лечит {qAbilityDmg1}.");
+                                        Console.ForegroundColor = ConsoleColor.White;
+
+                                        Console.ForegroundColor = ConsoleColor.DarkBlue;
+                                        Console.WriteLine($"Ваше ОЗ: {playerHP}");
+                                        Console.ForegroundColor = ConsoleColor.White;
+
+                                        playerHP += qAbilityDmg2 * 2;
+                                        if (playerHP > ahriHP)
+                                        {
+                                            playerHP = ahriHP;
+                                        }
+                                        spiritsHelp -= qAbilityStacks;
+
+                                        Console.ForegroundColor = ConsoleColor.Green;
+                                        Console.WriteLine($"{qAbility} лечит {qAbilityDmg2}.");
+                                        Console.ForegroundColor = ConsoleColor.White;
+
+                                        Console.ForegroundColor = ConsoleColor.DarkBlue;
+                                        Console.WriteLine($"Ваше ОЗ: {playerHP}");
+                                        Console.ForegroundColor = ConsoleColor.White;
+
+                                        Console.ForegroundColor = ConsoleColor.Magenta;
+                                        Console.WriteLine($"{qAbilityStacks} духов {stacks} потрачено. Всего духов: {spiritsHelp}");
+                                        Console.ForegroundColor = ConsoleColor.White;
+                                    }
+                                    else
+                                    {
+                                        spiritsHelp += qAbilityStacks;
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        enemyHP -= qAbilityDmg1;
+                                        Console.WriteLine($"{qAbility} наносит {qAbilityDmg1} урона врагу {enemyChamp}.");
+                                        Console.ForegroundColor = ConsoleColor.White;
+
+                                        Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                                        Console.WriteLine($"Враг {enemyChamp} ОЗ: {enemyHP}");
+                                        Console.ForegroundColor = ConsoleColor.White;
+
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        enemyHP -= qAbilityDmg2;
+                                        Console.WriteLine($"{qAbility} наносит {qAbilityDmg2} урона врагу {enemyChamp}.");
+                                        Console.ForegroundColor = ConsoleColor.White;
+
+                                        Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                                        Console.WriteLine($"Враг {enemyChamp} ОЗ: {enemyHP}");
+                                        Console.ForegroundColor = ConsoleColor.White;
+
+                                        Console.ForegroundColor = ConsoleColor.Blue;
+                                        Console.WriteLine($"{qAbilityStacks} духов {stacks} получено. Всего духов: {spiritsHelp}");
+                                        Console.ForegroundColor = ConsoleColor.White;
+                                    }
+                                    break;
+                                case "w":
+                                    wTimer = round + 1;
+                                    isFoxFireActive = true;
+                                    Console.ForegroundColor = ConsoleColor.Blue;
+                                    Console.WriteLine($"{wAbility} активен на {playerChamp}");
+                                    Console.ForegroundColor = ConsoleColor.White;
+                                    break;
+                                case "e":
+                                    eTimer = round + 1;
+                                    isCharmActive = true;
+                                    Console.ForegroundColor = ConsoleColor.Magenta;
+                                    Console.WriteLine($"{eAbility} активен на {enemyChamp}");
+                                    Console.ForegroundColor = ConsoleColor.White;
+                                    break;
+                                case "r":
+                                    if (spiritsHelp >= rAbilityRequirement && rAbilityCD == 0)
+                                    {
+                                        if (isCharmActive == true)
+                                        {
+                                            rAbilityCD = rAbilityMaxCD;
+                                            spiritsHelp -= rAbilityRequirement;
+                                            enemyHP -= rAbilityDmg * eAbilityMP;
+                                            isSecondTurnActive = true;
+                                            Console.ForegroundColor = ConsoleColor.Magenta;
+                                            Console.WriteLine($"{playerChamp} использует {rAbility} и тратит {rAbilityRequirement} духов {rAbility}. {rAbility} нельзя использовать в течении {rAbilityCD}");
+                                            Console.ForegroundColor = ConsoleColor.White;
+                                            Console.ForegroundColor = ConsoleColor.Red;
+                                            Console.WriteLine($"{rAbility} наносит {rAbilityDmg * eAbilityMP} урона врагу {enemyChamp}");
+                                            Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                                            Console.WriteLine($"Враг {enemyChamp} ОЗ: {enemyHP}");
+                                            Console.ForegroundColor = ConsoleColor.White;
+                                            Console.ForegroundColor = ConsoleColor.White;
+                                            Console.ForegroundColor = ConsoleColor.Blue;
+                                            Console.WriteLine($"{rAbility} активен на {playerChamp}");
+                                            Console.ForegroundColor = ConsoleColor.White;
+                                        }
+                                        else
+                                        {
+                                            rAbilityCD = rAbilityMaxCD;
+                                            spiritsHelp -= rAbilityRequirement;
+                                            enemyHP -= rAbilityDmg;
+                                            isSecondTurnActive = true;
+                                            Console.ForegroundColor = ConsoleColor.Magenta;
+                                            Console.WriteLine($"{playerChamp} использует  {rAbility} и тратит {rAbilityRequirement} духов {rAbility}. {rAbility} нельзя использовать в течении {rAbilityCD}");
+                                            Console.ForegroundColor = ConsoleColor.White;
+                                            Console.ForegroundColor = ConsoleColor.Red;
+                                            Console.WriteLine($"{rAbility} наносит {rAbilityDmg} урона врагу {enemyChamp}");
+                                            Console.ForegroundColor = ConsoleColor.White;
+                                            Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                                            Console.WriteLine($"Враг {enemyChamp} ОЗ: {enemyHP}");
+                                            Console.ForegroundColor = ConsoleColor.White;
+                                            Console.ForegroundColor = ConsoleColor.Blue;
+                                            Console.WriteLine($"{rAbility} активен на {playerChamp}");
+                                            Console.ForegroundColor = ConsoleColor.White;
+                                        }
+                                    }
+                                    else if (spiritsHelp < rAbilityRequirement && rAbilityCD == 0)
+                                    {
+                                        rAbilityCD = rAbilityMaxCD;
+                                        spiritsHelp += rAbilityStacks + 2;
+                                        Console.ForegroundColor = ConsoleColor.Blue;
+                                        Console.WriteLine($"{playerChamp} использует {rAbility} Потому что духов меньше, чем необходимо ({rAbilityRequirement}) - {rAbilityStacks + 2} из {stacks} духов получено. Получено: {spiritsHelp}. {rAbility} нельзя использовать в течении {rAbilityCD}");
+                                        Console.ForegroundColor = ConsoleColor.White;
+
+                                    }
+                                    else if (rAbilityCD > 0)
+                                    {
+                                        spiritsHelp += 1;
+                                        Console.ForegroundColor = ConsoleColor.Blue;
+                                        Console.WriteLine($"{playerChamp} использует {rAbility} нельзя использовать ({rAbilityCD} раундов осталось) {rAbilityStacks - 1} духов {stacks} получено. Хотя бы что-то, верно? Всего духов: {spiritsHelp}. Иельзя использовать по-прежнему в течении {rAbilityCD}");
+                                        Console.ForegroundColor = ConsoleColor.White;
+                                    }
+                                    break;
+                            }
+                        }
+                        else if (playerChamp == "Azir")
+                        {
+                            switch (abilitySelection)
+                            {
+                                default:
+                                    Console.WriteLine("Умение не найдено. Вы пропускаете свой ход");
+                                    break;
+                                case "q":
+                                    break;
+                                case "w":
+                                    break;
+                                case "e":
+                                    break;
+                                case "r":
+                                    break;
+                            }
+                        }
+
+                        if (enemyHP <= 0)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+                            Console.WriteLine($"{enemyChamp} издает свой последний вздох");
+                            Console.ForegroundColor = ConsoleColor.White;
+                            break;
+                        }
+
+                        //enemy turn
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.WriteLine("\n\nВражеский ход:");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        if (isSecondTurnActive != true)
+                        {
+                            if (isAzirDepressed)
+                            {
+                                Console.WriteLine($"{enemyChamp} по прежнему в депрессии");
+                                isAzirDepressed = false;
+                            }
+                            else
+                            {
+                                if (enemyChamp == "Azir")
+                                {
+                                    if (enemyHP <= healThreshold && eAbilityCDEnemy == 0)
+                                    {
+                                        eAbilityCDEnemy = eAbilityMaxCD;
+                                        enemyHP += rAbilityHealEnemy;
+                                        if (enemyHP > azirHP)
+                                        {
+                                            enemyHP = azirHP;
+                                        }
+                                        Console.ForegroundColor = ConsoleColor.Green;
+                                        Console.WriteLine($"{enemyChamp} использует {eAbilityEnemy}. Он исцеляет себе {rAbilityHealEnemy} ОЗ. {eAbilityEnemy} нельзя использовать в течении {eAbilityCDEnemy}");
+                                        Console.ForegroundColor = ConsoleColor.White;
+                                        Console.ForegroundColor = ConsoleColor.DarkBlue;
+                                        Console.WriteLine($"Ваше ОЗ: {playerHP}");
+                                        Console.ForegroundColor = ConsoleColor.White;
+                                    }
+                                    else if (soldiers >= rAbilityRequirementEnemy)
+                                    {
+                                        playerHP -= rAbilityDmgEnemy * soldiers;
+                                        shurimaPower += 1;
+                                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                                        Console.WriteLine($"{enemyChamp} использует {rAbilityEnemy} и наносит {rAbilityDmgEnemy * soldiers}. Уфф... Azir потерял всех своих солдат, но теперь он стал сильнее и призывает {shurimaPower} солдат с помощью {wAbilityEnemy}");
+                                        Console.ForegroundColor = ConsoleColor.White;
+                                        Console.ForegroundColor = ConsoleColor.Blue;
+                                        Console.WriteLine($"Ваше ОЗ: {playerHP}");
+                                        Console.ForegroundColor = ConsoleColor.White;
+                                        soldiers = 0;
+                                    }
+                                    else
+                                    {
+                                        switch (enemyAbility)
+                                        {
+                                            case 1:
+                                                if (soldiers >= 1)
+                                                {
+                                                    playerHP -= qAbilityDmgEnemy * soldiers;
+                                                    Console.ForegroundColor = ConsoleColor.Red;
+                                                    Console.WriteLine($"{enemyChamp} использует {qAbilityEnemy} и наносит {qAbilityDmgEnemy * soldiers} урона {playerChamp}. Потому что сейчас {soldiers} солдат(а/ов)");
+                                                    Console.ForegroundColor = ConsoleColor.White;
+                                                    Console.ForegroundColor = ConsoleColor.DarkBlue;
+                                                    Console.WriteLine($"Ваше ОЗ: {playerHP}");
+                                                    Console.ForegroundColor = ConsoleColor.White;
+                                                }
+                                                else
+                                                {
+                                                    playerHP -= 1;
+                                                    Console.ForegroundColor = ConsoleColor.Red;
+                                                    Console.WriteLine($"{enemyChamp} использует {qAbilityEnemy} но затем понимает, что у него нет солдат. Поэтому вместо этого он бьет вас своей палкой (1 урон)");
+                                                    Console.ForegroundColor = ConsoleColor.White;
+                                                    Console.ForegroundColor = ConsoleColor.DarkBlue;
+                                                    Console.WriteLine($"Ваше ОЗ: {playerHP}");
+                                                    Console.ForegroundColor = ConsoleColor.White;
+                                                }
+                                                break;
+                                            case 2:
+                                                soldiers += shurimaPower;
+                                                Console.ForegroundColor = ConsoleColor.Blue;
+                                                Console.WriteLine($"{enemyChamp} использует {wAbilityEnemy} и призывает {shurimaPower} солдат. Теперь у него {soldiers} солдат(а/ов)");
+                                                Console.ForegroundColor = ConsoleColor.White;
+                                                break;
+                                            case 3:
+                                                if (spiritsHelp > 0)
+                                                {
+                                                    spiritsHelp -= 1;
+                                                    Console.ForegroundColor = ConsoleColor.Magenta;
+                                                    Console.WriteLine($"Azir говорит что-то невнятное о Шуриме. Один дух (ваши заряды) испугался и убежал :(. Теперь у вас {spiritsHelp} духов");
+                                                    Console.ForegroundColor = ConsoleColor.White;
+                                                }
+                                                else
+                                                {
+                                                    Console.WriteLine($"Azir говорит что-то невнятное о Шуриме. Вы не знаете, что ему ответить");
+                                                }
+                                                break;
+                                            case 4:
+                                                Console.ForegroundColor = ConsoleColor.Red;
+                                                Console.WriteLine($"{enemyChamp} использует {rAbilityEnemy} но потом он понимает, что у него не достаточно солдат, чтобы использовать {rAbilityEnemy} ({rAbilityRequirementEnemy} требуется солдат). " +
+                                                    $"Поэтому он передумывает и использует {qAbilityEnemy}");
+                                                if (soldiers >= 1)
+                                                {
+                                                    playerHP -= qAbilityDmgEnemy * soldiers;
+                                                    Console.ForegroundColor = ConsoleColor.Red;
+                                                    Console.WriteLine($"His {qAbilityEnemy} наносит {qAbilityDmgEnemy * soldiers} урона {playerChamp}. Потому что у него {soldiers} солдат");
+                                                    Console.ForegroundColor = ConsoleColor.White;
+                                                    Console.ForegroundColor = ConsoleColor.DarkBlue;
+                                                    Console.WriteLine($"Ваши ОЗ: {playerHP}");
+                                                    Console.ForegroundColor = ConsoleColor.White;
+                                                }
+                                                else
+                                                {
+                                                    isAzirDepressed = true;
+                                                    Console.ForegroundColor = ConsoleColor.Red;
+                                                    Console.WriteLine($"Но потом он понимает, что для этого у него также не достаточно солдат. Возможно сегодня просто не его день. Он впадает в депрессию и пропускает свой ход");
+                                                    Console.ForegroundColor = ConsoleColor.White;
+                                                    Console.ForegroundColor = ConsoleColor.DarkBlue;
+                                                    Console.WriteLine($"Ваши ОЗ: {playerHP}");
+                                                    Console.ForegroundColor = ConsoleColor.White;
+                                                }
+                                                break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Console.ForegroundColor = ConsoleColor.Magenta;
+                            Console.WriteLine($"{rAbility} активно. Враг {enemyChamp} пропускает свой ход");
+                            Console.ForegroundColor = ConsoleColor.White;
+                            if (isAzirDepressed)
+                            {
+                                Console.WriteLine($"Теперь {enemyChamp} даже еще сильнее впадает в депрессию. Зачем ты это делаешь? Он пропускает свой ход. Опять.");
+                            }
+                            isSecondTurnActive = false;
+                        }
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.WriteLine($"\nКонец раунда {round}");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine($"наужмите ENTER чтобы продолжить");
+                        Console.ForegroundColor = ConsoleColor.White;
+
+                        input = Console.ReadLine();
+                        Console.Clear();
+
+                        //intro
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        round++;
+                        Console.WriteLine($"Раунд {round}");
+                        Console.ForegroundColor = ConsoleColor.DarkBlue;
+                        Console.WriteLine($"Ваши ОЗ: {playerHP}");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.WriteLine($"Духов: {spiritsHelp}");
+                        Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                        Console.WriteLine($"Враг {enemyChamp} ОЗ: {enemyHP}");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.WriteLine($"Солдат: {soldiers}");
+
+                        //effect time out
+                        if (wTimer != round)
+                        {
+                            isFoxFireActive = false;
+                        }
+                        if (eTimer != round)
+                        {
+                            isCharmActive = false;
+                        }
+
+                        //Over time effects
+                        if (isFoxFireActive == true)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+                            Console.WriteLine("\n\nСтадия эффектов");
+                            Console.ForegroundColor = ConsoleColor.White;
+
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            enemyHP -= wAbilityDmg;
+                            Console.WriteLine($"{wAbility} наносит {wAbilityDmg} урона {enemyChamp}");
+                            Console.ForegroundColor = ConsoleColor.White;
+
+                            Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                            Console.WriteLine($"{enemyChamp} ОЗ: {enemyHP}");
+                            Console.ForegroundColor = ConsoleColor.White;
+
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            enemyHP -= wAbilityDmg;
+                            Console.WriteLine($"{wAbility} наносит {wAbilityDmg} урона {enemyChamp}");
+                            Console.ForegroundColor = ConsoleColor.White;
+
+                            Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                            Console.WriteLine($"{enemyChamp} ОЗ: {enemyHP}");
+                            Console.ForegroundColor = ConsoleColor.White;
+
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            enemyHP -= wAbilityDmg;
+                            Console.WriteLine($"{wAbility} наносит {wAbilityDmg} урона {enemyChamp}");
+                            Console.ForegroundColor = ConsoleColor.White;
+
+                            spiritsHelp += 1;
+                            Console.ForegroundColor = ConsoleColor.Blue;
+                            Console.WriteLine($"духов {stacks} получено. Всего духов: {spiritsHelp}");
+                            Console.ForegroundColor = ConsoleColor.White;
+
+                            Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                            Console.WriteLine($"{enemyChamp} ОЗ: {enemyHP}");
+                            Console.ForegroundColor = ConsoleColor.White;
+                        }
+
+                        Console.WriteLine("\n\n");
+
+
+                        //cooldowns
+                        if (eAbilityCDEnemy > 0)
+                        {
+                            eAbilityCDEnemy--;
+                            if (eAbilityCDEnemy == 0)
+                            {
+                                Console.ForegroundColor = ConsoleColor.Magenta;
+                                Console.WriteLine($"{eAbilityEnemy} готов");
+                                Console.ForegroundColor = ConsoleColor.White;
+                            }
+                            else
+                            {
+                                Console.WriteLine($"{enemyChamp} не может использовать {eAbilityEnemy} еще {eAbilityCDEnemy}");
+                            }
+
+                        }
+                        if (rAbilityCD > 0)
+                        {
+                            rAbilityCD--;
+                            if (rAbilityCD == 0)
+                            {
+                                Console.ForegroundColor = ConsoleColor.Blue;
+                                Console.WriteLine($"{rAbility} готово");
+                                Console.ForegroundColor = ConsoleColor.White;
+                            }
+                            else
+                            {
+                                Console.WriteLine($"Ваше {rAbility} нельзя использовать еще {rAbilityCD}");
+                            }
+                        }
+                        if (rAbilityCD > 0)
+                        {
+                            playerHP += rAbilityHeal;
+                            if (playerHP > ahriHP)
+                            {
+                                playerHP = ahriHP;
+                            }
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.WriteLine($"{rAbility} исцеляет тебя на {rAbilityHeal}");
+                            Console.ForegroundColor = ConsoleColor.White;
+                        }
+                        if (isCharmActive)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Magenta;
+                            Console.WriteLine($"{enemyChamp} очарован");
+                            Console.ForegroundColor = ConsoleColor.White;
+                        }
+                        if (playerHP <= 0)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+                            Console.WriteLine("Вы умираете. Только не это");
+                            Console.ForegroundColor = ConsoleColor.White;
+                        }
+                        if (enemyHP <= 0)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+                            Console.WriteLine($"{enemyChamp} издает свой последний вздох");
+                            Console.ForegroundColor = ConsoleColor.White;
+                        }
+                    }
+                }
+
+                Console.Clear();
+                if (enemyHP <= 0 && playerHP <= 0)
+                {
+                    Console.BackgroundColor = ConsoleColor.DarkYellow;
+                    Console.WriteLine("Все мертвы. Что мы наделали...");
+                    Console.BackgroundColor = ConsoleColor.Black;
+                }
+                else if (playerHP <= 0)
+                {
+
+                    Console.BackgroundColor = ConsoleColor.DarkRed;
+                    Console.WriteLine($"Враг {enemyChamp} победил. Ника, как так...");
+                    Console.BackgroundColor = ConsoleColor.Black;
+                }
+                else if (enemyHP <= 0)
+                {
+                    Console.BackgroundColor = ConsoleColor.DarkBlue;
+                    Console.WriteLine("Ты победила. Кто молодец?");
+                    Console.BackgroundColor = ConsoleColor.Black;
+                }
             }
         }
     }
