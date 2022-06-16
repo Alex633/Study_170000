@@ -6,9 +6,6 @@ namespace _170000Courses
     {
         static void Main(string[] args)
         {
-            //rewrite russian abilities
-            //rewrite eng damage done
-            //other localization
 
             string input;
             int ahriHP = 40;
@@ -29,13 +26,6 @@ namespace _170000Courses
 
 
             string playerAbilities = "";
-            string azirAbilitiesEN = "Azir abilities:" +
-                            "\n(Q) CONQUERING SANDS: All soldiers deal 8 damage" +
-                            "\n(W) ARISE!: Summon a Soldier" +
-                            "\n(E) SHIFTING SANDS: Atleast 1 soldier has to be on the battle. Heals for 10 damage. All soldiers deal 4 damage. Can't be used next 3 rounds" +
-                            "\n(R) EMPEROR'S DEVIDE: Deal 10 damage. Stun enemy for 2 rounds" +
-                            "\n\nBUT AZIR IS NOT READY SO DON'T PICK HIM OR YOU'll BREAK EVERYTHING\n";
-
 
             //player abilities
             string qAbility = "";
@@ -58,7 +48,7 @@ namespace _170000Courses
             int qAbilityStacks = 2;
             int spiritsHelp = 0;
             int rAbilityRequirement = 5;
-            int rAbilityStacks = 2;
+            int rAbilityStacks = 3;
             int rAbilityCD = 0;
             int rAbilityMaxCD = 4;
             int wTimer = 0;
@@ -82,14 +72,13 @@ namespace _170000Courses
             int rAbilityDmgEnemy = 11;
 
             //enemy effects
-            int eAbilityRequirmentEnemy = 1;
             int eAbilityMaxCD = 6;
             int eAbilityCDEnemy = 0;
             int soldiers = 1;
             int shurimaPower = 1;
             int rAbilityRequirementEnemy = 3;
             bool isAzirDepressed = false;
-            int rAbilityHealEnemy = 40;
+            int eAbilityHealEnemy = 40;
             int healThreshold = 67;
 
             //enemy stats and abilities naming
@@ -100,6 +89,19 @@ namespace _170000Courses
             rAbilityEnemy = "EMPEROR'S DEVIDE (R)";
 
 
+            string azirAbilitiesEN = "Azir abilities:" +
+                "\n(Q) CONQUERING SANDS: All soldiers deal 8 damage" +
+                "\n(W) ARISE!: Summon a Soldier" +
+                "\n(E) SHIFTING SANDS: Atleast 1 soldier has to be on the battle. Heals for 10 damage. All soldiers deal 4 damage. Can't be used next 3 rounds" +
+                "\n(R) EMPEROR'S DEVIDE: Deal 10 damage. Stun enemy for 2 rounds" +
+                "\n\nBUT AZIR IS NOT READY SO DON'T PICK HIM OR YOU'll BREAK EVERYTHING\n";
+
+            string azirAbilitiesRU = "Умения Азира:" +
+                            "\n(Q) CONQUERING SANDS: Все солдаты наносят по " + qAbilityDmgEnemy + " урона" +
+                            "\n(W) ARISE!: Призывает солдата (Азир начинает бой с одним солдатом)" +
+                            "\n(E) SHIFTING SANDS: Исцеляет " + eAbilityHealEnemy + " ОЗ. Затем не может быть использована " + eAbilityMaxCD +  " раунда(ов)." +
+                            "\n(R) EMPEROR'S DEVIDE: Наносит " + rAbilityDmgEnemy + " урона и поглащает всех солдат. Требуется " + rAbilityRequirementEnemy + " солдата. Увеличивает количество призываемых солдат через (Q) CONQUERING SANDS на 1. Может стакаться до бесконечности" +
+                            "\n\nНО АЗИР НАХОДИТСЯ В РАЗРАБОТКИ, ПОЭТОМУ НЕ ВЫБИРАЙТЕ ЕГО ИЛИ ВСЕ ВЗОРВЕТСЯ\n";
 
             string ahriAbilitiesEN = "\nAhri abilities:\n\n" +
                             qAbility + ":\n" +
@@ -113,20 +115,21 @@ namespace _170000Courses
                             rAbility + ":\n" +
                             "If Ahri have atleast " + rAbilityRequirement + " stacks of " + stacks + " active " + " Ahri consumes them to dashe to the target location and fires essence bolt " +
                             "that deals " + rAbilityDmg + " damage. Then she dashes away from the enemy and makes him skips his turn and heals for " + rAbilityMaxCD + " rounds for " + rAbilityHeal +
-                            " HP. If Ahri doesn't have " + rAbilityRequirement + " stacks of " + stacks + " she gains " + rAbilityStacks + 2 + " stacks of " + stacks + " and heals you for the same amount. Cooldown: " + rAbilityMaxCD + " rounds. ";
+                            " HP. If Ahri doesn't have " + rAbilityRequirement + " stacks of " + stacks + " she gains " + (rAbilityStacks + 2) + " stacks of " + stacks + " and heals you for the same amount. Cooldown: " + rAbilityMaxCD + " rounds. ";
             string ahriAbilitiesRU = "\nНавыки Ари:\n\n" +
                             qAbility + ":\n" +
-                            "Ари отправляет сферу во врага, которая наносит " + qAbilityDmg1 + " урона. Затем сфера возвращается назад, нанося " + qAbilityDmg2 + " урона по пути назад " +
-                            "Ари получает" + qAbilityStacks + "заряда " + stacks + ". " +
-                            "Если у ари есть хотя бы " + qAbilityStacks + " заряда " + stacks + " она поглощает заряд и вместо нанесения урона исцеляет себя на " + qAbilityDmg1 * 2 + " + " + qAbilityDmg2 * 2 + " очков здоровья.\n\n" +
+                            "Ари отправляет сферу во врага, которая наносит " + qAbilityDmg1 + " урона. Затем сфера возвращается назад, нанося " + qAbilityDmg2 + " урона по пути назад. " +
+                            "Ари получает " + qAbilityStacks + " заряда " + stacks + ". " +
+                            "Если у Ари есть хотя бы " + qAbilityStacks + " заряда " + stacks + " она поглощает заряд и вместо нанесения урона исцеляет себя на " + qAbilityDmg1*2 + " + " + qAbilityDmg2*2 + " очков здоровья.\n\n" +
                             wAbility + ":\n" +
                             "Ари подчиняет три духа огня. В следующем раунде каждый дух наносит " + wAbilityDmg + " урона. " + "Ари получает заряд " + stacks + ".\n\n" +
                             eAbility + ":\n" +
-                            "Ари отправляет воздушный поцелуй в сторону врага, который соблазняет его и ослабляет на протяжении следующего раунда (противник получает в" + eAbilityMP + "больше урона).\n\n" +
+                            "Ари отправляет воздушный поцелуй в сторону врага, который соблазняет его и ослабляет на протяжении следующего раунда (противник получает в " + eAbilityMP + " раза больше урона).\n\n" +
                             rAbility + ":\n" +
-                            "Если у Ари есть хотя бы " + rAbilityRequirement + " заряда " + stacks + " в наличии " + " Ари поглащает их чтобы броситься на врага и выстрелить огненным болтом " +
-                            "наносящим " + rAbilityDmg + " урона. Затем отпрыгивает на большое расстояние от врага и заставляет его пропустить свой ход. " +
-                            "Если у Ари нет " + rAbilityRequirement + " зарядов" + stacks + "она получает " + rAbilityStacks + " заряда " + stacks + ".";
+                            "Если у Ари есть хотя бы " + rAbilityRequirement + " заряда(ов) " + stacks + ", то Ари поглащает их чтобы броситься на врага и выстрелить огненным болтом " +
+                            "наносящим " + rAbilityDmg + " урона. Затем отпрыгивает на большое расстояние от врага и заставляет его пропустить свой ход и исцеляет себя в течении " + rAbilityMaxCD + " раундов по " + rAbilityHeal +
+                            ". Если у Ари нет " + rAbilityRequirement + " зарядов " + stacks + " она получает " + (rAbilityStacks) + " заряд(а/ов) " + stacks + " и исцеляет себя по тем же правилам. " +
+                            "Затем это умение нельзя использовать в течении " + rAbilityMaxCD + " раунда(ов).";
 
             playerAbilities = ahriAbilitiesEN;
 
@@ -487,16 +490,16 @@ namespace _170000Courses
                                 if (enemyHP <= healThreshold && eAbilityCDEnemy == 0)
                                 {
                                     eAbilityCDEnemy = eAbilityMaxCD;
-                                    enemyHP += rAbilityHealEnemy;
+                                    enemyHP += eAbilityHealEnemy;
                                     if (enemyHP > azirHP)
                                     {
                                         enemyHP = azirHP;
                                     }
                                     Console.ForegroundColor = ConsoleColor.Green;
-                                    Console.WriteLine($"{enemyChamp} uses {eAbilityEnemy}. He heals for {rAbilityHealEnemy} HP. {eAbilityEnemy} is on cooldown for {eAbilityCDEnemy}");
+                                    Console.WriteLine($"{enemyChamp} uses {eAbilityEnemy}. He heals for {eAbilityHealEnemy} HP. {eAbilityEnemy} is on cooldown for {eAbilityCDEnemy}");
                                     Console.ForegroundColor = ConsoleColor.White;
                                     Console.ForegroundColor = ConsoleColor.DarkBlue;
-                                    Console.WriteLine($"Ваши очки здоровья: {playerHP}");
+                                    Console.WriteLine($"Your HP: {playerHP}");
                                     Console.ForegroundColor = ConsoleColor.White;
                                 }
                                 else if (soldiers >= rAbilityRequirementEnemy)
@@ -744,7 +747,7 @@ namespace _170000Courses
             }
             else if (playerHP <= 0)
             {
-                
+
                 Console.BackgroundColor = ConsoleColor.DarkRed;
                 Console.WriteLine($"Enemy {enemyChamp} has won the battle");
                 Console.BackgroundColor = ConsoleColor.Black;
@@ -757,12 +760,26 @@ namespace _170000Courses
             }
             else if (localization == 2)
             {
+
+
+
+
+
+
+
                 //russian ------------------------------------------------------------------------
                 //--------------------------------------------------------------------------------
+
+
+
+
+
+
+
                 {
                     Console.ForegroundColor = ConsoleColor.Cyan;
                     string love = "Nika";
-                    Console.WriteLine($"Добро пожаловать, {love}\n");
+                    Console.WriteLine($"Здравствуйте, {love}\n");
                     Console.ForegroundColor = ConsoleColor.White;
 
                     //champion select
@@ -789,10 +806,11 @@ namespace _170000Courses
                         switch (playerChamp)
                         {
                             case "Ahri":
-                                Console.WriteLine(ahriAbilitiesEN);
+                                Console.WriteLine(ahriAbilitiesRU);
+                                playerAbilities = ahriAbilitiesRU;
                                 break;
                             case "Azir":
-                                Console.WriteLine(azirAbilitiesEN);
+                                Console.WriteLine(azirAbilitiesRU);
                                 break;
                         }
                         Console.ForegroundColor = ConsoleColor.Yellow;
@@ -825,7 +843,7 @@ namespace _170000Courses
                             Console.ForegroundColor = ConsoleColor.DarkBlue;
                             Console.WriteLine($"Ваши ОЗ: {playerHP}");
                             Console.ForegroundColor = ConsoleColor.DarkMagenta;
-                            Console.WriteLine($"Враг: {enemyChamp} ОЗ: {enemyHP}");
+                            Console.WriteLine($"Враг: {enemyChamp}. ОЗ: {enemyHP}");
                             Console.ForegroundColor = ConsoleColor.White;
                         }
 
@@ -865,11 +883,11 @@ namespace _170000Courses
                                         }
 
                                         Console.ForegroundColor = ConsoleColor.DarkGreen;
-                                        Console.WriteLine($"{qAbility} лечит {(qAbilityDmg1 * eAbilityMP)} (Потому что {eAbility} активно.)");
+                                        Console.WriteLine($"{qAbility} лечит {(qAbilityDmg1 * eAbilityMP) * 2} (Потому что {eAbility} активно.)");
                                         Console.ForegroundColor = ConsoleColor.White;
 
                                         Console.ForegroundColor = ConsoleColor.DarkBlue;
-                                        Console.WriteLine($"Ваше ОЗ: {playerHP}");
+                                        Console.WriteLine($"Ваши ОЗ: {playerHP}");
                                         Console.ForegroundColor = ConsoleColor.White;
 
                                         playerHP += (qAbilityDmg2 * eAbilityMP) * 2;
@@ -880,7 +898,7 @@ namespace _170000Courses
                                         spiritsHelp -= qAbilityStacks;
 
                                         Console.ForegroundColor = ConsoleColor.DarkGreen;
-                                        Console.WriteLine($"{qAbility} лечит {(qAbilityDmg2 * eAbilityMP)} (Потому что {eAbility} активно)");
+                                        Console.WriteLine($"{qAbility} лечит {(qAbilityDmg2 * eAbilityMP) * 2} (Потому что {eAbility} активно)");
                                         Console.ForegroundColor = ConsoleColor.White;
 
                                         Console.ForegroundColor = ConsoleColor.DarkBlue;
@@ -925,11 +943,11 @@ namespace _170000Courses
                                         }
 
                                         Console.ForegroundColor = ConsoleColor.Green;
-                                        Console.WriteLine($"{qAbility} лечит {qAbilityDmg1}.");
+                                        Console.WriteLine($"{qAbility} лечит {qAbilityDmg1 * 2}.");
                                         Console.ForegroundColor = ConsoleColor.White;
 
                                         Console.ForegroundColor = ConsoleColor.DarkBlue;
-                                        Console.WriteLine($"Ваше ОЗ: {playerHP}");
+                                        Console.WriteLine($"Ваши ОЗ: {playerHP}");
                                         Console.ForegroundColor = ConsoleColor.White;
 
                                         playerHP += qAbilityDmg2 * 2;
@@ -940,11 +958,11 @@ namespace _170000Courses
                                         spiritsHelp -= qAbilityStacks;
 
                                         Console.ForegroundColor = ConsoleColor.Green;
-                                        Console.WriteLine($"{qAbility} лечит {qAbilityDmg2}.");
+                                        Console.WriteLine($"{qAbility} лечит {qAbilityDmg2 * 2}.");
                                         Console.ForegroundColor = ConsoleColor.White;
 
                                         Console.ForegroundColor = ConsoleColor.DarkBlue;
-                                        Console.WriteLine($"Ваше ОЗ: {playerHP}");
+                                        Console.WriteLine($"Ваши ОЗ: {playerHP}");
                                         Console.ForegroundColor = ConsoleColor.White;
 
                                         Console.ForegroundColor = ConsoleColor.Magenta;
@@ -1020,7 +1038,7 @@ namespace _170000Courses
                                             enemyHP -= rAbilityDmg;
                                             isSecondTurnActive = true;
                                             Console.ForegroundColor = ConsoleColor.Magenta;
-                                            Console.WriteLine($"{playerChamp} использует  {rAbility} и тратит {rAbilityRequirement} духов {rAbility}. {rAbility} нельзя использовать в течении {rAbilityCD}");
+                                            Console.WriteLine($"{playerChamp} использует {rAbility} и тратит {rAbilityRequirement} духов {rAbility}. {rAbility} нельзя использовать в течении {rAbilityCD}");
                                             Console.ForegroundColor = ConsoleColor.White;
                                             Console.ForegroundColor = ConsoleColor.Red;
                                             Console.WriteLine($"{rAbility} наносит {rAbilityDmg} урона врагу {enemyChamp}");
@@ -1036,9 +1054,9 @@ namespace _170000Courses
                                     else if (spiritsHelp < rAbilityRequirement && rAbilityCD == 0)
                                     {
                                         rAbilityCD = rAbilityMaxCD;
-                                        spiritsHelp += rAbilityStacks + 2;
+                                        spiritsHelp += rAbilityStacks;
                                         Console.ForegroundColor = ConsoleColor.Blue;
-                                        Console.WriteLine($"{playerChamp} использует {rAbility} Потому что духов меньше, чем необходимо ({rAbilityRequirement}) - {rAbilityStacks + 2} из {stacks} духов получено. Получено: {spiritsHelp}. {rAbility} нельзя использовать в течении {rAbilityCD}");
+                                        Console.WriteLine($"{playerChamp} использует {rAbility}. Так как духов меньше, чем необходимо (требуется {rAbilityRequirement}) - {rAbilityStacks} дух(а/ов) получено. Всего духов: {spiritsHelp}. {rAbility} нельзя использовать в течении {rAbilityCD} раундов");
                                         Console.ForegroundColor = ConsoleColor.White;
 
                                     }
@@ -1046,7 +1064,7 @@ namespace _170000Courses
                                     {
                                         spiritsHelp += 1;
                                         Console.ForegroundColor = ConsoleColor.Blue;
-                                        Console.WriteLine($"{playerChamp} использует {rAbility} нельзя использовать ({rAbilityCD} раундов осталось) {rAbilityStacks - 1} духов {stacks} получено. Хотя бы что-то, верно? Всего духов: {spiritsHelp}. Иельзя использовать по-прежнему в течении {rAbilityCD}");
+                                        Console.WriteLine($"{playerChamp} пытается использовать {rAbility}, но это умение еще нельзя использовать ({rAbilityCD} раундов осталось) {rAbilityStacks - 1} духов {stacks} получено. Хотя бы что-то, верно? Всего духов: {spiritsHelp}. Иельзя использовать по-прежнему в течении {rAbilityCD}");
                                         Console.ForegroundColor = ConsoleColor.White;
                                     }
                                     break;
@@ -1096,16 +1114,16 @@ namespace _170000Courses
                                     if (enemyHP <= healThreshold && eAbilityCDEnemy == 0)
                                     {
                                         eAbilityCDEnemy = eAbilityMaxCD;
-                                        enemyHP += rAbilityHealEnemy;
+                                        enemyHP += eAbilityHealEnemy;
                                         if (enemyHP > azirHP)
                                         {
                                             enemyHP = azirHP;
                                         }
                                         Console.ForegroundColor = ConsoleColor.Green;
-                                        Console.WriteLine($"{enemyChamp} использует {eAbilityEnemy}. Он исцеляет себе {rAbilityHealEnemy} ОЗ. {eAbilityEnemy} нельзя использовать в течении {eAbilityCDEnemy}");
+                                        Console.WriteLine($"{enemyChamp} использует {eAbilityEnemy}. Он исцеляет себе {eAbilityHealEnemy} ОЗ. {eAbilityEnemy} нельзя использовать в течении {eAbilityCDEnemy}");
                                         Console.ForegroundColor = ConsoleColor.White;
                                         Console.ForegroundColor = ConsoleColor.DarkBlue;
-                                        Console.WriteLine($"Ваше ОЗ: {playerHP}");
+                                        Console.WriteLine($"Ваши ОЗ: {playerHP}");
                                         Console.ForegroundColor = ConsoleColor.White;
                                     }
                                     else if (soldiers >= rAbilityRequirementEnemy)
@@ -1113,10 +1131,10 @@ namespace _170000Courses
                                         playerHP -= rAbilityDmgEnemy * soldiers;
                                         shurimaPower += 1;
                                         Console.ForegroundColor = ConsoleColor.DarkRed;
-                                        Console.WriteLine($"{enemyChamp} использует {rAbilityEnemy} и наносит {rAbilityDmgEnemy * soldiers}. Уфф... Azir потерял всех своих солдат, но теперь он стал сильнее и призывает {shurimaPower} солдат с помощью {wAbilityEnemy}");
+                                        Console.WriteLine($"{enemyChamp} использует {rAbilityEnemy} и наносит {rAbilityDmgEnemy * 3}. Уфф... Azir потерял всех своих солдат, но теперь он стал сильнее и призывает {shurimaPower} солдат с помощью {wAbilityEnemy}");
                                         Console.ForegroundColor = ConsoleColor.White;
                                         Console.ForegroundColor = ConsoleColor.Blue;
-                                        Console.WriteLine($"Ваше ОЗ: {playerHP}");
+                                        Console.WriteLine($"Ваши ОЗ: {playerHP}");
                                         Console.ForegroundColor = ConsoleColor.White;
                                         soldiers = 0;
                                     }
@@ -1129,10 +1147,10 @@ namespace _170000Courses
                                                 {
                                                     playerHP -= qAbilityDmgEnemy * soldiers;
                                                     Console.ForegroundColor = ConsoleColor.Red;
-                                                    Console.WriteLine($"{enemyChamp} использует {qAbilityEnemy} и наносит {qAbilityDmgEnemy * soldiers} урона {playerChamp}. Потому что сейчас {soldiers} солдат(а/ов)");
+                                                    Console.WriteLine($"{enemyChamp} использует {qAbilityEnemy} и наносит {qAbilityDmgEnemy * soldiers} урона {playerChamp}. Потому что сейчас у него {soldiers} солдат(а/ов)");
                                                     Console.ForegroundColor = ConsoleColor.White;
                                                     Console.ForegroundColor = ConsoleColor.DarkBlue;
-                                                    Console.WriteLine($"Ваше ОЗ: {playerHP}");
+                                                    Console.WriteLine($"Ваши ОЗ: {playerHP}");
                                                     Console.ForegroundColor = ConsoleColor.White;
                                                 }
                                                 else
@@ -1142,14 +1160,14 @@ namespace _170000Courses
                                                     Console.WriteLine($"{enemyChamp} использует {qAbilityEnemy} но затем понимает, что у него нет солдат. Поэтому вместо этого он бьет вас своей палкой (1 урон)");
                                                     Console.ForegroundColor = ConsoleColor.White;
                                                     Console.ForegroundColor = ConsoleColor.DarkBlue;
-                                                    Console.WriteLine($"Ваше ОЗ: {playerHP}");
+                                                    Console.WriteLine($"Ваши ОЗ: {playerHP}");
                                                     Console.ForegroundColor = ConsoleColor.White;
                                                 }
                                                 break;
                                             case 2:
                                                 soldiers += shurimaPower;
                                                 Console.ForegroundColor = ConsoleColor.Blue;
-                                                Console.WriteLine($"{enemyChamp} использует {wAbilityEnemy} и призывает {shurimaPower} солдат. Теперь у него {soldiers} солдат(а/ов)");
+                                                Console.WriteLine($"{enemyChamp} использует {wAbilityEnemy} и призывает {shurimaPower} солдат(а/ов). Теперь у него {soldiers} солдат(а/ов)");
                                                 Console.ForegroundColor = ConsoleColor.White;
                                                 break;
                                             case 3:
@@ -1157,7 +1175,7 @@ namespace _170000Courses
                                                 {
                                                     spiritsHelp -= 1;
                                                     Console.ForegroundColor = ConsoleColor.Magenta;
-                                                    Console.WriteLine($"Azir говорит что-то невнятное о Шуриме. Один дух (ваши заряды) испугался и убежал :(. Теперь у вас {spiritsHelp} духов");
+                                                    Console.WriteLine($"Azir говорит что-то невнятное о Шуриме. Один дух испугался и убежал :(. Теперь у вас {spiritsHelp} дух(а/ов)");
                                                     Console.ForegroundColor = ConsoleColor.White;
                                                 }
                                                 else
@@ -1167,13 +1185,13 @@ namespace _170000Courses
                                                 break;
                                             case 4:
                                                 Console.ForegroundColor = ConsoleColor.Red;
-                                                Console.WriteLine($"{enemyChamp} использует {rAbilityEnemy} но потом он понимает, что у него не достаточно солдат, чтобы использовать {rAbilityEnemy} ({rAbilityRequirementEnemy} требуется солдат). " +
+                                                Console.WriteLine($"{enemyChamp} использует {rAbilityEnemy} но потом понимает, что у него не достаточно солдат, чтобы использовать {rAbilityEnemy} (Требуется {rAbilityRequirementEnemy} солдат(а/ов)). " +
                                                     $"Поэтому он передумывает и использует {qAbilityEnemy}");
                                                 if (soldiers >= 1)
                                                 {
                                                     playerHP -= qAbilityDmgEnemy * soldiers;
                                                     Console.ForegroundColor = ConsoleColor.Red;
-                                                    Console.WriteLine($"His {qAbilityEnemy} наносит {qAbilityDmgEnemy * soldiers} урона {playerChamp}. Потому что у него {soldiers} солдат");
+                                                    Console.WriteLine($"Его {qAbilityEnemy} наносит {qAbilityDmgEnemy * soldiers} урона {playerChamp}. Потому что у него {soldiers} солдат(а/ов)");
                                                     Console.ForegroundColor = ConsoleColor.White;
                                                     Console.ForegroundColor = ConsoleColor.DarkBlue;
                                                     Console.WriteLine($"Ваши ОЗ: {playerHP}");
@@ -1210,7 +1228,7 @@ namespace _170000Courses
                         Console.WriteLine($"\nКонец раунда {round}");
                         Console.ForegroundColor = ConsoleColor.White;
                         Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.WriteLine($"наужмите ENTER чтобы продолжить");
+                        Console.WriteLine($"Нажмите ENTER чтобы продолжить");
                         Console.ForegroundColor = ConsoleColor.White;
 
                         input = Console.ReadLine();
@@ -1309,7 +1327,7 @@ namespace _170000Courses
                             }
                             else
                             {
-                                Console.WriteLine($"Ваше {rAbility} нельзя использовать еще {rAbilityCD}");
+                                Console.WriteLine($"Ваш {rAbility} нельзя использовать еще {rAbilityCD}");
                             }
                         }
                         if (rAbilityCD > 0)
@@ -1320,7 +1338,7 @@ namespace _170000Courses
                                 playerHP = ahriHP;
                             }
                             Console.ForegroundColor = ConsoleColor.Green;
-                            Console.WriteLine($"{rAbility} исцеляет тебя на {rAbilityHeal}");
+                            Console.WriteLine($"{rAbility} исцеляет вас на {rAbilityHeal}");
                             Console.ForegroundColor = ConsoleColor.White;
                         }
                         if (isCharmActive)
