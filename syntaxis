@@ -5,11 +5,11 @@ int32 - whole numbers
 int i;
 int i = 1;
 string str = "text";
+int.MinValue // contents max value of type int
 
 # ARRAYS
 int[] arrayName = new int[arrayLength] { 1, 2, 3, 4 };
 int[] array = { 1, 2, 3, 4 };
-
 array[cellNumber] = 5;
 array.Length
 
@@ -75,3 +75,4 @@ Console.ForegroundColor = ConsoleColor.Blue;
 Console.BackgroundColor = ConsoleColor.Green; //с Console.Clear для полного окрашивания
 Console.WindowHeight = 6;
 Console.WindowWidth = 6;
+Console.SetCursorPosition(0, 0);
