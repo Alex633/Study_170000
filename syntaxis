@@ -75,4 +75,4 @@ Console.ForegroundColor = ConsoleColor.Blue;
 Console.BackgroundColor = ConsoleColor.Green; //с Console.Clear для полного окрашивания
 Console.WindowHeight = 6;
 Console.WindowWidth = 6;
-Console.SetCursorPosition(0, 0);
+Console.SetCursorPosition(x, y);
