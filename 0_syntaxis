@@ -5,7 +5,7 @@ int32 - whole numbers
 int i;
 int i = 1;
 string str = "text";
-int.MinValue //contents max value of type int
+int.MinValue //contain min value of type int
 
 # ARRAYS
 int[] arrayName = new int[arrayLength] { 0, 1, 2, 3, 4 };
@@ -27,8 +27,8 @@ i== //проверка условия на истинность elements
 i -= b //тоже самое что и i=i-b
 
 # CONSOLE COMMANDS
-Console.WriteLine("text"); <br>
-i = Console.ReadLine(); //for string <br>
+Console.WriteLine("text");
+i = Console.ReadLine(); //for string
 i = Convert.ToInt32(Console.ReadLine()); //for number
 
 # CONCATENATION
