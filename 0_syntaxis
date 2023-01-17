@@ -1,3 +1,8 @@
+SHORTCUTS
+ctrl + k + d //number alignment in array
+alt + arrow //transport line of code
+ctrl + r + r //rename variable 
+
 # DATA TYPES
 int32 - whole numbers
 
