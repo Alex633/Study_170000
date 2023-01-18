@@ -16,7 +16,7 @@ int.MinValue //contain min value of type int
 int[] arrayName = new int[arrayLength] { 0, 1, 2, 3, 4 };
 int[] array = { 1, 2, 3, 4 };
 arrayName[cellNumber] = i;
-int[,] arrayMatrix = new int[5, 5]
+int[,] arrayMatrix = new int[5, 3]
 int[,] arrayMatrix = { {0,1,2,3,4,5} {0,1,2,3,4,5} {0,1,2,3,4,5} }
 arrayMatrix[0, 2] = i;
 array.Length //number of cells
