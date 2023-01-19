@@ -1,0 +1,50 @@
+using System;
+
+namespace LearningLaptop
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            int[,] arrayMatrix = new int[3, 3];
+            int secondLineSum = 0;
+            int firstRowSum = 0;
+            Random random = new Random();
+
+            Console.WriteLine();
+
+            Console.WriteLine("Your Random Matrix:");
+            for (int i = 0; i < arrayMatrix.GetLength(0); i++)
+            {
+                for (int j = 0; j < arrayMatrix.GetLength(1); j++)
+                {
+                    arrayMatrix[i, j] = random.Next(0,10);
+                    Console.Write(arrayMatrix[i, j] + " ");
+
+                    if (i == 1)
+                    {
+                        secondLineSum += arrayMatrix[i, j]; 
+                    }
+
+                    if (j == 0)
+                    {
+                        firstRowSum += arrayMatrix[i, j]; 
+                    }
+
+                }
+                Console.WriteLine();
+            }
+
+            Console.WriteLine("Same matrix but in foreach:");
+            foreach (int i in arrayMatrix)
+            {
+                Console.Write(i + " ");
+            }
+
+            Console.WriteLine($"\n\nSummary of the SECOND LINE is {secondLineSum}.\n" +
+                $"Summary of the FIRST ROW is {firstRowSum}.\n\n" +
+                $"Thank you for using our service.\n" +
+                $"Good bye. And have a worse day than you had yeasterday :)\n");
+        }
+    }
+}
