@@ -7,44 +7,49 @@ namespace LearningLaptop
         static void Main(string[] args)
         {
             int[,] arrayMatrix = new int[3, 3];
-            int secondLineSum = 0;
-            int firstRowMultiplication = 0;
             Random random = new Random();
+            bool dewIt = true;
+            string playerInput = " ";
 
-            Console.WriteLine();
-
-            Console.WriteLine("Your Random Matrix:");
-            for (int i = 0; i < arrayMatrix.GetLength(0); i++)
+            while (dewIt == true)
             {
-                for (int j = 0; j < arrayMatrix.GetLength(1); j++)
+                Console.WriteLine("Your Random Matrix:");
+                for (int i = 0; i < arrayMatrix.GetLength(0); i++)
                 {
-                    arrayMatrix[i, j] = random.Next(0, 10);
-                    Console.Write(arrayMatrix[i, j] + " ");
-
-                    if (i == 1)
+                    for (int j = 0; j < arrayMatrix.GetLength(1); j++)
                     {
-                        secondLineSum += arrayMatrix[i, j];
+                        arrayMatrix[i, j] = random.Next(1, 10);
+                        Console.Write(arrayMatrix[i, j] + " ");
                     }
-
-                    if (j == 0)
-                    {
-                        firstRowMultiplication *= arrayMatrix[i, j];
-                    }
-
+                    Console.WriteLine();
                 }
-                Console.WriteLine();
-            }
 
-            Console.WriteLine("Same matrix but in foreach:");
-            foreach (int i in arrayMatrix)
-            {
-                Console.Write(i + " ");
-            }
+                int secondLineSum = 0;
 
-            Console.WriteLine($"\n\nSummary of the SECOND LINE is {secondLineSum}.\n" +
-                $"Summary of the FIRST ROW is {firstRowMultiplication}.\n\n" +
-                $"Thank you for using our service.\n" +
-                $"Good bye. And have a worse day than you had yeasterday :)\n");
+                for (int i = 0; i < arrayMatrix.GetLength(0); i++)
+                {
+                    secondLineSum += arrayMatrix[1, i];
+                }
+
+                int firstRowMultiplication = arrayMatrix[0, 0];
+
+                for (int i = 1; i < arrayMatrix.GetLength(1); i++)
+                {
+                    firstRowMultiplication *= arrayMatrix[i, 0];
+                }
+
+                Console.WriteLine($"\nSummary of the SECOND LINE is {secondLineSum}.\n" +
+                    $"Multiplication of the FIRST ROW is {firstRowMultiplication}.\n\n" +
+                    $"Do you wanna do it again with new matrix and stuff?");
+                playerInput = Console.ReadLine();
+                if (playerInput == "nope")
+                {
+                    dewIt = false;
+                }
+                Console.Clear();
+            }
+            Console.WriteLine($"Thank you for using our service.\n" +
+                    $"Good bye. And have a worse day than you had yesterday :)\n");
         }
     }
 }
