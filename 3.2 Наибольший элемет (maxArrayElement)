@@ -6,7 +6,7 @@ namespace LearningLaptop
     {
         static void Main(string[] args)
         {
-            int[,] arrayA = new int[10, 10];
+            int[,] arrayA = new int[5, 5];
             Random random = new Random();
             int maxValueElement = int.MinValue;
 
@@ -16,12 +16,16 @@ namespace LearningLaptop
                 {
                     arrayA[i, j] = random.Next(0, 10);
                     Console.Write(arrayA[i, j]);
-                    if (maxValueElement < arrayA[i,j])
-                    {
-                        maxValueElement = arrayA[i,j];
-                    }
                 }
                 Console.WriteLine();
+            }
+
+            foreach (int elementValue in arrayA)
+            {
+                if (maxValueElement < elementValue)
+                {
+                    maxValueElement = elementValue;
+                }
             }
 
             Console.WriteLine("\nMax Value Element:\n" + maxValueElement + "\n\nNew array:");
