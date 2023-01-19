@@ -6,7 +6,7 @@ namespace LearningLaptop
     {
         static void Main(string[] args)
         {
-            int[,] arrayA = new int[5, 5];
+            int[,] arrayA = new int[10, 10];
             Random random = new Random();
             int maxValueElement = int.MinValue;
 
