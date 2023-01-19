@@ -8,7 +8,7 @@ namespace LearningLaptop
         {
             int[,] arrayMatrix = new int[3, 3];
             int secondLineSum = 0;
-            int firstRowSum = 0;
+            int firstRowMultiplication = 0;
             Random random = new Random();
 
             Console.WriteLine();
@@ -18,17 +18,17 @@ namespace LearningLaptop
             {
                 for (int j = 0; j < arrayMatrix.GetLength(1); j++)
                 {
-                    arrayMatrix[i, j] = random.Next(0,10);
+                    arrayMatrix[i, j] = random.Next(0, 10);
                     Console.Write(arrayMatrix[i, j] + " ");
 
                     if (i == 1)
                     {
-                        secondLineSum += arrayMatrix[i, j]; 
+                        secondLineSum += arrayMatrix[i, j];
                     }
 
                     if (j == 0)
                     {
-                        firstRowSum += arrayMatrix[i, j]; 
+                        firstRowMultiplication *= arrayMatrix[i, j];
                     }
 
                 }
@@ -42,7 +42,7 @@ namespace LearningLaptop
             }
 
             Console.WriteLine($"\n\nSummary of the SECOND LINE is {secondLineSum}.\n" +
-                $"Summary of the FIRST ROW is {firstRowSum}.\n\n" +
+                $"Summary of the FIRST ROW is {firstRowMultiplication}.\n\n" +
                 $"Thank you for using our service.\n" +
                 $"Good bye. And have a worse day than you had yeasterday :)\n");
         }
