@@ -54,7 +54,6 @@ namespace CodingCoursesButThisTimeForFree
                     {
                         Console.Write(array[i] + " ");
                     }
-
                 }
 
                 if (!isRepeatingFound)
@@ -62,7 +61,7 @@ namespace CodingCoursesButThisTimeForFree
                     Console.WriteLine($"\n\nNo repeating element found. Well how about that, loser");
                 }
                 else
-                {                
+                {
                     Console.WriteLine($"\n\nYour maximum repeating element is {repeatingElement}. It repeats {repeatCount} time(s)");
                 }
                 Console.ReadKey();
