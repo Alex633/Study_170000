@@ -1,0 +1,76 @@
+using System;
+
+namespace CodingCoursesButThisTimeForFree
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            int[] array = new int[30];
+            int repeatCountTemp = 1;
+            int repeatCount = 1;
+            int repeatingElement = 0;
+            bool isRepeatingFound = false;
+
+            Random random = new Random();
+
+            while (true)
+            {
+                Console.WriteLine("Look at this array:");
+                for (int i = 0; i < array.Length; i++)
+                {
+                    array[i] = random.Next(0, 10);
+                }
+
+                for (int i = 0; i < array.Length - 1; i++)
+                {
+                    if (array[i + 1] == array[i])
+                    {
+                        repeatCountTemp++;
+                        isRepeatingFound = true;
+
+                    }
+                    else
+                    {
+                        repeatCountTemp = 1;
+                    }
+
+                    if (repeatCountTemp > repeatCount)
+                    {
+                        repeatCount = repeatCountTemp;
+                        repeatingElement = array[i];
+                    }
+                }
+
+                for (int i = 0; i < array.Length; i++)
+                {
+                    if (repeatingElement == array[i])
+                    {
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.Write(array[i] + " ");
+                        Console.ForegroundColor = ConsoleColor.White;
+                    }
+                    else
+                    {
+                        Console.Write(array[i] + " ");
+                    }
+
+                }
+
+                if (!isRepeatingFound)
+                {
+                    Console.WriteLine($"\n\nNo repeating element found. Well how about that, loser");
+                }
+                else
+                {                
+                    Console.WriteLine($"\n\nYour maximum repeating element is {repeatingElement}. It repeats {repeatCount} time(s)");
+                }
+                Console.ReadKey();
+                Console.WriteLine();
+                repeatCountTemp = 1;
+                repeatCount = 1;
+                isRepeatingFound = false;
+            }
+        }
+    }
+}
