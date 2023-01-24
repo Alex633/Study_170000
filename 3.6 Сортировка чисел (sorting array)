@@ -6,7 +6,7 @@ namespace CodingCoursesButThisTimeForFree
     {
         static void Main(string[] args)
         {
-            int[] array = new int[10];
+            int[] array = { 3, 9, 7, 5, 9, 9, 9, 2, 4, 2 };
             int arrayElementTemp = 0;
             int sortingCount = 0;
             bool isSorted = false;
@@ -29,12 +29,13 @@ namespace CodingCoursesButThisTimeForFree
                         array[i] = array[i + 1];
                         array[i + 1] = arrayElementTemp;
                         sortingCount++;
-                    }                    
-                    if (array[array.Length - 2] == array[i] && sortingCount > 0)
+                    }
+
+                    if (array.Length - 2 == i && sortingCount > 0)
                     {
                         sortingCount = 0;
                     }
-                    else if (array[array.Length - 2] == array[i] && sortingCount == 0)
+                    else if (array.Length - 2 == i && sortingCount == 0)
                     {
                         isSorted = true;
                     }
