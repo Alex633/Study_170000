@@ -6,14 +6,6 @@ namespace CodingCoursesButThisTimeForFree
     {
         static void Main(string[] args)
         {
-            string text = "this is a string array. some might even say it's an array";
-            string[] cutText = text.Split(' ');
-
-            foreach (string element in cutText)
-            {
-                Console.WriteLine(element);
-            }
-
             int[] array = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             int movingLength = 0;
             int tempElement = 0;
