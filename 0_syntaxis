@@ -87,6 +87,10 @@ for (int i = 0; i > 10; i++); //задача переменной, услови�
 foreach (int i in arrayName)
 {code}
 
+# FUNCTION
+static void FunctionName (int var, int var2, int optionalVar = 1, int optionalVar2 = 2);
+FunctionName(var, var2, optionalVar2: 3); //function call
+
 # RANDOM
 Random randVarient - new Random(); //initialization
 i = randVarient.Next(0,10); //from-to (last number don't included)
