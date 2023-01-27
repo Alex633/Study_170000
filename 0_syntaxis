@@ -88,7 +88,8 @@ foreach (int i in arrayName)
 {code}
 
 # FUNCTION
-static void FunctionName (int var, int var2, int optionalVar = 1, int optionalVar2 = 2);
+static void FunctionName (int var, int var2, int optionalVar = 1, int optionalVar2 = 2)
+{code}
 FunctionName(var, var2, optionalVar2: 3); //function call
 
 # RANDOM
