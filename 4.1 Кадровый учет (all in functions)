@@ -1,0 +1,212 @@
+using System;
+
+namespace CodingCoursesButThisTimeForFree
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            string[] names = new string[0];
+            string[] professions = new string[0];
+            string[] tempArray = new string[names.Length + 1];
+            int userInput = 0;
+            bool isProgramOn = true;
+            string searchedName = null;
+            bool isFound = false;
+            string userInputTheSecond = "";
+
+            while (isProgramOn == true)
+            {
+                DisplayFiles(names, professions);
+                Console.WriteLine("1 - Add file" +
+                    "\n2 - Show all files" +
+                    "\n3 - Delete File" +
+                    "\n4 - Search by Name" +
+                    "\n5 - Say Goodbye" +
+                    "\n\nEnter your command:");
+                userInput = Convert.ToInt32(Console.ReadLine());
+
+                switch (userInput)
+                {
+                    case 1:
+                        FileAdd(ref names, ref professions);
+                        break;
+                    case 2:
+                        DisplayFiles(names, professions, false);
+                        break;
+                    case 3:
+                        Console.Clear();
+                        Console.WriteLine("Enter File Name to delete:");
+                        searchedName = Console.ReadLine();
+
+                        for (int i = 0; i < names.Length; i++)
+                        {
+                            if (searchedName == names[i])
+                            {
+                                isFound = true;
+                                TextToColor($"File(s) {i + 1}. {names[i]} - {professions[i]} has been successfully deleted", ConsoleColor.Red);
+
+                                for (int j = i; j < names.Length - 1; j++)
+                                {
+                                    names[j] = names[j + 1];
+                                    professions[j] = professions[j + 1];
+                                }
+
+                                ShortenArray(ref names);
+                                ShortenArray(ref professions);
+                            }
+                        }
+
+                        if (isFound == false)
+                        {
+                            TextToColor("No files with that name has been found");
+                        }
+
+                        isFound = false;
+                        break;
+                    case 4:
+                        Console.Clear();
+                        Console.WriteLine("Enter File Name you want to find:");
+                        searchedName = Console.ReadLine();
+                        DisplayFiles(names, professions);
+                        Console.WriteLine("Search Result:");
+
+
+                        for (int i = 0; i < names.Length; i++)
+                        {
+                            if (searchedName == names[i])
+                            {
+                                isFound = true;
+                                Console.WriteLine($"{i + 1}. {names[i]} - {professions[i]}");
+                            }
+                        }
+
+                        if (isFound == false)
+                        {
+                            TextToColor("No files with that name has been found");
+                        }
+
+                        isFound = false;
+                        break;
+                    case 5:                       
+                        TextToColor("See you later, aligator", ConsoleColor.Green);
+                        userInputTheSecond = Console.ReadLine();
+                        string getOut = "After a while, crocodile";
+
+                        if (userInputTheSecond == getOut)
+                        {
+                            isProgramOn = false;
+                            TextToColor("Bys, Bys, Butterfly", ConsoleColor.Green);
+                            Console.ReadLine();
+                        }
+                        else
+                        {
+                            Console.WriteLine("Guess you are not leaving then");
+                        }
+
+                        break;
+                    default:
+                        What();
+                        break;
+                }
+
+                doNotConsoleClearYet();
+                Console.Clear();
+            }
+        }
+
+        static void What()
+        {
+            Console.Clear();
+            TextToColor("What?", ConsoleColor.White);
+        }
+
+        static void TextToColor(string text, ConsoleColor color = ConsoleColor.Yellow)
+        {
+            Console.ForegroundColor = color;
+            Console.WriteLine(text);
+            Console.ForegroundColor = ConsoleColor.White;
+        }
+
+        static void doNotConsoleClearYet()
+        {
+            Console.ForegroundColor = ConsoleColor.DarkCyan;
+            Console.WriteLine("\n(press anything to continue)");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.ReadKey();
+        }
+
+        static string[] ExpandArray(string[] array, int length = 1)
+        {
+            string[] tempArray = new string[array.Length + length];
+
+            for (int i = 0; i < array.Length; i++)
+            {
+                tempArray[i] = array[i];
+            }
+
+            array = tempArray;
+            return array;
+        }
+
+        static void ShortenArray(ref string[] array, int length = 1)
+        {
+            string[] tempArray = new string[array.Length - length];
+
+            for (int i = 0; i < tempArray.Length; i++)
+            {
+                tempArray[i] = array[i];
+            }
+
+            array = tempArray;
+        }
+
+        static void DisplayFiles(string[] arrayFirst, string[] arraySecond, bool isAtTheBottom = true)
+        {
+            Console.Clear();
+
+            if (isAtTheBottom == true)
+            {
+                Console.SetCursorPosition(0, 20);
+            }
+
+            TextToColor("Current Files:");
+
+            if (arrayFirst.Length == 0)
+            {
+                TextToColor("No files has been found");
+            }
+            else
+            {
+                for (int i = 0; i < arrayFirst.Length; i++)
+                {
+                    Console.WriteLine($"{i + 1}. {arrayFirst[i]} - {arraySecond[i]}");
+                }
+            }
+
+            if (isAtTheBottom == true)
+            {
+                Console.SetCursorPosition(0, 0);
+            }
+        }
+
+        static void FileAdd(ref string[] arrayFirst, ref string[] arraySecond)
+        {
+            Console.Clear();
+            DisplayFiles(arrayFirst, arraySecond);
+            Console.WriteLine("Enter Name:");
+            FillArray(ref arrayFirst);
+            Console.WriteLine("Enter Profession:");
+            FillArray(ref arraySecond);
+            Console.Clear();
+            TextToColor("Your File has been added", ConsoleColor.Green);
+            DisplayFiles(arrayFirst, arraySecond);
+        }
+
+        static void FillArray(ref string[] array)
+        {
+            array = ExpandArray(array);
+            array[array.Length - 1] = Console.ReadLine();
+        }
+    }
+}
