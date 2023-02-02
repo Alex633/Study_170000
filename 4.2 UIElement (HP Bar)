@@ -1,0 +1,50 @@
+using System;
+
+namespace CodingCoursesButThisTimeForFree
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            //displayHPBarAlt();
+            displayHPBar();
+            Console.WriteLine("");
+        }
+
+        static void displayHPBar()
+        {
+            string background = "__________";
+            string currentHP = "####";
+
+            Console.SetCursorPosition(0, 28);
+            Console.Write("|");
+            colorText(background, ConsoleColor.Gray);
+            Console.Write("|");
+            Console.SetCursorPosition(1, 28);
+            colorText(currentHP);         
+        }
+
+        static void displayHPBarAlt()
+        {
+            string background = "          ";
+            string currentHP = "    ";
+         
+            Console.SetCursorPosition(0, 25);
+            Console.BackgroundColor = ConsoleColor.Gray;
+            Console.WriteLine(background);
+            Console.SetCursorPosition(0, 25);
+            Console.BackgroundColor = ConsoleColor.Red;
+            Console.WriteLine(currentHP);
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.SetCursorPosition(2, 26);
+            Console.WriteLine("4 / 10");
+        }
+
+        static void colorText(string text, ConsoleColor color = ConsoleColor.Red)
+        {
+            Console.ForegroundColor = color;
+            Console.Write(text);
+            Console.ForegroundColor = ConsoleColor.White;
+        }
+    }
+}
