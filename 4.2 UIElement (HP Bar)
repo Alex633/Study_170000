@@ -7,19 +7,19 @@ namespace CodingCoursesButThisTimeForFree
         static void Main(string[] args)
         {
             string currentHPInput = "";
-            int currentHPPercentage = 0;
-            double currentHPDouble = 0;
+            double currentHPPercentage = 0;
             int currentHP = 0;
             bool isNumber = false;
-            double maxHP = 50;
-            double minHP = 0;
+            int maxHP = 50;
+            int minHP = 0;
+            double maxPercent = 100;
 
             while (!isNumber)
             {
                 Console.Write("Enter HP percentage: ");
                 currentHPInput = Console.ReadLine();
 
-                if (!int.TryParse(currentHPInput, out currentHPPercentage))
+                if (!double.TryParse(currentHPInput, out currentHPPercentage))
                 {
                     colorText("That's not a number, fool\n", ConsoleColor.Red);
                     Console.WriteLine();
@@ -27,17 +27,17 @@ namespace CodingCoursesButThisTimeForFree
                 else
                 {
                     isNumber = true;
-                    currentHPDouble = Convert.ToDouble(currentHPPercentage) / 100 * maxHP;
-                    currentHP = Convert.ToInt32(currentHPDouble);
+                    currentHPPercentage = currentHPPercentage / maxPercent * maxHP;
+                    currentHP = Convert.ToInt32(currentHPPercentage);
                 }
 
-                if (currentHPDouble > maxHP)
+                if (currentHP > maxHP)
                 {
-                    currentHPDouble = maxHP;
+                    currentHP = maxHP;
                 }
-                else if (currentHPDouble < minHP)
+                else if (currentHP < minHP)
                 {
-                    currentHPDouble = minHP;
+                    currentHP = minHP;
                 }
             }
 
