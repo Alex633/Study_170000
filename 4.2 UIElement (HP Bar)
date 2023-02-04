@@ -6,38 +6,85 @@ namespace CodingCoursesButThisTimeForFree
     {
         static void Main(string[] args)
         {
-            //displayHPBarAlt();
-            displayHPBar();
+            string currentHPInput = "";
+            int currentHPPercentage = 0;
+            double currentHPDouble = 0;
+            int currentHP = 0;
+            bool isNumber = false;
+            double maxHP = 50;
+            double minHP = 0;
+
+            while (!isNumber)
+            {
+                Console.Write("Enter HP percentage: ");
+                currentHPInput = Console.ReadLine();
+
+                if (!int.TryParse(currentHPInput, out currentHPPercentage))
+                {
+                    colorText("That's not a number, fool\n", ConsoleColor.Red);
+                    Console.WriteLine();
+                }
+                else
+                {
+                    isNumber = true;
+                    currentHPDouble = Convert.ToDouble(currentHPPercentage) / 100 * maxHP;
+                    currentHP = Convert.ToInt32(currentHPDouble);
+                }
+
+                if (currentHPDouble > maxHP)
+                {
+                    currentHPDouble = maxHP;
+                }
+                else if (currentHPDouble < minHP)
+                {
+                    currentHPDouble = minHP;
+                }
+            }
+
+            displayHPBarAlt(currentHP, maxHP);
+            displayHPBar(currentHP, maxHP);
             Console.WriteLine("");
         }
 
-        static void displayHPBar()
+        static void displayHPBar(int currentHP, double maxHP)
         {
-            string background = "__________";
-            string currentHP = "####";
-
             Console.SetCursorPosition(0, 28);
             Console.Write("|");
-            colorText(background, ConsoleColor.Gray);
+
+            for (int i = 0; i < maxHP; i++)
+            {
+                Console.Write("_");
+            }
             Console.Write("|");
+
             Console.SetCursorPosition(1, 28);
-            colorText(currentHP);         
+            for (int i = 0; i < currentHP; i++)
+            {
+                colorText("#");
+            }
         }
 
-        static void displayHPBarAlt()
+        static void displayHPBarAlt(int currentHP, double maxHP)
         {
-            string background = "          ";
-            string currentHP = "    ";
-         
+
+
             Console.SetCursorPosition(0, 25);
             Console.BackgroundColor = ConsoleColor.Gray;
-            Console.WriteLine(background);
+
+            for (int i = 0; i < maxHP; i++)
+            {
+                Console.Write(" ");
+            }
+
             Console.SetCursorPosition(0, 25);
             Console.BackgroundColor = ConsoleColor.Red;
-            Console.WriteLine(currentHP);
+            for (int i = 0; i < currentHP; i++)
+            {
+                colorText(" ");
+            }
             Console.BackgroundColor = ConsoleColor.Black;
-            Console.SetCursorPosition(2, 26);
-            Console.WriteLine("4 / 10");
+            Console.SetCursorPosition(22, 26);
+            Console.WriteLine($"{currentHP} / {maxHP}");
         }
 
         static void colorText(string text, ConsoleColor color = ConsoleColor.Red)
