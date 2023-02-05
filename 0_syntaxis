@@ -93,7 +93,7 @@ static void FunctionName (int var, int var2, int optionalVar = 1, int optionalVa
 FunctionName(var, var2, optionalVar2: 3); //function call
 
 # RANDOM
-Random randVarient - new Random(); //initialization
+Random randVarient = new Random(); //initialization
 i = randVarient.Next(0,10); //from-to (last number don't included)
 
 # CONSOLE
