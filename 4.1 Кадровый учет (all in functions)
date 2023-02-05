@@ -11,34 +11,39 @@ namespace CodingCoursesButThisTimeForFree
             string[] tempArray = new string[names.Length + 1];
             int userInput = 0;
             bool isProgramOn = true;
+            const int FileAddCommand = 1;
+            const int DisplayFilesCommand = 2;
+            const int FileRemoveCommand = 3;
+            const int FileFindCommand = 4;
+            const int ByeByesCommand = 5;
 
             while (isProgramOn == true)
             {
                 DisplayFiles2(names, professions);
-                Console.WriteLine("1 - Add file" +
-                    "\n2 - Show all files" +
-                    "\n3 - Delete File" +
-                    "\n4 - Search by Name" +
-                    "\n5 - Say Goodbye" +
+                Console.WriteLine($"{FileAddCommand} Add file" +
+                    $"\n{DisplayFilesCommand} - Show all files" +
+                    $"\n{FileRemoveCommand} - Delete File" +
+                    $"\n{FileFindCommand} - Search by Name" +
+                    $"\n{ByeByesCommand} - Say Goodbye" +
                     "\n\nEnter your command:");
                 userInput = Convert.ToInt32(Console.ReadLine());
 
                 switch (userInput)
                 {
-                    case 1:
+                    case FileAddCommand:
                         FileAdd1(ref names, ref professions);
                         break;
-                    case 2:
+                    case DisplayFilesCommand:
                         DisplayFiles2(names, professions, false);
                         break;
-                    case 3:
-                        FileDelete3(ref names, ref professions);
+                    case FileRemoveCommand:
+                        FileRemove3(ref names, ref professions);
                         break;
-                    case 4:
+                    case FileFindCommand:
                         FileFind4(names, professions);
                         break;
-                    case 5:
-                        byeByes5(ref isProgramOn);
+                    case ByeByesCommand:
+                        ByeByes5(ref isProgramOn);
                         break;
                     default:
                         WhatDefault();
@@ -138,7 +143,7 @@ namespace CodingCoursesButThisTimeForFree
             }
         }
 
-        static void FileDelete3(ref string[] names, ref string[] professions)
+        static void FileRemove3(ref string[] names, ref string[] professions)
         {
             string searchedName = null;
             bool isFound = false;
@@ -202,7 +207,7 @@ namespace CodingCoursesButThisTimeForFree
             //isFound = false;
         }
 
-        static void byeByes5(ref bool isProgramOn)
+        static void ByeByes5(ref bool isProgramOn)
         {
             string userInputString = null;
             string password = "After a while, crocodile";
