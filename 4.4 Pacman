@@ -1,0 +1,353 @@
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Runtime.InteropServices;
+
+namespace CodingCoursesButThisTimeForFree
+{
+    internal class program
+    {
+        static void Main(string[] args)
+        {
+            int startingMapXPos = 28;
+            int startingMapYPos = 0;
+            int pacmanXPos = 55;
+            int pacmanYPos = 16;
+            char[,] currentLevel = new char[0, 0];
+            bool isWinningConditionsMet = false;
+            char[,] levelOuterMap = ReadOuterMap("level1.txt");
+            const char wall = '#';
+            const char dot = '.';
+            const char playSpace = 'x';
+            const char nothing = '-';
+            const char circle = 'o';
+            int count = 1;
+
+            Console.CursorVisible = true;
+            //offsetTimedWrite("Alexander's Game");
+            //offsetTimedWrite("The Pac-Man", 2000, 50);
+
+            //Console.WriteLine("y: " + levelMap.GetLength(0) + "\nx: " + levelMap.GetLength(1));
+
+            currentLevel = LevelMap(1);
+
+            Console.SetCursorPosition(95, 0);
+            Console.ForegroundColor = ConsoleColor.Blue;
+            //Console.WriteLine("Log:");
+            Console.ForegroundColor = ConsoleColor.White;
+
+            for (int x = 0; x < currentLevel.GetLength(0); x++)
+            {
+                Console.SetCursorPosition(startingMapXPos, startingMapYPos++);
+                for (int y = 0; y < currentLevel.GetLength(1); y++)
+                {
+                    DrawSingleChar(currentLevel[x, y], wall, dot, playSpace, nothing, circle);
+                }
+                Console.WriteLine();
+            }
+
+            while (isWinningConditionsMet == false)
+            {
+
+                //for (int x = 0; x < currentLevel.GetLength(0); x++)
+                //{
+                //    Console.SetCursorPosition(startingMapXPos, startingMapYPos++);
+                //    for (int y = 0; y < currentLevel.GetLength(1); y++)
+                //    {
+                //        DrawSingleChar(currentLevel[x, y], wall, dot, playSpace, nothing, circle);
+                //    }
+                //    Console.WriteLine();
+                //}
+
+                GraphicallyImpressivePacman(ref pacmanXPos, ref pacmanYPos);
+                DirectionalMovement(ref pacmanXPos, ref pacmanYPos, ref currentLevel, wall, ref count);
+                startingMapYPos = 0;
+            }
+        }
+
+        static void DrawSingleChar(char character, char wall, char dot, char playSpace, char nothing, char circle)
+        {
+            if (character == wall)
+            {
+                CharToBackgroundColor(wall, ConsoleColor.DarkBlue);
+            }
+            else if (character == dot)
+            {
+                CharToColor(dot, ConsoleColor.DarkYellow);
+            }
+            else if (character == playSpace)
+            {
+                CharToBackgroundColor(playSpace, ConsoleColor.Black);
+            }
+            else if (character == nothing)
+            {
+                CharToBackgroundColor(nothing, ConsoleColor.Black);
+            }
+            else if (character == circle)
+            {
+                CharToColor(circle, ConsoleColor.Yellow);
+            }
+        }
+
+        static void CharToColor(char character, ConsoleColor color)
+        {
+            Console.ForegroundColor = color;
+            Console.Write(character);
+            Console.ForegroundColor = ConsoleColor.White;
+        }
+
+        static void CharToBackgroundColor(char character, ConsoleColor color)
+        {
+            Console.BackgroundColor = color;
+            Console.ForegroundColor = color;
+            Console.Write(character);
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.ForegroundColor = ConsoleColor.White;
+        }
+
+        private static char[,] ReadOuterMap(string path)
+        {
+            string[] outerFile = File.ReadAllLines("level1.txt");
+
+            char[,] map = new char[GetMaxLengthOfLines(outerFile), outerFile.Length];
+
+            for (int x = 0; x < map.GetLength(0); x++)
+                for (int y = 0; y < map.GetLength(1); y++)
+                    map[x, y] = outerFile[y][x];
+
+            return map;
+        }
+
+        private static int GetMaxLengthOfLines(string[] lines)
+        {
+            int maxLength = lines[0].Length;
+
+            foreach (var currentLine in lines)
+                if (currentLine.Length > maxLength)
+                    maxLength = currentLine.Length;
+
+            return maxLength;
+        }
+
+        static void offsetTimedWrite(string words, long duration = 1600, int xPosition = 47, int yPosition = 14)
+        {
+            Stopwatch timer = new Stopwatch();
+            long currentTime = 0;
+
+            Console.SetCursorPosition(xPosition, yPosition);
+            ConsoleHelper.SetCurrentFont("Consolas", 28);
+            Console.WriteLine(words);
+            Console.SetCursorPosition(0, 0);
+
+            while (currentTime < duration)
+            {
+                timer.Start();
+                currentTime = timer.ElapsedMilliseconds;
+            }
+
+            timer.Stop();
+            Console.Clear();
+        }
+
+        static void DirectionalMovement(ref int pacmanXPos, ref int pacmanYPos, ref char[,] currentLevel, char wall, ref int count)
+        {
+            ConsoleKeyInfo pressedButton = Console.ReadKey();
+            bool isSnake = false;
+
+            if (isSnake == false)
+            {
+                Console.SetCursorPosition(pacmanXPos, pacmanYPos);
+                Console.Write(' ');
+            }
+
+            switch (pressedButton.Key)
+            {
+                case ConsoleKey.UpArrow:
+                case ConsoleKey.W:
+                    if (currentLevel[pacmanYPos - 1, pacmanXPos - 28] == wall)
+                    {                     
+                        Console.SetCursorPosition(95, count++);
+                        Console.WriteLine("Who is There?");
+                    }
+                    else
+                    {
+                        pacmanYPos--;
+                    }
+                    break;
+
+                case ConsoleKey.DownArrow:
+                case ConsoleKey.S:
+                    if (currentLevel[pacmanYPos + 1, pacmanXPos - 28] == wall)
+                    {
+                        Console.SetCursorPosition(95, count++);
+                        Console.WriteLine("Who is There?");
+                    }
+                    else
+                    {
+                        pacmanYPos++;
+                    }
+                    break;
+
+                case ConsoleKey.LeftArrow:
+                case ConsoleKey.A:
+                    if (currentLevel[pacmanYPos, pacmanXPos - 28 - 1] == wall)
+                    {
+                        Console.SetCursorPosition(95, count++);
+                        Console.WriteLine("Who is There?");
+                    }
+                    else
+                    {
+                        pacmanXPos--;
+                    }
+                    break;
+
+                case ConsoleKey.RightArrow:
+                case ConsoleKey.D:
+                    if (currentLevel[pacmanYPos, pacmanXPos - 28 + 1] == wall)
+                    {
+                        Console.SetCursorPosition(95, count++);
+                        Console.WriteLine("Who is There?");
+                    }
+                    else
+                    {
+                        pacmanXPos++;
+                    }
+                    break;
+            }
+        }
+
+        public static class ConsoleHelper
+        {
+            private const int FixedWidthTrueType = 54;
+            private const int StandardOutputHandle = -11;
+
+            [DllImport("kernel32.dll", SetLastError = true)]
+            internal static extern IntPtr GetStdHandle(int nStdHandle);
+
+            [return: MarshalAs(UnmanagedType.Bool)]
+            [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+            internal static extern bool SetCurrentConsoleFontEx(IntPtr hConsoleOutput, bool MaximumWindow, ref FontInfo ConsoleCurrentFontEx);
+
+            [return: MarshalAs(UnmanagedType.Bool)]
+            [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+            internal static extern bool GetCurrentConsoleFontEx(IntPtr hConsoleOutput, bool MaximumWindow, ref FontInfo ConsoleCurrentFontEx);
+
+
+            private static readonly IntPtr ConsoleOutputHandle = GetStdHandle(StandardOutputHandle);
+
+            [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+            public struct FontInfo
+            {
+                internal int cbSize;
+                internal int FontIndex;
+                internal short FontWidth;
+                public short FontSize;
+                public int FontFamily;
+                public int FontWeight;
+                [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+                //[MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.wc, SizeConst = 32)]
+                public string FontName;
+            }
+
+            public static FontInfo[] SetCurrentFont(string font, short fontSize = 0)
+            {
+                //Console.WriteLine("Set Current Font: " + font);
+
+                FontInfo before = new FontInfo
+                {
+                    cbSize = Marshal.SizeOf<FontInfo>()
+                };
+
+                if (GetCurrentConsoleFontEx(ConsoleOutputHandle, false, ref before))
+                {
+
+                    FontInfo set = new FontInfo
+                    {
+                        cbSize = Marshal.SizeOf<FontInfo>(),
+                        FontIndex = 0,
+                        FontFamily = FixedWidthTrueType,
+                        FontName = font,
+                        FontWeight = 400,
+                        FontSize = fontSize > 0 ? fontSize : before.FontSize
+                    };
+
+                    // Get some settings from current font.
+                    if (!SetCurrentConsoleFontEx(ConsoleOutputHandle, false, ref set))
+                    {
+                        var ex = Marshal.GetLastWin32Error();
+                        Console.WriteLine("Set error " + ex);
+                        throw new System.ComponentModel.Win32Exception(ex);
+                    }
+
+                    FontInfo after = new FontInfo
+                    {
+                        cbSize = Marshal.SizeOf<FontInfo>()
+                    };
+                    GetCurrentConsoleFontEx(ConsoleOutputHandle, false, ref after);
+
+                    return new[] { before, set, after };
+                }
+                else
+                {
+                    var er = Marshal.GetLastWin32Error();
+                    Console.WriteLine("Get error " + er);
+                    throw new System.ComponentModel.Win32Exception(er);
+                }
+            }
+        }
+
+        static char[,] LevelMap(int level)
+        {
+            char[,] level1 = {
+{ '#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#' },
+{ '#','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','#','#','#','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','#' },
+{ '#','-','.','-','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','-','.','-','#' },
+{ '#','-','o','-','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','-','o','-','#' },
+{ '#','-','.','-','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','-','.','-','#' },
+{ '#','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','#' },
+{ '#','-','.','-','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','-','.','-','#' },
+{ '#','-','.','-','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','-','.','-','#' },
+{ '#','-','.','-','.','-','.','-','.','-','.','-','.','-','#','#','#','-','.','-','.','-','.','-','.','-','#','#','#','-','.','-','.','-','.','-','.','-','#','#','#','-','.','-','.','-','.','-','.','-','.','-','.','-','#' },
+{ '#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','x','-','#','#','#','-','x','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#' },
+{ '#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','x','-','#','#','#','-','x','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#' },
+{ '#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','x','-','x','-','x','-','x','-','x','-','x','-','x','-','x','-','x','-','x','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#' },
+{ '#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','x','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','x','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#' },
+{ '.','-','.','-','.','-','.','-','.','-','.','-','.','-','-','-','-','-','x','-','#','x','x','x','x','x','x','x','x','x','x','x','x','x','#','-','x','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.' },
+{ '#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','x','-','#','x','x','x','x','x','x','x','x','x','x','x','x','x','#','-','x','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#' },
+{ '#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','x','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','x','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#' },
+{ '#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','x','-','x','-','x','-','x','-','x','-','x','-','x','-','x','-','x','-','x','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#' },
+{ '#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','x','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','x','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#' },
+{ '#','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','#','#','#','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','#' },
+{ '#','-','.','-','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','-','.','-','#' },
+{ '#','-','.','-','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','-','.','-','#' },
+{ '#','-','o','-','.','-','.','-','#','#','#','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','#','#','#','-','.','-','.','-','o','-','#' },
+{ '#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#' },
+{ '#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#' },
+{ '#','-','.','-','.','-','.','-','.','-','.','-','.','-','#','#','#','-','.','-','.','-','.','-','.','-','#','#','#','-','.','-','.','-','.','-','.','-','#','#','#','-','.','-','.','-','.','-','.','-','.','-','.','-','#' },
+{ '#','-','.','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','.','-','#' },
+{ '#','-','.','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','.','-','#' },
+{ '#','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','#' },
+{ '#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#' } };
+
+            if (level == 1)
+            {
+                return level1;
+            }
+            else
+            {
+                return level1;
+            }
+        }
+
+        static void GraphicallyImpressivePacman(ref int pacmanXPos, ref int pacmanYPos)
+        {
+            char pacman = '0';
+            Console.SetCursorPosition(pacmanXPos, pacmanYPos);
+            Console.BackgroundColor = ConsoleColor.Yellow;
+            CharToColor(pacman, ConsoleColor.Black);
+            Console.BackgroundColor = ConsoleColor.Black;
+        }
+
+    }
+}
+
