@@ -2,6 +2,8 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Timers;
 
 namespace CodingCoursesButThisTimeForFree
 {
@@ -9,32 +11,145 @@ namespace CodingCoursesButThisTimeForFree
     {
         static void Main(string[] args)
         {
-            int startingMapXPos = 28;
-            int startingMapYPos = 0;
-            int pacmanXPos = 55;
+            int pacmanXPos = 54;
             int pacmanYPos = 16;
+            int pacmanXPosM = 53;
+            int pacmanYPosM = 14;
             char[,] currentLevel = new char[0, 0];
             bool isWinningConditionsMet = false;
             char[,] levelOuterMap = ReadOuterMap("level1.txt");
-            const char wall = '#';
-            const char dot = '.';
+            int menuOption = 0;
+            ConsoleKeyInfo pressedKey = new ConsoleKeyInfo('D', ConsoleKey.D, false, false, false);
+            const char wall = '#'; //map objects
+            const char point = '.';
             const char playSpace = 'x';
             const char nothing = '-';
             const char circle = 'o';
-            int count = 1;
+            int count = 1; //
 
-            Console.CursorVisible = true;
-            //offsetTimedWrite("Alexander's Game");
-            //offsetTimedWrite("The Pac-Man", 2000, 50);
+            bool isTimed = true;
+            long currentTime = 0;
+            long duration = 100;
+            Stopwatch timer = new Stopwatch();
 
-            //Console.WriteLine("y: " + levelMap.GetLength(0) + "\nx: " + levelMap.GetLength(1));
+            Console.CursorVisible = false;
+            //OffsetWrite("Alexander's Game");
+            //OffsetWrite("The Pac-Man 2", 50, 14, true, 2000);
+
+            //Console.WriteLine("y: " + levelMap.GetLength(0) + "\nx: " + levelMap.GetLength(1));        
+
+            //for (int x = 0; x < currentLevel.GetLength(0); x++)
+            //{
+            //    Console.SetCursorPosition(startingMapXPos, startingMapYPos++);
+            //    for (int y = 0; y < currentLevel.GetLength(1); y++)
+            //    {
+            //        DrawSingleChar(currentLevel[x, y], wall, dot, playSpace, nothing, circle);
+            //    }
+            //    Console.WriteLine();
+            //}
+
+            while (menuOption == 0)
+            {
+                DrawMenu(ref pacmanYPosM);
+                MenuSelector(ref menuOption, ref pacmanXPosM, ref pacmanYPosM);
+                Console.Clear();
+            }
+
+            if (menuOption == 1)
+            {
+                OffsetWrite("Level 1", 56);
+            }
 
             currentLevel = LevelMap(1);
 
-            Console.SetCursorPosition(95, 0);
-            Console.ForegroundColor = ConsoleColor.Blue;
-            //Console.WriteLine("Log:");
-            Console.ForegroundColor = ConsoleColor.White;
+            while (isWinningConditionsMet == false)
+            {
+                DrawMap(currentLevel, wall, point, playSpace, nothing, circle);
+                OffsetWrite(" <  ", 28, 13, false, 0, false);
+                OffsetWrite("  > ", 79, 13, false, 0, false);
+                GraphicallyImpressivePacman(ref pacmanXPos, ref pacmanYPos);
+                PressedButtonHUD(pressedKey);
+                HandleInput(ref pacmanXPos, ref pacmanYPos, currentLevel, wall, point, playSpace, circle, ref count, ref pressedKey);
+
+                if (currentLevel[pacmanYPos, pacmanXPos - 28] == point || (currentLevel[pacmanYPos, pacmanXPos - 28] == circle))
+                {
+                    currentLevel[pacmanYPos, pacmanXPos - 28] = playSpace;
+                }
+
+                //Thread.Sleep(1);
+
+                if (isTimed)
+                {
+                    while (currentTime < duration)
+                    {
+                        timer.Start();
+                        currentTime = timer.ElapsedMilliseconds;
+                    }
+
+                    timer.Stop();
+                }
+            }
+        }
+        private static char[,] ReadOuterMap(string path)
+        {
+            string[] outerFile = File.ReadAllLines("level1.txt");
+
+            char[,] map = new char[GetMaxLengthOfLines(outerFile), outerFile.Length];
+
+            for (int x = 0; x < map.GetLength(0); x++)
+                for (int y = 0; y < map.GetLength(1); y++)
+                    map[x, y] = outerFile[y][x];
+
+            return map;
+        } //map and character drawing
+
+        static char[,] LevelMap(int level)
+        {
+            char[,] level1 = {
+{ '#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#' },
+{ '#','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','#','#','#','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','#' },
+{ '#','-','.','-','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','-','.','-','#' },
+{ '#','-','o','-','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','-','o','-','#' },
+{ '#','-','.','-','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','-','.','-','#' },
+{ '#','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','#' },
+{ '#','-','.','-','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','-','.','-','#' },
+{ '#','-','.','-','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','-','.','-','#' },
+{ '#','-','.','-','.','-','.','-','.','-','.','-','.','-','#','#','#','-','.','-','.','-','.','-','.','-','#','#','#','-','.','-','.','-','.','-','.','-','#','#','#','-','.','-','.','-','.','-','.','-','.','-','.','-','#' },
+{ '#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','x','-','#','#','#','-','x','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#' },
+{ '#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','x','-','#','#','#','-','x','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#' },
+{ '#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','x','-','x','-','x','-','x','-','x','-','x','-','x','-','x','-','x','-','x','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#' },
+{ '#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','x','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','x','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#' },
+{ '-','-','-','-','-','-','-','-','-','-','-','-','.','-','-','-','-','-','x','-','#','x','x','x','x','x','x','x','x','x','x','x','x','x','#','-','x','-','-','-','-','-','.','-','-','-','-','-','-','-','-','-','-','-','-' },
+{ '#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','x','-','#','x','x','x','x','x','x','x','x','x','x','x','x','x','#','-','x','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#' },
+{ '#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','x','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','x','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#' },
+{ '#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','x','-','x','-','x','-','x','-','x','-','x','-','x','-','x','-','x','-','x','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#' },
+{ '#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','x','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','x','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#' },
+{ '#','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','#','#','#','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','#' },
+{ '#','-','.','-','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','-','.','-','#' },
+{ '#','-','.','-','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','-','.','-','#' },
+{ '#','-','o','-','.','-','.','-','#','#','#','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','#','#','#','-','.','-','.','-','o','-','#' },
+{ '#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#' },
+{ '#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#' },
+{ '#','-','.','-','.','-','.','-','.','-','.','-','.','-','#','#','#','-','.','-','.','-','.','-','.','-','#','#','#','-','.','-','.','-','.','-','.','-','#','#','#','-','.','-','.','-','.','-','.','-','.','-','.','-','#' },
+{ '#','-','.','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','.','-','#' },
+{ '#','-','.','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','.','-','#' },
+{ '#','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','#' },
+{ '#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#' } };
+
+            if (level == 1)
+            {
+                return level1;
+            }
+            else
+            {
+                return level1;
+            }
+        }
+
+        static void DrawMap(char[,] currentLevel, char wall, char dot, char playSpace, char nothing, char circle)
+        {
+            int startingMapXPos = 28;
+            int startingMapYPos = 0;
 
             for (int x = 0; x < currentLevel.GetLength(0); x++)
             {
@@ -46,23 +161,7 @@ namespace CodingCoursesButThisTimeForFree
                 Console.WriteLine();
             }
 
-            while (isWinningConditionsMet == false)
-            {
-
-                //for (int x = 0; x < currentLevel.GetLength(0); x++)
-                //{
-                //    Console.SetCursorPosition(startingMapXPos, startingMapYPos++);
-                //    for (int y = 0; y < currentLevel.GetLength(1); y++)
-                //    {
-                //        DrawSingleChar(currentLevel[x, y], wall, dot, playSpace, nothing, circle);
-                //    }
-                //    Console.WriteLine();
-                //}
-
-                GraphicallyImpressivePacman(ref pacmanXPos, ref pacmanYPos);
-                DirectionalMovement(ref pacmanXPos, ref pacmanYPos, ref currentLevel, wall, ref count);
-                startingMapYPos = 0;
-            }
+            startingMapYPos = 0;
         }
 
         static void DrawSingleChar(char character, char wall, char dot, char playSpace, char nothing, char circle)
@@ -105,19 +204,6 @@ namespace CodingCoursesButThisTimeForFree
             Console.ForegroundColor = ConsoleColor.White;
         }
 
-        private static char[,] ReadOuterMap(string path)
-        {
-            string[] outerFile = File.ReadAllLines("level1.txt");
-
-            char[,] map = new char[GetMaxLengthOfLines(outerFile), outerFile.Length];
-
-            for (int x = 0; x < map.GetLength(0); x++)
-                for (int y = 0; y < map.GetLength(1); y++)
-                    map[x, y] = outerFile[y][x];
-
-            return map;
-        }
-
         private static int GetMaxLengthOfLines(string[] lines)
         {
             int maxLength = lines[0].Length;
@@ -129,93 +215,229 @@ namespace CodingCoursesButThisTimeForFree
             return maxLength;
         }
 
-        static void offsetTimedWrite(string words, long duration = 1600, int xPosition = 47, int yPosition = 14)
+        static void GraphicallyImpressivePacman(ref int pacmanXPos, ref int pacmanYPos, bool isVisible = true)
+        {
+            char pacmanEar = '^';
+            char pacman = '0';
+            Console.SetCursorPosition(pacmanXPos, pacmanYPos);
+
+            if (isVisible == true)
+            {
+                Console.BackgroundColor = ConsoleColor.DarkYellow;
+                CharToColor(pacman, ConsoleColor.Black);
+                CharToColor(pacmanEar, ConsoleColor.Black);
+                Console.SetCursorPosition(pacmanXPos - 1, pacmanYPos);
+                CharToColor(pacmanEar, ConsoleColor.Black);
+            }
+
+            Console.BackgroundColor = ConsoleColor.Black;
+        } //\\
+
+        static void DrawMenu(ref int pacmanYPosM)
+        {
+            if (pacmanYPosM == 14)
+            {
+                OffsetWrite("  New_Game ", 55, 14, false, 0, true);
+            }
+            else
+            {
+                OffsetWrite("New_Game", 55, 14, false, 0, false);
+            }
+
+            if (pacmanYPosM == 15)
+            {
+                OffsetWrite("  Options ", 55, 15, false, 0, true);
+            }
+            else
+            {
+                OffsetWrite("Options", 55, 15, false, 0, false);
+            }
+
+            if (pacmanYPosM == 16)
+            {
+                OffsetWrite("  Exit_Game ", 55, 16, false, 0, true);
+            }
+            else
+            {
+                OffsetWrite("Exit_Game", 55, 16, false, 0, false);
+            }
+        } //menu stuff
+
+        static void MenuSelector(ref int menuOption, ref int pacmanXPosM, ref int pacmanYPosM)
+        {
+            ConsoleKeyInfo pressedButton = new ConsoleKeyInfo();
+            pressedButton = new ConsoleKeyInfo();
+
+            GraphicallyImpressivePacman(ref pacmanXPosM, ref pacmanYPosM, false);
+            pressedButton = Console.ReadKey();
+            switch (pressedButton.Key)
+            {
+                case ConsoleKey.UpArrow:
+                case ConsoleKey.W:
+                    if (pacmanYPosM != 14)
+                        pacmanYPosM--;
+                    break;
+
+                case ConsoleKey.DownArrow:
+                case ConsoleKey.S:
+                    if (pacmanYPosM != 16)
+                        pacmanYPosM++;
+                    break;
+
+                case ConsoleKey.Enter:
+                case ConsoleKey.Spacebar:
+                    switch (pacmanYPosM)
+                    {
+                        case 14:
+                            menuOption = 1;
+                            break;
+                        case 15:
+                            menuOption = 2;
+                            break;
+                        case 16:
+                            menuOption = 3;
+                            break;
+                    }
+                    break;
+            }
+        } //\\
+
+        static void HandleInput(ref int pacmanXPos, ref int pacmanYPos, char[,] currentLevel, char wall, char point, char playSpace, char circle, ref int count, ref ConsoleKeyInfo pressedKey)
+        {
+            pressedKey = Console.ReadKey();
+            switch (pressedKey.Key)
+            {
+                case ConsoleKey.UpArrow:
+                case ConsoleKey.W:
+                    MoveIfYouCan(currentLevel, ref pacmanYPos, ref pacmanXPos, wall, -1);
+                    break;
+
+                case ConsoleKey.DownArrow:
+                case ConsoleKey.S:
+                    MoveIfYouCan(currentLevel, ref pacmanYPos, ref pacmanXPos, wall, 1);
+                    break;
+
+                case ConsoleKey.LeftArrow:
+                case ConsoleKey.A:
+                    MoveIfYouCan(currentLevel, ref pacmanYPos, ref pacmanXPos, wall, 0, -2);
+                    break;
+
+                case ConsoleKey.RightArrow:
+                case ConsoleKey.D:
+                    MoveIfYouCan(currentLevel, ref pacmanYPos, ref pacmanXPos, wall, 0, 2);
+                    break;
+            }
+
+            if (pacmanYPos == 13 & pacmanXPos == 30)
+            {
+                pacmanYPos = 13; pacmanXPos = 79;
+
+            }
+
+            if (pacmanYPos == 13 & pacmanXPos == 79)
+            {
+
+            }
+
+        } //movement
+
+        static void PressedButtonHUD(ConsoleKeyInfo pressedKey)
+        {
+            int upX = 12;
+            int upY = 12;
+            int downX = 12;
+            int downY = 14;
+            int leftX = 7;
+            int leftY = 14;
+            int rightX = 17;
+            int rightY = 14;
+            
+            OffsetWrite(" ↑ ", upX, upY, false, 0, true);
+            OffsetWrite(" ↓ ", downX, downY, false, 0, true);
+            OffsetWrite(" ← ", leftX, leftY, false, 0, true);
+            OffsetWrite(" → ", rightX, rightY, false, 0, true);
+            OffsetWrite("                    ", 4, 16, false, 0, false);
+
+            switch (pressedKey.Key)
+            {
+                case ConsoleKey.UpArrow:
+                case ConsoleKey.W:
+                    OffsetWrite(" ↑ ", upX, upY, false, 0, true, ConsoleColor.DarkBlue);
+                    break;
+
+                case ConsoleKey.DownArrow:
+                case ConsoleKey.S:
+                    OffsetWrite(" ↓ ", downX, downY, false, 0, true, ConsoleColor.DarkBlue);
+                    break;
+
+                case ConsoleKey.LeftArrow:
+                case ConsoleKey.A:
+                    OffsetWrite(" ← ", leftX, leftY, false, 0, true, ConsoleColor.DarkBlue);
+                    break;
+
+                case ConsoleKey.RightArrow:
+                case ConsoleKey.D:
+                    OffsetWrite(" → ", rightX, rightY, false, 0, true, ConsoleColor.DarkBlue);
+                    break;
+
+                default:
+                    OffsetWrite(" Unkoown Button (" + pressedKey.KeyChar + ") ", 4, 16, false, 0, true, ConsoleColor.DarkBlue);
+                    break;
+            }
+        }
+
+        static void MoveIfYouCan(char[,] currentLevel, ref int pacmanYPos, ref int pacmanXPos, char wall, int moveForY = 0, int moveForX = 0)
+        {
+            if (currentLevel[pacmanYPos + moveForY, pacmanXPos - 28 + moveForX] == wall)
+            {
+                WriteInLog("Who is there?", 95, 13);
+            }
+            else
+            {
+                pacmanYPos += moveForY;
+                pacmanXPos += moveForX;
+            }
+        } //\\
+
+        static void OffsetWrite(string text, int xPosition = 47, int yPosition = 14, bool isTimed = true, long duration = 1600, bool isSelected = false, ConsoleColor selectionColor = ConsoleColor.Blue)
         {
             Stopwatch timer = new Stopwatch();
             long currentTime = 0;
 
             Console.SetCursorPosition(xPosition, yPosition);
             ConsoleHelper.SetCurrentFont("Consolas", 28);
-            Console.WriteLine(words);
+
+            if (isSelected)
+            {
+                Console.BackgroundColor = selectionColor;
+                Console.WriteLine(text);
+                Console.BackgroundColor = ConsoleColor.Black;
+            }
+            else
+            {
+                Console.WriteLine(text);
+            }
+
             Console.SetCursorPosition(0, 0);
 
-            while (currentTime < duration)
+            if (isTimed)
             {
-                timer.Start();
-                currentTime = timer.ElapsedMilliseconds;
+                while (currentTime < duration)
+                {
+                    timer.Start();
+                    currentTime = timer.ElapsedMilliseconds;
+                }
+
+                timer.Stop();
+                Console.Clear();
             }
+        } //misc
 
-            timer.Stop();
-            Console.Clear();
-        }
-
-        static void DirectionalMovement(ref int pacmanXPos, ref int pacmanYPos, ref char[,] currentLevel, char wall, ref int count)
+        static void WriteInLog(string text, int xPos, int yPos)
         {
-            ConsoleKeyInfo pressedButton = Console.ReadKey();
-            bool isSnake = false;
-
-            if (isSnake == false)
-            {
-                Console.SetCursorPosition(pacmanXPos, pacmanYPos);
-                Console.Write(' ');
-            }
-
-            switch (pressedButton.Key)
-            {
-                case ConsoleKey.UpArrow:
-                case ConsoleKey.W:
-                    if (currentLevel[pacmanYPos - 1, pacmanXPos - 28] == wall)
-                    {                     
-                        Console.SetCursorPosition(95, count++);
-                        Console.WriteLine("Who is There?");
-                    }
-                    else
-                    {
-                        pacmanYPos--;
-                    }
-                    break;
-
-                case ConsoleKey.DownArrow:
-                case ConsoleKey.S:
-                    if (currentLevel[pacmanYPos + 1, pacmanXPos - 28] == wall)
-                    {
-                        Console.SetCursorPosition(95, count++);
-                        Console.WriteLine("Who is There?");
-                    }
-                    else
-                    {
-                        pacmanYPos++;
-                    }
-                    break;
-
-                case ConsoleKey.LeftArrow:
-                case ConsoleKey.A:
-                    if (currentLevel[pacmanYPos, pacmanXPos - 28 - 1] == wall)
-                    {
-                        Console.SetCursorPosition(95, count++);
-                        Console.WriteLine("Who is There?");
-                    }
-                    else
-                    {
-                        pacmanXPos--;
-                    }
-                    break;
-
-                case ConsoleKey.RightArrow:
-                case ConsoleKey.D:
-                    if (currentLevel[pacmanYPos, pacmanXPos - 28 + 1] == wall)
-                    {
-                        Console.SetCursorPosition(95, count++);
-                        Console.WriteLine("Who is There?");
-                    }
-                    else
-                    {
-                        pacmanXPos++;
-                    }
-                    break;
-            }
+            Console.SetCursorPosition(xPos, yPos);
+            Console.WriteLine(text);
         }
-
         public static class ConsoleHelper
         {
             private const int FixedWidthTrueType = 54;
@@ -295,59 +517,7 @@ namespace CodingCoursesButThisTimeForFree
                 }
             }
         }
-
-        static char[,] LevelMap(int level)
-        {
-            char[,] level1 = {
-{ '#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#' },
-{ '#','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','#','#','#','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','#' },
-{ '#','-','.','-','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','-','.','-','#' },
-{ '#','-','o','-','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','-','o','-','#' },
-{ '#','-','.','-','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','-','.','-','#' },
-{ '#','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','#' },
-{ '#','-','.','-','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','-','.','-','#' },
-{ '#','-','.','-','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','-','.','-','#' },
-{ '#','-','.','-','.','-','.','-','.','-','.','-','.','-','#','#','#','-','.','-','.','-','.','-','.','-','#','#','#','-','.','-','.','-','.','-','.','-','#','#','#','-','.','-','.','-','.','-','.','-','.','-','.','-','#' },
-{ '#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','x','-','#','#','#','-','x','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#' },
-{ '#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','x','-','#','#','#','-','x','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#' },
-{ '#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','x','-','x','-','x','-','x','-','x','-','x','-','x','-','x','-','x','-','x','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#' },
-{ '#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','x','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','x','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#' },
-{ '.','-','.','-','.','-','.','-','.','-','.','-','.','-','-','-','-','-','x','-','#','x','x','x','x','x','x','x','x','x','x','x','x','x','#','-','x','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.' },
-{ '#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','x','-','#','x','x','x','x','x','x','x','x','x','x','x','x','x','#','-','x','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#' },
-{ '#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','x','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','x','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#' },
-{ '#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','x','-','x','-','x','-','x','-','x','-','x','-','x','-','x','-','x','-','x','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#' },
-{ '#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','x','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','x','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#' },
-{ '#','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','#','#','#','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','#' },
-{ '#','-','.','-','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','-','.','-','#' },
-{ '#','-','.','-','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','#','#','#','#','-','.','-','#' },
-{ '#','-','o','-','.','-','.','-','#','#','#','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','#','#','#','-','.','-','.','-','o','-','#' },
-{ '#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#' },
-{ '#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#' },
-{ '#','-','.','-','.','-','.','-','.','-','.','-','.','-','#','#','#','-','.','-','.','-','.','-','.','-','#','#','#','-','.','-','.','-','.','-','.','-','#','#','#','-','.','-','.','-','.','-','.','-','.','-','.','-','#' },
-{ '#','-','.','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','.','-','#' },
-{ '#','-','.','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','.','-','#','#','#','-','.','-','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','-','.','-','#' },
-{ '#','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','.','-','#' },
-{ '#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#' } };
-
-            if (level == 1)
-            {
-                return level1;
-            }
-            else
-            {
-                return level1;
-            }
-        }
-
-        static void GraphicallyImpressivePacman(ref int pacmanXPos, ref int pacmanYPos)
-        {
-            char pacman = '0';
-            Console.SetCursorPosition(pacmanXPos, pacmanYPos);
-            Console.BackgroundColor = ConsoleColor.Yellow;
-            CharToColor(pacman, ConsoleColor.Black);
-            Console.BackgroundColor = ConsoleColor.Black;
-        }
-
     }
 }
+
 
