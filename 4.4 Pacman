@@ -2,6 +2,11 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
+//timed log
+// second player
+
 
 namespace CodingCoursesButThisTimeForFree
 {
@@ -15,16 +20,19 @@ namespace CodingCoursesButThisTimeForFree
             int pacmanXPosM = 53;
             int pacmanYPosM = 14;
             char[,] currentLevel = new char[0, 0];
-            bool isWinningConditionsMet = false;
             char[,] levelOuterMap = ReadOuterMap("level1.txt");
             int menuOption = 0;
-            ConsoleKeyInfo pressedKey = new ConsoleKeyInfo('D', ConsoleKey.D, false, false, false);
+            ConsoleKeyInfo pressedKey = new ConsoleKeyInfo();
             const char wall = '#'; //map objects
             const char point = '.';
             const char playSpace = 'x';
             const char nothing = '-';
             const char circle = 'o';
             const char teleport = '@'; //
+            int score = 0;
+            int finalScore = 0;
+            bool inGame = false;
+            //int count = 0;
 
             bool isTimed = true;
             long currentTime = 0;
@@ -32,69 +40,73 @@ namespace CodingCoursesButThisTimeForFree
             Stopwatch timer = new Stopwatch();
 
             Console.CursorVisible = false;
-            //OffsetWrite("Alexander's Game");
-            //OffsetWrite("The Pac-Man 2", 50, 14, true, 2000);
 
-            //Console.WriteLine("y: " + levelMap.GetLength(0) + "\nx: " + levelMap.GetLength(1));        
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    while (inGame == true)
+                        pressedKey = Console.ReadKey();
 
-            //for (int x = 0; x < currentLevel.GetLength(0); x++)
-            //{
-            //    Console.SetCursorPosition(startingMapXPos, startingMapYPos++);
-            //    for (int y = 0; y < currentLevel.GetLength(1); y++)
-            //    {
-            //        DrawSingleChar(currentLevel[x, y], wall, dot, playSpace, nothing, circle);
-            //    }
-            //    Console.WriteLine();
-            //}
+                    //while (true)
+                    //{
+                    //    WriteInLog("knock");
+                    //    Thread.Sleep(10000);
+                    //    WriteInLog("       ");
+                    //}
+                }
+            });
+
+            OffsetWrite("Alexander's Game");
+            OffsetWrite("The Pac-Man 2", 50, 14, true, 2000);   
 
             while (menuOption == 0)
             {
                 DrawMenu(ref pacmanYPosM);
-                MenuSelector(ref menuOption, ref pacmanXPosM, ref pacmanYPosM);
+                MenuSelector(ref menuOption, ref pacmanXPosM, ref pacmanYPosM, pressedKey);
                 Console.Clear();
             }
 
             if (menuOption == 1)
             {
                 OffsetWrite("Level 1", 56);
+                currentLevel = LevelMap(1);
+                finalScore = GetLevelFinalScore(currentLevel, point, circle);
+                Score(ref currentLevel, pacmanXPos, pacmanYPos, point, circle, playSpace, ref score);
+                inGame = true;
+
+                while (score != finalScore)
+                {
+                    DrawMap(currentLevel, wall, point, playSpace, nothing, circle, teleport);
+                    GraphicallyImpressivePacman(ref pacmanXPos, ref pacmanYPos);
+                    PressedButtonHUD(pressedKey);
+                    HandleInput(ref pacmanXPos, ref pacmanYPos, currentLevel, wall, point, playSpace, circle, teleport, pressedKey);
+                    //Score(ref currentLevel, pacmanXPos, pacmanYPos, point, circle, playSpace, ref score);
+
+                    //Thread.Sleep(100);
+
+                    //ClearInput();
+                }
+
+                Console.Clear();
+                OffsetWrite("Good Job", 55, 14);
+                OffsetWrite("You did it", 55, 14);
+                OffsetWrite("Now go", 55, 14);
             }
-
-            currentLevel = LevelMap(1);
-
-            while (isWinningConditionsMet == false)
+            else if (menuOption == 2)
             {
-                DrawMap(currentLevel, wall, point, playSpace, nothing, circle, teleport);
-                //OffsetWrite("!", 88, 13, false, 0, false);
-                GraphicallyImpressivePacman(ref pacmanXPos, ref pacmanYPos);
-                PressedButtonHUD(pressedKey);
-                ReadAndHandleInput(ref pacmanXPos, ref pacmanYPos, currentLevel, wall, point, playSpace, circle, teleport, ref pressedKey);
-
-                if (currentLevel[pacmanYPos, pacmanXPos - 28] == point || (currentLevel[pacmanYPos, pacmanXPos - 28] == circle))
-                {
-                    currentLevel[pacmanYPos, pacmanXPos - 28] = playSpace;
-                }
-
-                //Thread.Sleep(1);
-
-                if (isTimed)
-                {
-                    while (currentTime < duration)
-                    {
-                        timer.Start();
-                        currentTime = timer.ElapsedMilliseconds;
-                    }
-
-                    timer.Stop();
-                }
-
-                ClearInput();
+                OffsetWrite("There is no option. Go away");
+            }
+            else if (menuOption == 3)
+            {
+                OffsetWrite(":(", 60);
             }
         }
         private static char[,] ReadOuterMap(string path)
         {
             string[] outerFile = File.ReadAllLines("level1.txt");
 
-            char[,] map = new char[GetMaxLengthOfLines(outerFile), outerFile.Length];
+            char[,] map = new char[GetMaxLineLength(outerFile), outerFile.Length];
 
             for (int x = 0; x < map.GetLength(0); x++)
                 for (int y = 0; y < map.GetLength(1); y++)
@@ -147,7 +159,7 @@ namespace CodingCoursesButThisTimeForFree
             }
         }
 
-        static void DrawMap(char[,] currentLevel, char wall, char dot, char playSpace, char nothing, char circle, char edgeOfTheWorld)
+        static void DrawMap(char[,] currentLevel, char wall, char dot, char playSpace, char nothing, char circle, char teleport)
         {
             int startingMapXPos = 28;
             int startingMapYPos = 0;
@@ -157,7 +169,7 @@ namespace CodingCoursesButThisTimeForFree
                 Console.SetCursorPosition(startingMapXPos, startingMapYPos++);
                 for (int y = 0; y < currentLevel.GetLength(1); y++)
                 {
-                    DrawSingleChar(currentLevel[x, y], wall, dot, playSpace, nothing, circle, edgeOfTheWorld);
+                    DrawSingleChar(currentLevel[x, y], wall, dot, playSpace, nothing, circle, teleport);
                 }
                 Console.WriteLine();
             }
@@ -209,7 +221,7 @@ namespace CodingCoursesButThisTimeForFree
             Console.ForegroundColor = ConsoleColor.White;
         }
 
-        private static int GetMaxLengthOfLines(string[] lines)
+        private static int GetMaxLineLength(string[] lines)
         {
             int maxLength = lines[0].Length;
 
@@ -238,6 +250,26 @@ namespace CodingCoursesButThisTimeForFree
             Console.BackgroundColor = ConsoleColor.Black;
         } //
 
+        static void Score(ref char[,] currentLevel, int pacmanXPos, int pacmanYPos, char point, char circle, char playSpace, ref int score)
+        {
+            if (currentLevel[pacmanYPos, pacmanXPos - 28] == point)
+            {
+                score += 10;
+                currentLevel[pacmanYPos, pacmanXPos - 28] = playSpace;
+            }
+
+            if (currentLevel[pacmanYPos, pacmanXPos - 28] == circle)
+            {
+                score += 50;
+                currentLevel[pacmanYPos, pacmanXPos - 28] = playSpace;
+            }
+
+            Console.SetCursorPosition(10, 6);
+            Console.Write("Score: ");
+            Console.SetCursorPosition(10, 7);
+            Console.Write(score);
+        }
+
         static void DrawMenu(ref int pacmanYPosM)
         {
             if (pacmanYPosM == 14)
@@ -251,7 +283,7 @@ namespace CodingCoursesButThisTimeForFree
 
             if (pacmanYPosM == 15)
             {
-                OffsetWrite(" Options ", 55, 15, false, 0, true);
+                OffsetWrite(" options ", 55, 15, false, 0, true);
             }
             else
             {
@@ -260,7 +292,7 @@ namespace CodingCoursesButThisTimeForFree
 
             if (pacmanYPosM == 16)
             {
-                OffsetWrite(" Exit_Game ", 55, 16, false, 0, true);
+                OffsetWrite(" exit_Game ", 55, 16, false, 0, true);
             }
             else
             {
@@ -268,7 +300,7 @@ namespace CodingCoursesButThisTimeForFree
             }
         } //menu stuff
 
-        static void MenuSelector(ref int menuOption, ref int pacmanXPosM, ref int pacmanYPosM)
+        static void MenuSelector(ref int menuOption, ref int pacmanXPosM, ref int pacmanYPosM, ConsoleKeyInfo pressedKey)
         {
             ConsoleKeyInfo pressedButton = new ConsoleKeyInfo();
             pressedButton = new ConsoleKeyInfo();
@@ -307,9 +339,8 @@ namespace CodingCoursesButThisTimeForFree
             }
         } //
 
-        static void ReadAndHandleInput(ref int pacmanXPos, ref int pacmanYPos, char[,] currentLevel, char wall, char point, char playSpace, char circle, char teleport, ref ConsoleKeyInfo pressedKey)
+        static void HandleInput(ref int pacmanXPos, ref int pacmanYPos, char[,] currentLevel, char wall, char point, char playSpace, char circle, char teleport, ConsoleKeyInfo pressedKey)
         {
-            pressedKey = Console.ReadKey();
             switch (pressedKey.Key)
             {
                 case ConsoleKey.UpArrow:
@@ -391,8 +422,8 @@ namespace CodingCoursesButThisTimeForFree
 
             if (currentLevel[pacmanYPos + moveForY, pacmanXPos - 28 + moveForX] == wall)
             {
-                WriteInLog("who is there?");
-            }           
+                WriteInLog("<knoking sounds>");
+            }
             else
             {
                 pacmanYPos += moveForY;
@@ -403,12 +434,12 @@ namespace CodingCoursesButThisTimeForFree
                 switch (pacmanXPos)
                 {
                     case leftTeleportX:
-                        WriteInLog("jumped to left teleport", 92);
+                        WriteInLog("jumped to left teleport", 4);
                         pacmanXPos = rightTeleportX - 2;
                         break;
 
                     case rightTeleportX:
-                        WriteInLog("jumped to right teleport", 92);
+                        WriteInLog("jumped to right teleport", 4);
                         pacmanXPos = leftTeleportX + 2;
                         break;
 
@@ -455,9 +486,9 @@ namespace CodingCoursesButThisTimeForFree
             }
         } //misc
 
-        static void WriteInLog(string text, int xPos = 97, int yPos = 13)
+        static void WriteInLog(string text, int xPos = 8, int yPos = 13)
         {
-            ClearInput(xPos - 5, yPos);
+            ClearInput(xPos - 4, yPos);
             Console.SetCursorPosition(xPos, yPos);
             Console.WriteLine(text);
         }
@@ -465,7 +496,7 @@ namespace CodingCoursesButThisTimeForFree
         static void ClearInput(int xPos = 0, int yPos = 0)
         {
             Console.SetCursorPosition(xPos, yPos);
-            Console.Write("                                 ");
+            Console.Write("                                    ");
         }
 
         public static class ConsoleHelper
@@ -547,7 +578,21 @@ namespace CodingCoursesButThisTimeForFree
                 }
             }
         }
+
+        static int GetLevelFinalScore(char[,] currentLevel, int point, int circle)
+        {
+            int finalScore = 0;
+
+            for (int x = 0; x < currentLevel.GetLength(0); x++)
+                for (int y = 0; y < currentLevel.GetLength(1); y++)
+                {
+                    if (currentLevel[x, y] == point)
+                        finalScore += 10;
+                    else if (currentLevel[x, y] == circle)
+                        finalScore += 50;
+                }
+
+            return finalScore;
+        }
     }
 }
-
-
