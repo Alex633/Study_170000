@@ -23,6 +23,36 @@ arrayMatrix[0, 2] = i;
 array.Length //number of cells
 array.getLength(lines/rows) //number of cells (lines or rows) 
 
+# COLLECTIONS
+# list
+list<int> listName = new List<int>(size); //size is unnecessary
+listName.Add(value); // adding value in the end
+listName.AddRange(new int[] { 3, 4, 5 }); //adding range of values in the end
+listName.RemoveAt(element); // deletes element
+listName.Remove(elementValue); // deletes element with selected value
+listName.Clear(); //fully clears list
+listName.IndexOf(22); //contains infex of element of selected value
+listName.Count; // find list length (number of elements)
+listName.Insert(index, value); // inserts value in index position and moving forward all next elements
+------
+# queue
+Queue<int> queueName = new Queue<string>; //first in, first out (like queue in bad place)
+queueName.Endqueue(value); //adds element in the end of the queue
+queueName.Dequeue(); //contains first element in queue, deletes first element in queue
+queueName.Peek(); //contains first element in queue
+------
+# stack
+Stack<int> stackName = new Stack<int>(size) //first in, last out (like stack of books)
+stackName.Push(value); //adds element in stack
+stackName.Peek(); //contains last element in stack
+stackName.Pop(); //contains last element in stack, deletes after use
+------
+# dictionary
+Dictionary<string, string> dictionaryName = new Dictionary<string, string>(); //ex. word (called key) - meaning. Structure like dictionary
+dictionaryName.Add("key value", "meaning value"); //adds element in dictionary
+dictionaryName[key value]; //contains element meaning (so only second value)
+dictionaryName.ContainsKey(keyValue); //return boolean value, true if dictionary contains selected key value, false if not
+
 # LOGICAL OPERATORS
 i== //проверка условия на истинность elements
 !=
