@@ -19,7 +19,7 @@ namespace CodingCoursesButThisTimeForFree
             int pacmanXPosM = 53;
             int pacmanYPosM = 14;
             char[,] currentLevel = new char[0, 0];
-            char[,] levelOuterMap = ReadOuterMap("level1.txt");
+            //char[,] levelOuterMap = ReadOuterMap("level1.txt");
             int menuOption = 0;
             ConsoleKeyInfo pressedKey = new ConsoleKeyInfo();
             const char wall = '#'; //map objects
@@ -593,3 +593,5 @@ namespace CodingCoursesButThisTimeForFree
         }
     }
 }
+
+
