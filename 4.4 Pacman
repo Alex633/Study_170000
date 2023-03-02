@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Threading.Tasks;
 //timed log
 // second player
@@ -32,7 +31,6 @@ namespace CodingCoursesButThisTimeForFree
             int score = 0;
             int finalScore = 0;
             bool inGame = false;
-            //int count = 0;
 
             bool isTimed = true;
             long currentTime = 0;
@@ -46,14 +44,9 @@ namespace CodingCoursesButThisTimeForFree
                 while (true)
                 {
                     while (inGame == true)
+                    {
                         pressedKey = Console.ReadKey();
-
-                    //while (true)
-                    //{
-                    //    WriteInLog("knock");
-                    //    Thread.Sleep(10000);
-                    //    WriteInLog("       ");
-                    //}
+                    }
                 }
             });
 
@@ -81,13 +74,14 @@ namespace CodingCoursesButThisTimeForFree
                     GraphicallyImpressivePacman(ref pacmanXPos, ref pacmanYPos);
                     PressedButtonHUD(pressedKey);
                     HandleInput(ref pacmanXPos, ref pacmanYPos, currentLevel, wall, point, playSpace, circle, teleport, pressedKey);
-                    //Score(ref currentLevel, pacmanXPos, pacmanYPos, point, circle, playSpace, ref score);
+                    Score(ref currentLevel, pacmanXPos, pacmanYPos, point, circle, playSpace, ref score);
 
                     //Thread.Sleep(100);
 
-                    //ClearInput();
+                    ClearInput();
                 }
 
+                inGame = false;
                 Console.Clear();
                 OffsetWrite("Good Job", 55, 14);
                 OffsetWrite("You did it", 55, 14);
@@ -95,7 +89,7 @@ namespace CodingCoursesButThisTimeForFree
             }
             else if (menuOption == 2)
             {
-                OffsetWrite("There is no option. Go away");
+                OffsetWrite("There is no options. Go away");
             }
             else if (menuOption == 3)
             {
@@ -232,7 +226,7 @@ namespace CodingCoursesButThisTimeForFree
             return maxLength;
         }
 
-        static void GraphicallyImpressivePacman(ref int pacmanXPos, ref int pacmanYPos, bool isVisible = true)
+        static void GraphicallyImpressivePacman(ref int pacmanXPos, ref int pacmanYPos, bool isVisible = true, ConsoleColor color = ConsoleColor.DarkYellow)
         {
             char pacmanEar = '^';
             char pacman = 'o';
@@ -240,7 +234,7 @@ namespace CodingCoursesButThisTimeForFree
 
             if (isVisible == true)
             {
-                Console.BackgroundColor = ConsoleColor.DarkYellow;
+                Console.BackgroundColor = color;
                 CharToColor(pacman, ConsoleColor.Black);
                 CharToColor(pacmanEar, ConsoleColor.Black);
                 Console.SetCursorPosition(pacmanXPos - 1, pacmanYPos);
@@ -422,7 +416,7 @@ namespace CodingCoursesButThisTimeForFree
 
             if (currentLevel[pacmanYPos + moveForY, pacmanXPos - 28 + moveForX] == wall)
             {
-                WriteInLog("<knoking sounds>");
+                WriteInLog("<knoking sound>", 4);
             }
             else
             {
@@ -457,6 +451,7 @@ namespace CodingCoursesButThisTimeForFree
             Stopwatch timer = new Stopwatch();
             long currentTime = 0;
 
+            ClearInput(xPosition, yPosition, text.Length);
             Console.SetCursorPosition(xPosition, yPosition);
             ConsoleHelper.SetCurrentFont("Consolas", 28);
 
@@ -482,21 +477,23 @@ namespace CodingCoursesButThisTimeForFree
                 }
 
                 timer.Stop();
-                Console.Clear();
+                ClearInput(xPosition, yPosition, text.Length);
             }
         } //misc
 
-        static void WriteInLog(string text, int xPos = 8, int yPos = 13)
+        static void WriteInLog(string text, int xPos = 1, int yPos = 13)
         {
-            ClearInput(xPos - 4, yPos);
+            ClearInput(xPos, yPos);
             Console.SetCursorPosition(xPos, yPos);
-            Console.WriteLine(text);
+            Console.Write(text);
         }
 
-        static void ClearInput(int xPos = 0, int yPos = 0)
+        static void ClearInput(int xPos = 0, int yPos = 0, int length = 0)
         {
             Console.SetCursorPosition(xPos, yPos);
-            Console.Write("                                    ");
+
+            for (int i = 0; i < length; i++)
+                Console.Write(" ");
         }
 
         public static class ConsoleHelper
