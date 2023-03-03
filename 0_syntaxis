@@ -48,10 +48,10 @@ stackName.Peek(); //contains last element in stack
 stackName.Pop(); //contains last element in stack, deletes after use
 ------
 # dictionary
-Dictionary<string, string> dictionaryName = new Dictionary<string, string>(); //ex. word (called key) - meaning. Structure like dictionary
-dictionaryName.Add("key value", "meaning value"); //adds element in dictionary
-dictionaryName[key value]; //contains element meaning (so only second value)
-dictionaryName.ContainsKey(keyValue); //return boolean value, true if dictionary contains selected key value, false if not
+Dictionary<string, string> dictionaryName = new Dictionary<string, string>(); //ex. word (called key) - meaning (called value). Structure like dictionary
+dictionaryName.Add("key", "value"); //adds element in dictionary
+dictionaryName[key]; //contains element meaning (so only second value)
+dictionaryName.ContainsKey(key); //return boolean value, true if dictionary contains selected key, false if not
 
 # LOGICAL OPERATORS
 i== //проверка условия на истинность elements
