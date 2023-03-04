@@ -18,7 +18,7 @@ namespace CodingCoursesButThisTimeForFree
             int middleMenuStartY = 14;
             int selectorCharXPos = middleMenuStartX - 2;
             int selectorCharYPos = middleMenuStartY;
-            int selectedOption = 0;          
+            int selectedOption = 0;
             bool isOptionSelected = false;
             ConsoleKeyInfo pressedKey = new ConsoleKeyInfo();
             Dictionary<string, string> residents = new Dictionary<string, string>();
@@ -40,7 +40,7 @@ namespace CodingCoursesButThisTimeForFree
 
             while (!isOptionSelected)
             {
-                HandleMenuInput(languageSelect, out isOptionSelected, ref selectedOption, selectorCharXPos, ref selectorCharYPos, 5, 1);
+                SelectOption(languageSelect, out isOptionSelected, ref selectedOption, selectorCharXPos, ref selectorCharYPos, middleMenuStartX, middleMenuStartY);
                 Console.Clear();
             }
 
@@ -59,10 +59,10 @@ namespace CodingCoursesButThisTimeForFree
             }
         }
 
-        static void DrawHoverChar(int selectorCharXPos, ref int selectorCharYPos, bool isVisible = true, ConsoleColor color = ConsoleColor.Blue)
+        static void DrawHoverChar(int menuStartX, int menuStartY, bool isVisible = true, ConsoleColor color = ConsoleColor.Blue)
         {
             char hoverChar = '♦';
-            Console.SetCursorPosition(selectorCharXPos, selectorCharYPos);
+            Console.SetCursorPosition(menuStartX - 2, menuStartY);
 
             if (isVisible == true)
             {
@@ -70,14 +70,14 @@ namespace CodingCoursesButThisTimeForFree
             }
         } //menu CHAR
 
-        static void DrawMenu(List<string> options, int selectorCharXPos, ref int selectorCharYPos, int selectedOption, int menuStartX = 55, int menuStartY = 14)
+        static void DrawMenu(List<string> options, ref int selectorCharYPos, int selectedOption, int menuStartX = 55, int menuStartY = 14)
         {
             for (int i = 0; i < options.Count; i++)
             {
                 if (selectedOption == i)
                 {
                     WriteOffset($" {options[i]} ", menuStartX, menuStartY + i, false, 0, true);
-                    DrawHoverChar(selectorCharXPos, ref selectorCharYPos, true);
+                    DrawHoverChar(menuStartX, menuStartY + i, true);
                 }
                 else
                 {
@@ -86,13 +86,13 @@ namespace CodingCoursesButThisTimeForFree
             }
         }  //menu DRAW
 
-        static void HandleMenuInput(List<string> options, out bool isOptionSelected, ref int selectedOption, int selectorCharXPos, ref int selectorCharYPos, int menuStartX = 55, int menuStartY = 14)
+        static void SelectOption(List<string> options, out bool isOptionSelected, ref int selectedOption, int selectorCharXPos, ref int selectorCharYPos, int menuStartX = 55, int menuStartY = 14)
         {
             ConsoleKeyInfo pressedButton = new ConsoleKeyInfo();
             pressedButton = new ConsoleKeyInfo();
             isOptionSelected = false;
 
-            DrawMenu(options, selectorCharXPos, ref selectorCharYPos, selectedOption, menuStartX, menuStartY);
+            DrawMenu(options, ref selectorCharYPos, selectedOption, menuStartX, menuStartY);
             pressedButton = Console.ReadKey();
 
             switch (pressedButton.Key)
@@ -275,5 +275,4 @@ namespace CodingCoursesButThisTimeForFree
         } //font and font size
     }
 }
-
 
