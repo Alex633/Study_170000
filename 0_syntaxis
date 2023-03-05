@@ -31,7 +31,7 @@ listName.AddRange(new int[] { 3, 4, 5 }); //adding range of values in the end
 listName.RemoveAt(element); // deletes element
 listName.Remove(elementValue); // deletes element with selected value
 listName.Clear(); //fully clears list
-listName.IndexOf(22); //contains infex of element of selected value
+listName.IndexOf(selectedValue); //contains infex of element of selected value
 listName.Count; // find list length (number of elements)
 listName.Insert(index, value); // inserts value in index position and moving forward all next elements
 ------
