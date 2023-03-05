@@ -168,8 +168,8 @@ namespace CodingCoursesButThisTimeForFree
                 while (true)
                 {
                     //WriteIn("v", 0, 0, false, 0, true, ConsoleColor.Green);
-                    Console.SetCursorPosition(5, 5);
-                    Console.Write("v");
+                    //Console.SetCursorPosition(5, 5);
+                    //Console.Write("v");
                 }
             });
 
