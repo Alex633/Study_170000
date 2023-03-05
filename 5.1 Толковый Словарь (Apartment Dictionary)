@@ -82,8 +82,8 @@ namespace CodingCoursesButThisTimeForFree
                         {
                             case 0: //search
                                 EnterTextGUI(out userInput, "Введите обитателей текущей квартиры:", "Подтвердить");
-                                ShowResidentInformation(residents, userInput);
-                                SelectOption(onlyOptionRU, ref selectedOption, 2, 2);
+                                ShowResidentInformation(residents, userInput, true);
+                                SelectOption(onlyOptionRU, ref selectedOption, 5, 3);
                                 Console.Clear();
                                 break;
                             case 1: //exit
@@ -94,10 +94,10 @@ namespace CodingCoursesButThisTimeForFree
                     break;
             }
 
-            WriteIn(":(", middleMenuStartX, middleMenuStartY, true);
+            WriteIn(":(", 2, 2, true);
         }
 
-        static void ShowResidentInformation(Dictionary<string, string> dictionary, string userInput)
+        static void ShowResidentInformation(Dictionary<string, string> dictionary, string userInput, bool isRu = false)
         {
             if (dictionary.ContainsKey(userInput))
             {
@@ -107,7 +107,10 @@ namespace CodingCoursesButThisTimeForFree
             else
             {
                 Console.Clear();
-                Console.WriteLine($"Nobody called {userInput} lives here");
+                if (!isRu)
+                    Console.WriteLine($"Nobody called {userInput} lives here");
+                else
+                    Console.WriteLine($"В этой квартире нет никого по имени {userInput}");
             }
         }
 
@@ -190,12 +193,6 @@ namespace CodingCoursesButThisTimeForFree
                     case ConsoleKey.Enter:
                     case ConsoleKey.Spacebar:
                         isOptionSelected = true;
-                        //if (selectorCharYPos == menuStartY)
-                        //    menuOption = 1;
-                        //else if (selectorCharYPos == menuStartY++)
-                        //    menuOption = 2;
-                        //else if (selectorCharYPos == menuStartY++)
-                        //    menuOption = 3;
                         break;
                 }
 
