@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 
 namespace CodingCoursesButThisTimeForFree
 {
@@ -18,17 +17,32 @@ namespace CodingCoursesButThisTimeForFree
             int middleMenuStartY = 14;
             int selectedOption = 0;
             string userInput = null;
+            bool isOpen = true;
 
             Dictionary<string, string> residents = new Dictionary<string, string>();
-            residents.Add("Joseph", "Loves his trolley");
-            residents.Add("Nia", "Alexander's favorite person");
+            residents.Add("Nia", "is Alexander's favorite person");
+            residents.Add("Alexander", "doing his programmer's tasks one per week");
+            residents.Add("Robert", "just wants to sleep");
+            residents.Add("Mira", "loves her pink ball");
+            residents.Add("Masya", "still haven't caugth a fantastic beast in a baseboard");
+            residents.Add("Joseph Chan", "loves his trolley");
+            residents.Add("Ника", "самый любимый человек в жизни Александра");
+            residents.Add("Александр", "делает по одной программе в неделю (если повезет)");
+            residents.Add("Роберт", "просто хочет спать");
+            residents.Add("Мира", "любит свой розовый мячик");
+            residents.Add("Мася", "так и не поймала фантастическую тварь в плинтусе");
 
             List<string> mainOptions = new List<string>();
             mainOptions.AddRange(new string[] { "New Search", "Exit" });
             List<string> onlyOption = new List<string>();
-            onlyOption.AddRange(new string[] { "Enter" });
+            onlyOption.AddRange(new string[] { "Continue" });
             List<string> languageSelect = new List<string>();
-            languageSelect.AddRange(new string[] { "English", "Russian" });
+            languageSelect.AddRange(new string[] { "English", "Русский" });
+
+            List<string> mainOptionsRU = new List<string>();
+            mainOptionsRU.AddRange(new string[] { "Новый поиск", "Выход" });
+            List<string> onlyOptionRU = new List<string>();
+            onlyOptionRU.AddRange(new string[] { "Продолжить" });
 
             //testing
             //MenuInput(mainOptions, out isOptionSelected, ref selectedOption, selectorCharXPos, ref selectorCharYPos, middleMenuStartX, middleMenuStartY);
@@ -39,35 +53,61 @@ namespace CodingCoursesButThisTimeForFree
 
             switch (selectedOption)
             {
-                case 0:
-
-                    SelectOption(mainOptions, ref selectedOption, 3, 1);
-
-                    switch (selectedOption)
+                case 0: //english
+                    while (isOpen)
                     {
-                        case 0:
-                            EnterTextGUI(out userInput, "Enter Residents:");
+                        SelectOption(mainOptions, ref selectedOption, 3, 1);
 
-                            if (residents.ContainsKey(userInput))
-                            {
+                        switch (selectedOption)
+                        {
+                            case 0: //search
+                                EnterTextGUI(out userInput, "Enter Resident:");
+                                ShowResidentInformation(residents, userInput);
+                                SelectOption(onlyOption, ref selectedOption, 2, 2);
                                 Console.Clear();
-                                Console.WriteLine($"{userInput}:\n{residents[userInput]}");
-                            }
-                            else
-                            {
-                                Console.Clear();
-                                Console.WriteLine($"Nobody called {userInput} lives here");
-                            }
-
-                            Console.ReadKey();
-                            break;
-                        case 1:
-                            break;
+                                break;
+                            case 1: //exit
+                                isOpen = false;
+                                break;
+                        }
                     }
                     break;
-                case 1:
-                    Console.WriteLine("option 2 selected");
+
+                case 1: //russian
+                    while (isOpen)
+                    {
+                        SelectOption(mainOptionsRU, ref selectedOption, 3, 1);
+
+                        switch (selectedOption)
+                        {
+                            case 0: //search
+                                EnterTextGUI(out userInput, "Введите обитателей текущей квартиры:", "Подтвердить");
+                                ShowResidentInformation(residents, userInput);
+                                SelectOption(onlyOptionRU, ref selectedOption, 2, 2);
+                                Console.Clear();
+                                break;
+                            case 1: //exit
+                                isOpen = false;
+                                break;
+                        }
+                    }
                     break;
+            }
+
+            WriteIn(":(", middleMenuStartX, middleMenuStartY, true);
+        }
+
+        static void ShowResidentInformation(Dictionary<string, string> dictionary, string userInput)
+        {
+            if (dictionary.ContainsKey(userInput))
+            {
+                Console.Clear();
+                Console.WriteLine($"{userInput} {dictionary[userInput]}");
+            }
+            else
+            {
+                Console.Clear();
+                Console.WriteLine($"Nobody called {userInput} lives here");
             }
         }
 
@@ -107,6 +147,7 @@ namespace CodingCoursesButThisTimeForFree
             pressedButton = new ConsoleKeyInfo();
             bool isOptionSelected = false;
             Console.CursorVisible = false;
+            selectedOption = 0;
 
             while (!isOptionSelected)
             {
@@ -118,25 +159,31 @@ namespace CodingCoursesButThisTimeForFree
                 {
                     case ConsoleKey.UpArrow:
                     case ConsoleKey.W:
-                        if (selectedOption != 0)
+                        if (options.Count > 0)
                         {
-                            selectedOption--;
-                        }
-                        else
-                        {
-                            selectedOption = options.Count - 1;
+                            if (selectedOption != 0)
+                            {
+                                selectedOption--;
+                            }
+                            else
+                            {
+                                selectedOption = options.Count - 1;
+                            }
                         }
                         break;
 
                     case ConsoleKey.DownArrow:
                     case ConsoleKey.S:
-                        if (selectedOption != options.Count - 1)
+                        if (options.Count > 0)
                         {
-                            selectedOption++;
-                        }
-                        else
-                        {
-                            selectedOption = 0;
+                            if (selectedOption != options.Count - 1)
+                            {
+                                selectedOption++;
+                            }
+                            else
+                            {
+                                selectedOption = 0;
+                            }
                         }
                         break;
 
@@ -152,7 +199,8 @@ namespace CodingCoursesButThisTimeForFree
                         break;
                 }
 
-                Console.Clear();
+                if (options.Count > 1)
+                    Console.Clear();
             }
 
             Console.CursorVisible = true;
@@ -160,18 +208,7 @@ namespace CodingCoursesButThisTimeForFree
 
         static void EnterTextGUI(out string userInput, string title, string buttonText = "Confirm", int menuStartX = 0, int menuStartY = 2)
         {
-            bool isOptionSelected = false;
             userInput = "";
-
-            Task.Run(() =>
-            {
-                while (true)
-                {
-                    //WriteIn("v", 0, 0, false, 0, true, ConsoleColor.Green);
-                    //Console.SetCursorPosition(5, 5);
-                    //Console.Write("v");
-                }
-            });
 
             Console.WriteLine(title);
             WriteIn($" {buttonText} ", menuStartX, menuStartY + 1, false, 0, true); //confirm button
