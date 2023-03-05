@@ -135,3 +135,8 @@ Console.Clear();
 # TEXT
 string.ToLower //all symbols are know in lower case
 string.ToUpper //all symbols to upper case
+
+# MULTITHREAD
+Task.Run(() =>
+{
+});
