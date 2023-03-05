@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-
+using System.Threading.Tasks;
 
 namespace CodingCoursesButThisTimeForFree
 {
@@ -16,18 +16,17 @@ namespace CodingCoursesButThisTimeForFree
             //Stopwatch timer = new Stopwatch();
             int middleMenuStartX = 55;
             int middleMenuStartY = 14;
-            int selectorCharXPos = middleMenuStartX - 2;
-            int selectorCharYPos = middleMenuStartY;
             int selectedOption = 0;
-            bool isOptionSelected = false;
-            ConsoleKeyInfo pressedKey = new ConsoleKeyInfo();
-            Dictionary<string, string> residents = new Dictionary<string, string>();
             string userInput = null;
 
+            Dictionary<string, string> residents = new Dictionary<string, string>();
+            residents.Add("Joseph", "Loves his trolley");
+            residents.Add("Nia", "Alexander's favorite person");
+
             List<string> mainOptions = new List<string>();
-            mainOptions.AddRange(new string[] { "New Game", "Settings", "Exit" });
+            mainOptions.AddRange(new string[] { "New Search", "Exit" });
             List<string> onlyOption = new List<string>();
-            onlyOption.AddRange(new string[] { "Yes" });
+            onlyOption.AddRange(new string[] { "Enter" });
             List<string> languageSelect = new List<string>();
             languageSelect.AddRange(new string[] { "English", "Russian" });
 
@@ -36,22 +35,35 @@ namespace CodingCoursesButThisTimeForFree
             //Console.ReadKey();
             //
 
-            Console.CursorVisible = false;
-
-            while (!isOptionSelected)
-            {
-                SelectOption(languageSelect, out isOptionSelected, ref selectedOption, selectorCharXPos, ref selectorCharYPos, middleMenuStartX, middleMenuStartY);
-                Console.Clear();
-            }
-
-            Console.CursorVisible = true;
+            SelectOption(languageSelect, ref selectedOption, 3, 1);
 
             switch (selectedOption)
             {
                 case 0:
-                    Console.WriteLine("Enter Resident:");
-                    userInput = Console.ReadLine();
-                    Console.WriteLine(userInput);
+
+                    SelectOption(mainOptions, ref selectedOption, 3, 1);
+
+                    switch (selectedOption)
+                    {
+                        case 0:
+                            EnterTextGUI(out userInput, "Enter Residents:");
+
+                            if (residents.ContainsKey(userInput))
+                            {
+                                Console.Clear();
+                                Console.WriteLine($"{userInput}:\n{residents[userInput]}");
+                            }
+                            else
+                            {
+                                Console.Clear();
+                                Console.WriteLine($"Nobody called {userInput} lives here");
+                            }
+
+                            Console.ReadKey();
+                            break;
+                        case 1:
+                            break;
+                    }
                     break;
                 case 1:
                     Console.WriteLine("option 2 selected");
@@ -59,76 +71,119 @@ namespace CodingCoursesButThisTimeForFree
             }
         }
 
-        static void DrawHoverChar(int menuStartX, int menuStartY, bool isVisible = true, ConsoleColor color = ConsoleColor.Blue)
+        static void DrawHoverChar(int menuStartX, int menuStartY, bool isVisible = true, ConsoleColor color = ConsoleColor.DarkGreen)
         {
             char hoverChar = '♦';
-            Console.SetCursorPosition(menuStartX - 2, menuStartY);
-
-            if (isVisible == true)
+            if (menuStartX > 1)
             {
-                ColorizeChar(hoverChar, color);
+                Console.SetCursorPosition(menuStartX - 2, menuStartY);
+
+                if (isVisible == true)
+                {
+                    ColorizeChar(hoverChar, color);
+                }
             }
         } //menu CHAR
 
-        static void DrawMenu(List<string> options, ref int selectorCharYPos, int selectedOption, int menuStartX = 55, int menuStartY = 14)
+        static void DrawMenu(List<string> options, int selectedOption, int menuStartX = 55, int menuStartY = 14)
         {
             for (int i = 0; i < options.Count; i++)
             {
                 if (selectedOption == i)
                 {
-                    WriteOffset($" {options[i]} ", menuStartX, menuStartY + i, false, 0, true);
+                    WriteIn($" {options[i]} ", menuStartX, menuStartY + i, false, 0, true);
                     DrawHoverChar(menuStartX, menuStartY + i, true);
                 }
                 else
                 {
-                    WriteOffset($" {options[i]} ", menuStartX, menuStartY + i, false, 0, false);
+                    WriteIn($" {options[i]} ", menuStartX, menuStartY + i, false, 0, false);
                 }
             }
         }  //menu DRAW
 
-        static void SelectOption(List<string> options, out bool isOptionSelected, ref int selectedOption, int selectorCharXPos, ref int selectorCharYPos, int menuStartX = 55, int menuStartY = 14)
+        static void SelectOption(List<string> options, ref int selectedOption, int menuStartX = 55, int menuStartY = 14)
         {
             ConsoleKeyInfo pressedButton = new ConsoleKeyInfo();
             pressedButton = new ConsoleKeyInfo();
-            isOptionSelected = false;
+            bool isOptionSelected = false;
+            Console.CursorVisible = false;
 
-            DrawMenu(options, ref selectorCharYPos, selectedOption, menuStartX, menuStartY);
-            pressedButton = Console.ReadKey();
-
-            switch (pressedButton.Key)
+            while (!isOptionSelected)
             {
-                case ConsoleKey.UpArrow:
-                case ConsoleKey.W:
-                    if (selectorCharYPos != menuStartY)
-                    {
-                        selectorCharYPos--;
-                        selectedOption--;
-                    }
-                    break;
 
-                case ConsoleKey.DownArrow:
-                case ConsoleKey.S:
-                    if (selectorCharYPos != menuStartY - 1 + options.Count)
-                    {
-                        selectorCharYPos++;
-                        selectedOption++;
-                    }
-                    break;
+                DrawMenu(options, selectedOption, menuStartX, menuStartY);
+                pressedButton = Console.ReadKey();
 
-                case ConsoleKey.Enter:
-                case ConsoleKey.Spacebar:
-                    isOptionSelected = true;
-                    //if (selectorCharYPos == menuStartY)
-                    //    menuOption = 1;
-                    //else if (selectorCharYPos == menuStartY++)
-                    //    menuOption = 2;
-                    //else if (selectorCharYPos == menuStartY++)
-                    //    menuOption = 3;
-                    break;
+                switch (pressedButton.Key)
+                {
+                    case ConsoleKey.UpArrow:
+                    case ConsoleKey.W:
+                        if (selectedOption != 0)
+                        {
+                            selectedOption--;
+                        }
+                        else
+                        {
+                            selectedOption = options.Count - 1;
+                        }
+                        break;
+
+                    case ConsoleKey.DownArrow:
+                    case ConsoleKey.S:
+                        if (selectedOption != options.Count - 1)
+                        {
+                            selectedOption++;
+                        }
+                        else
+                        {
+                            selectedOption = 0;
+                        }
+                        break;
+
+                    case ConsoleKey.Enter:
+                    case ConsoleKey.Spacebar:
+                        isOptionSelected = true;
+                        //if (selectorCharYPos == menuStartY)
+                        //    menuOption = 1;
+                        //else if (selectorCharYPos == menuStartY++)
+                        //    menuOption = 2;
+                        //else if (selectorCharYPos == menuStartY++)
+                        //    menuOption = 3;
+                        break;
+                }
+
+                Console.Clear();
             }
-        } //menu INPUT
 
-        static void WriteOffset(string text, int xPosition = 47, int yPosition = 14, bool isTimed = false, long duration = 1600, bool isSelected = false, ConsoleColor selectionColor = ConsoleColor.Blue)
+            Console.CursorVisible = true;
+        } //menu DRAW AND INPUT
+
+        static void EnterTextGUI(out string userInput, string title, string buttonText = "Confirm", int menuStartX = 0, int menuStartY = 2)
+        {
+            bool isOptionSelected = false;
+            userInput = "";
+
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    //WriteIn("v", 0, 0, false, 0, true, ConsoleColor.Green);
+                    Console.SetCursorPosition(5, 5);
+                    Console.Write("v");
+                }
+            });
+
+            Console.WriteLine(title);
+            WriteIn($" {buttonText} ", menuStartX, menuStartY + 1, false, 0, true); //confirm button
+            WriteIn($"              ", menuStartX, menuStartY - 1, false, 0, true, ConsoleColor.DarkGray); //text field
+            Console.BackgroundColor = ConsoleColor.DarkGray;
+            Console.SetCursorPosition(menuStartX, menuStartY - 1);
+            userInput = Console.ReadLine();
+            Console.BackgroundColor = default;
+
+        }
+
+        static void WriteIn(string text, int xPosition = 47, int yPosition = 14, bool isTimed = false, long duration = 1600, bool isSelected = false, ConsoleColor selectionColor = ConsoleColor.DarkGreen)
         {
             Stopwatch timer = new Stopwatch();
             long currentTime = 0;
