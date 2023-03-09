@@ -17,7 +17,7 @@ namespace CodingCoursesButThisTimeForFree
             //Stopwatch timer = new Stopwatch();
             int selectedOption;
             string userInput = null;
-            bool isOpen = true;
+            bool isWorkingHours = true;
             Random random = new Random();
 
             List<string> mainOptions = new List<string>();
@@ -34,10 +34,11 @@ namespace CodingCoursesButThisTimeForFree
             Queue<int> checks = new Queue<int>();
             int balance = 0;
             int balanceTemp = 161;
-            int clientsTemp = 0;
-            int timeTemp = 22;
-            string latestClient = "";
             int time = 8;
+            int timeTemp = 22;
+            int count = 0;
+            int clientsTemp = 0;
+            string latestClient = "";
             bool isHudOn = false;
             bool isRegretOn = false;
             int victoryBalance = 600;
@@ -46,6 +47,7 @@ namespace CodingCoursesButThisTimeForFree
             bool isEndingDoneBadGeralt = false;
             bool isEndingDoneGoodAlone = false;
             bool isEndingDoneGoodGeralt = false;
+            Queue<string> notification = new Queue<string>();
 
             for (int i = 0; i < transactions.Count; i++)
                 balance += transactions[i];
@@ -55,47 +57,70 @@ namespace CodingCoursesButThisTimeForFree
 
             Task.Run(() =>
             {
+                notification.Enqueue($" + {balance - balanceTemp}g ");
                 while (true)
                 {
-                    DisplayBalanceAndTime(ref balance, ref time, victoryBalance, isHudOn);
-                    //WriteIn($"Clients in store:{clients.Count}, checks left: {checks.Count}", 2, 20, false, 0, false);
-
                     if (balance > balanceTemp)
                     {
-                        WriteIn($" + {balance - balanceTemp}g ", 2, 6, true, 5000, true, ConsoleColor.DarkGray);
+                        //notification.Enqueue($" + {balance - balanceTemp}g ");
+                        WriteIn($" + {balance - balanceTemp}g ", 2, 6, true, 3000, true, ConsoleColor.DarkGray);
                         balanceTemp = balance;
                     }
                     else if (balance < balanceTemp)
                     {
-                        WriteIn($" - {balance - balanceTemp}g ", 2, 6, true, 5000, true, ConsoleColor.DarkGray);
+                        //notification.Enqueue($" - {balance - balanceTemp}g ");
+                        WriteIn($" - {balance - balanceTemp}g ", 2, 6, true, 3000, true, ConsoleColor.DarkGray);
                         balanceTemp = balance;
                     }
 
-                    if (clients.Count > clientsTemp)
-                    {
-                        WriteIn($" {clients.Peek()} enters the store ", 2, 8, true, 5000, true, ConsoleColor.DarkGray);
-                        clientsTemp = clients.Count;
-                        latestClient = clients.Peek();
-                    }
-                    else if (clients.Count < clientsTemp)
-                    {
-                        if (clients.Count == 1)
-                        {
-                            WriteIn($" {latestClient} leaves the store ", 2, 8, true, 5000, true, ConsoleColor.DarkGray);
-                            latestClient = "error";
-                            clientsTemp = 0;
-                        }
-                    }
+                    //if (clients.Count > clientsTemp)
+                    //{
+                    //    notification.Enqueue($" {clients.Peek()} enters the store ");
+                    //    WriteIn($" {clients.Peek()} enters the store ", 2, 6, true, 8000, true, ConsoleColor.DarkGray);
+                    //    clientsTemp = clients.Count;
+                    //    latestClient = clients.Peek();
+                    //}
+                    //else if (clients.Count < clientsTemp)
+                    //{
+                    //    notification.Enqueue($" {latestClient} leaves the store ");
+                    //    WriteIn($" {latestClient} leaves the store ", 2, 7, true, 8000, true, ConsoleColor.DarkGray);
+                    //    latestClient = "error";
+                    //}
 
                     if (time > timeTemp)
                     {
-                        WriteIn($" {time - timeTemp} hours passed ", 2, 10, true, 5000, true, ConsoleColor.DarkGray);
+                        //notification.Enqueue($" {time - timeTemp} hours passed ");
+                        WriteIn($" {time - timeTemp} hours passed ", 2, 6, true, 3000, true, ConsoleColor.DarkGray);
                         timeTemp = time;
                     }
 
-                    Thread.Sleep(1000);
+                    Thread.Sleep(300);
                 }
-            });
+            }); //notification write in q
+
+            //task.run(() =>
+            //{
+            //    while (true)
+            //    {
+            //        thread.sleep(300);
+
+            //        if (notification.count > 1)
+            //        {
+            //            writein(notification.dequeue(), 2, 6, true, 3000, true, consolecolor.darkgray);
+            //        }
+
+            //        thread.sleep(300);
+            //    }
+            //}); //notification out
+
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    DisplayBalanceAndTime(ref balance, ref time, victoryBalance, isHudOn);
+                    Thread.Sleep(500);
+                }
+            }); //time and money HUD
 
             //testing
             //MenuInput(mainOptions, out isOptionSelected, ref selectedOption, selectorCharXPos, ref selectorCharYPos, middleMenuStartX, middleMenuStartY);
@@ -105,8 +130,8 @@ namespace CodingCoursesButThisTimeForFree
             Console.CursorVisible = false;
 
             WriteIn("Alexander's game", 47, 14, true);
-            WriteIn("The Store: Part 1", 45, 14, true, 2000);
-            WriteIn("For Nika", 49, 14, true, 2000);
+            WriteIn("The Store: Part 1", 46, 14, true, 2000);
+            WriteIn("For Nika", 53, 14, true, 2000);
 
 
             SelectOption(languageSelect, out selectedOption, 3, 1);
@@ -140,8 +165,9 @@ namespace CodingCoursesButThisTimeForFree
                             Notify("Probobly not tho", "I have no words");
                             Notify("Wait...", "What now");
 
-                            while (isOpen)
+                            while (isWorkingHours)
                             {
+                                isHudOn = true;
                                 if (isEndingDoneBadGeralt || isEndingDoneGoodGeralt || isEndingDoneBadAlone || isEndingDoneGoodAlone)
                                     Notify("Your First Customer has arrived!", "I hope It's not Frank");
                                 else
@@ -152,9 +178,9 @@ namespace CodingCoursesButThisTimeForFree
                                 clients.Enqueue("Frank"); //1
 
                                 if (isEndingDoneBadGeralt || isEndingDoneGoodGeralt || isEndingDoneBadAlone || isEndingDoneGoodAlone)
-                                    Notify($"Someone in the store (it's {clients.Peek()})", "It's him");
+                                    Notify($"{clients.Peek()} enters the store", "It's him");
                                 else
-                                    Notify($"Someone in the store (it's {clients.Peek()})", "I'm so glad you came");
+                                    Notify($"{clients.Peek()} enters the store", "I'm so glad you came");
 
                                 ColorizeText("\n  <<I would like to buy these olives, please>>", ConsoleColor.Blue);
 
@@ -169,11 +195,9 @@ namespace CodingCoursesButThisTimeForFree
                                         balance += checks.Peek();
                                         checks.Dequeue();
                                         Notify("<<Thank you very much>>", "Not bad", 2, 1, ConsoleColor.Blue);
-                                        clients.Dequeue(); //0
                                         break;
                                     case 1: //do you want two
                                         Notify("<<I mean sure, I can use two>>", "Continue", 2, 1, ConsoleColor.Blue);
-                                        clients.Dequeue(); //0
                                         balance += checks.Peek() * 2;
                                         checks.Dequeue();
                                         Notify("You sold two olives and got twice more g. Nice", "I'm definatly going for the good ending now");
@@ -205,21 +229,22 @@ namespace CodingCoursesButThisTimeForFree
                                         switch (selectedOption)
                                         {
                                             case 0: //sell                                     
-                                                clients.Dequeue();
                                                 balance += checks.Peek();
                                                 checks.Dequeue();
                                                 Notify("<<Thank you very much. I hope I'll not be late>>", "What a madman");
                                                 break;
                                             case 1: //refuse
                                                 isRegretOn = true;
-                                                clients.Dequeue();
                                                 Notify("<<You'll regret it>>", "I doubt it");
                                                 break;
                                         }
                                         break;
                                 }
 
+                                clients.Dequeue(); //0
+                                Notify($"You hear the door closing", "I actually don't");
                                 time += 1; //23
+                                Notify($"Moonlight starts shining throgh your magnificent store", "Wish I could see that");
                                 clients.Enqueue("Larisa"); //1
                                 Notify($"<<Hi there, hello>>", "Where did you come from?", 2, 1, ConsoleColor.Magenta);
                                 Notify($"<<Do you have... aaaa...>>", "We have everything", 2, 1, ConsoleColor.Magenta);
@@ -233,28 +258,30 @@ namespace CodingCoursesButThisTimeForFree
                                 switch (selectedOption)
                                 {
                                     case 0: //sell                                     
-                                        clients.Dequeue(); //0
                                         balance += checks.Peek();
                                         checks.Dequeue();
                                         Notify("She just takes her olives and silently leaves", "I'm not sure I want to do this anymore");
                                         break;
                                     case 1: //refuse
-                                        clients.Dequeue(); //0
                                         Notify("She runs out of the store. Was it necessary?", "It sure was");
                                         break;
                                 }
 
+                                clients.Dequeue(); //0
+                                Notify($"You done with your second customer, I'm proud of you", "Unlike my father ever did");
                                 time += 1; //24
+                                Notify($"People keeps going passed your store windows", "I kinda like that view");
                                 clients.Enqueue("Grandpa"); //1
                                 Notify($"Suddenly, you hear a door bell", "I didn't know I had one");
-                                Notify($"You approuch the door and open it", "I wonder who it is");
+                                Notify($"You approuch the door and open it", "But it's open");
                                 Notify($"It's Alexander's Grandpa", "Maybe I should offer him a cup of coffee");
-                                Notify($"We could finally spent some time together, - a thought appears in your head", "But it's first time I'm seeing that man");
+                                Notify($"<<We could finally spent some time together>>, - a thought appears in your head", "But it's first time I'm seeing that man");
                                 Notify($"<<So how is your study going?>>", "What is he talking about?", 2, 1, ConsoleColor.DarkRed);
-                                Notify($"Without waiting for an answer, he leaves the store", "What was that?");
-                                clients.Dequeue(); //0
 
+                                clients.Dequeue(); //0
+                                Notify($"Without waiting for an answer, he leaves the store", "What was that?");
                                 time += 1; //25
+                                Notify($"You stand for full hour looking into nothing", "That's gotta look hella sad");
                                 clients.Enqueue("Geralt"); //1 
                                 Notify($"{clients.Peek()} falls from the celling window", $"He does what?");
                                 ColorizeText($"\n  <<I need two silver swords>>", ConsoleColor.Yellow);
@@ -266,9 +293,9 @@ namespace CodingCoursesButThisTimeForFree
                                 switch (selectedOption)
                                 {
                                     case 0: //sell                                     
-                                        Notify("<<I'll take one then. By the way, did I told you that I'm a witcher?>>", "Please don't", 2, 1, ConsoleColor.Yellow);
                                         balance += checks.Peek();
                                         checks.Dequeue();
+                                        Notify("<<I'll take one then. By the way, did I told you that I'm a witcher?>>", "Please don't", 2, 1, ConsoleColor.Yellow);
                                         clients.Dequeue(); //0
                                         Notify($"Geralt leaves the store. He seemed upset you didn't let him finish>>", "I'm glad he is gone");
                                         break;
@@ -280,12 +307,12 @@ namespace CodingCoursesButThisTimeForFree
                                         break;
                                 }
 
-                                if (balance > doingGoodBalance)
-                                    Notify($"You have more than {doingGoodBalance}. Doing pretty good", "Why is it 25:00 on my watch?");
-                                else
-                                    Notify($"Less {balance}. Things are not going well", "Why is it 25:00 on my watch?");
-
                                 time += 1; //26
+                                if (balance > doingGoodBalance)
+                                    Notify($"You have more than {doingGoodBalance}. Doing pretty good", "Why is it 26:00 on my watch?");
+                                else
+                                    Notify($"Less than {balance}. Things are not going well", "Why is it 26:00 on my watch?");
+
                                 clients.Enqueue("Nika"); //1 or 2
                                 Notify($"Nika approaches the dog section", "She looks lovely");
                                 Notify($"Nika picks up small pink ball", "This is the most beautiful girl that I ever saw");
@@ -294,7 +321,7 @@ namespace CodingCoursesButThisTimeForFree
                                 if (clients.Count > 1)
                                     Notify($"<<Are you in line, mister>>, - she askes {clients.Peek()}", "No, he is just stands here. Ignore him", 2, 1, ConsoleColor.Cyan);
 
-                                ColorizeText($"\n  <<How much for this ball? I feel like my dog will really loves it", ConsoleColor.Cyan);
+                                ColorizeText($"\n  <<How much for this ball? I feel like my dog will really loves it>>", ConsoleColor.Cyan);
 
                                 List<string> nikaAnswers = new List<string>();
                                 nikaAnswers.AddRange(new string[] { $"Let's see... (random.Next(90, 100). It's {checks.Peek()}", "For you it's free" });
@@ -310,14 +337,17 @@ namespace CodingCoursesButThisTimeForFree
 
                                         if (clients.Count > 1)
                                         {
-                                            Notify($"<<And you too, mister>>", "Who is she talking to?", 2, 1, ConsoleColor.Cyan);
                                             clients.Dequeue(); //1
+                                            WriteIn($"                                        ", 2, 7); //geralt never leaves
                                             clients.Dequeue(); //0
                                             clients.Enqueue("Geralt"); //1
+                                            WriteIn($"                                        ", 2, 6); //geralt never comes
+                                            Notify($"<<And you too, mister>>", "Who is she talking to?", 2, 1, ConsoleColor.Cyan);
                                         }
                                         else
                                         {
                                             clients.Dequeue(); //0
+                                            Notify($"And than she is gone", "Like a sun rays throgh my fingers");
                                         }
 
                                         Notify("You earned 25 extra G, but you wish you have won this girls heart", "More then anything else", 2, 1);
@@ -342,11 +372,12 @@ namespace CodingCoursesButThisTimeForFree
                                         if (clients.Count > 1)
                                         {
                                             Notify($"<<Have a nice day, mister>>", "Is sh...", 2, 1, ConsoleColor.Cyan);
-                                            Notify("No, she was talking to Geralt", "I'll dream of you", 2, 1);
                                             clients.Dequeue(); //geralt leaving 1
+                                            WriteIn($"                                        ", 2, 7); //geralt never leaves
                                             clients.Dequeue(); //nika leaving 0
                                             clients.Enqueue("Geralt"); //geralt coming back 1
-                                            WriteIn($"                                        ", 2, 8); //geralt never leaves
+                                            WriteIn($"                                        ", 2, 6); //geralt never comes
+                                            Notify("No, she was talking to Geralt", "I'll dream of you", 2, 1);
                                         }
                                         else
                                         {
@@ -362,7 +393,7 @@ namespace CodingCoursesButThisTimeForFree
                                     time += 1; //26
                                     clients.Enqueue("Rook"); // 1 or 2
                                     Notify($"Rook appears out of nowhere. He is wearing mask", "Who the hell is Rook?");
-                                    Notify($"<<I told you, that you will regret it>>", "Frank?", 2, 1, ConsoleColor.Blue);
+                                    Notify($"<<I told you, that you will regret it>>", "Frank?", 2, 1, ConsoleColor.DarkBlue);
                                     balance = 0;
                                     ColorizeText($"\n  He grabs all your G (olives too) and tries to runs away", ConsoleColor.Gray);
 
@@ -382,9 +413,10 @@ namespace CodingCoursesButThisTimeForFree
                                         Notify("<<...I’d rather not choose at all>>", "Geralt?", 2, 1, ConsoleColor.Yellow);
                                         Notify($"{clients.Peek()} draws his sword and cut John in half", "Oh my God", 2, 1, ConsoleColor.Yellow);
                                         clients.Dequeue(); //geralt leaves
+                                        WriteIn($"                                        ", 2, 7); //geralt never leaves
                                         clients.Dequeue(); //frank leaves
                                         clients.Enqueue("Geralt"); //geralt comes back
-                                        WriteIn($"                                        ", 2, 8); //geralt never leaves
+                                        WriteIn($"                                        ", 2, 6); //geralt never come back
                                         Notify($"Million olives drops out of Frank's packets. You are now rich", "I am?", 2, 1, ConsoleColor.Green);
                                         balance += 1000000;
                                         Notify($"You are", "Wow", 2, 1, ConsoleColor.Green);
@@ -392,7 +424,7 @@ namespace CodingCoursesButThisTimeForFree
                                     else
                                     {
                                         clients.Dequeue(); //0
-                                        Notify($"John slams the door (he even broke your door). He screams something but you can't recognize what", "What a terrible game", 2, 1, ConsoleColor.Yellow);
+                                        Notify($"Frank slams the door (he even broke your door). He screams something but you can't recognize what", "What a terrible game", 2, 1, ConsoleColor.Yellow);
                                     }
                                 }
 
@@ -403,24 +435,23 @@ namespace CodingCoursesButThisTimeForFree
                                 {
                                     ColorizeText("\n  MONSTER HUNTER SLAYER ENDING");
                                     Notify($"No, wait. We forgot about {clients.Peek()}", "He is STILL here?", 2, 3);
-                                    Notify($"Yes, and he wants his money", "For what?!", 2, 3);
-                                    Notify($"He says for his guard service ", "I never asked for this...", 2, 3);
+                                    Notify($"Yes, and he wants his money", "For what?!");
+                                    Notify($"He says for his guard service ", "I never asked for this...");
 
                                     if (balance < victoryBalance)
                                     {
                                         balance = 0;
                                         clients.Dequeue(); //0
-                                        Notify($"Now you broke", "He took all my money?!", 2, 3);
-                                        Notify($"And completely alone", "He took all my money?!", 2, 3);
-                                        Notify($"Worst ending achived, you did it", "Great", 2, 3);
+                                        Notify($"Now you broke and completely alone", "He took all my money?!");
+                                        Notify($"Worst ending achived, you did it", "Great");
                                     }
                                     else
                                     {
                                         balance = 0;
                                         clients.Dequeue(); //0
-                                        Notify($"Now you broke", "He took all my money?!", 2, 3);
-                                        Notify($"But he promised to be with you until the end of your days", "Oh, did he?", 2, 3);
-                                        Notify($"Worsest ending achived?", "Fuck", 2, 3);
+                                        Notify($"Now you broke", "He took all my money?!");
+                                        Notify($"But he promised to be with you until the end of your days", "Oh, did he?");
+                                        Notify($"Worsest ending achived?", "Fuck");
                                     }
                                     isEndingDoneBadGeralt = true;
                                 }
@@ -435,7 +466,7 @@ namespace CodingCoursesButThisTimeForFree
                                 else if (clients.Count == 0 & balance < victoryBalance)
                                 {
                                     ColorizeText("\n  MAYBE TOMORROW ENDING");
-                                    Notify($"Tomorrow will be better day than today, - you say to yourself.", "It sure will", 2, 3);
+                                    Notify($"<<Tomorrow will be better day than today>>, - you say to yourself.", "It sure will", 2, 3);
 
                                     if (isRegretOn)
                                         Notify($"But somehow next morning never came", "I CURSE YOU, FRANK");
@@ -462,14 +493,14 @@ namespace CodingCoursesButThisTimeForFree
                                     ColorizeText(" Monster Hunter Slayer Ending", ConsoleColor.White);
 
                                 if (isEndingDoneGoodGeralt)
-                                    ColorizeText(" Olives (Achived)", ConsoleColor.Green);
+                                    ColorizeText(" Olives Ending (Achived)", ConsoleColor.Green);
                                 else
-                                    ColorizeText(" Olives", ConsoleColor.White);
+                                    ColorizeText(" Olives Ending", ConsoleColor.White);
 
                                 if (isEndingDoneBadAlone)
-                                    ColorizeText(" Maybe Tomorrwo Ending (Achived)", ConsoleColor.Green);
+                                    ColorizeText(" Maybe Tomorrow Ending (Achived)", ConsoleColor.Green);
                                 else
-                                    ColorizeText(" Maybe Tomorrwo Ending", ConsoleColor.White);
+                                    ColorizeText(" Maybe Tomorrow Ending", ConsoleColor.White);
 
                                 if (isEndingDoneGoodAlone)
                                     ColorizeText(" Among The Stars Ending (Achived)", ConsoleColor.Green);
@@ -485,7 +516,7 @@ namespace CodingCoursesButThisTimeForFree
                                     WriteIn("The Store", 48, 14, true, 2000);
                                     WriteIn("The Store:", 48, 14, true, 2000);
                                     WriteIn("The Store: Part 2", 48, 14, true, 2000);
-                                    isOpen = false;
+                                    isWorkingHours = false;
                                 }
                                 else
                                 {
@@ -497,13 +528,14 @@ namespace CodingCoursesButThisTimeForFree
                                     switch (selectedOption)
                                     {
                                         case 1: //free                                     
-                                            isOpen = false;
+                                            isWorkingHours = false;
                                             break;
                                     }
                                 }
 
                                 //we have some claning to do
                                 isRegretOn = false;
+                                balance = 0;
 
                                 for (int i = 0; i < 10; i++)
                                     checks.Enqueue(random.Next(90, 100));
@@ -516,7 +548,7 @@ namespace CodingCoursesButThisTimeForFree
                                 time = 22;
                                 timeTemp = 22;
 
-                                while(clients.Count > 0)
+                                while (clients.Count > 0)
                                 {
                                     clients.Dequeue();
                                     WriteIn($"                                        ", 2, 8);
@@ -525,13 +557,13 @@ namespace CodingCoursesButThisTimeForFree
                             }
                             break;
                         case 1: //exit
-                            isOpen = false;
+                            isWorkingHours = false;
                             break;
                     }
                     break;
 
                 case 1: //russian
-                    while (isOpen)
+                    while (isWorkingHours)
                     {
 
                     }
@@ -545,12 +577,11 @@ namespace CodingCoursesButThisTimeForFree
         {
             if (isHudOn)
             {
-                Console.SetCursorPosition(0, 27);
-                ColorizeText($" {time}:00", ConsoleColor.DarkGray);
-                Console.Write($" Balance:");
-                ColorizeText($" {balance}g", ConsoleColor.Green);
-                ColorizeText($" Goal: {victoryBalance}g", ConsoleColor.DarkGray);
-
+                Console.SetCursorPosition(0, 28);
+                ColorizeText($" {time}:00  |  ", ConsoleColor.DarkGray, false);
+                ColorizeText($" Balance:", ConsoleColor.DarkGray, false);
+                ColorizeText($" {balance}g", ConsoleColor.Green, false);
+                ColorizeText($"  |  Goal: {victoryBalance}g", ConsoleColor.DarkGray, false);
                 Console.SetCursorPosition(0, 0);
             }
         }
@@ -749,11 +780,20 @@ namespace CodingCoursesButThisTimeForFree
             Console.ForegroundColor = ConsoleColor.White;
         } //colorize char
 
-        static void ColorizeText(string text, ConsoleColor color = ConsoleColor.Gray)
+        static void ColorizeText(string text, ConsoleColor color = ConsoleColor.Gray, bool isWriteLine = true)
         {
-            Console.ForegroundColor = color;
-            Console.WriteLine(text);
-            Console.ForegroundColor = ConsoleColor.White;
+            if (isWriteLine)
+            {
+                Console.ForegroundColor = color;
+                Console.WriteLine(text);
+                Console.ForegroundColor = ConsoleColor.White;
+            }
+            else
+            {
+                Console.ForegroundColor = color;
+                Console.Write(text);
+                Console.ForegroundColor = ConsoleColor.White;
+            }
         } //colorize text
 
         static void ColorizeBackground(char character, ConsoleColor color = ConsoleColor.Gray)
@@ -763,6 +803,14 @@ namespace CodingCoursesButThisTimeForFree
             Console.Write(character);
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.White;
+        } //colored tile
+        static void ColorizeBackground(string text, ConsoleColor color = ConsoleColor.Gray)
+        {
+            Console.BackgroundColor = color;
+            //Console.ForegroundColor = color;
+            Console.Write(text);
+            Console.BackgroundColor = ConsoleColor.Black;
+            //Console.ForegroundColor = ConsoleColor.White;
         } //colored BG
 
         public static class ConsoleHelper
