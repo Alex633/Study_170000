@@ -73,6 +73,15 @@ namespace CodingCoursesButThisTimeForFree
                         balanceTemp = balance;
                     }
 
+                    if (time > timeTemp)
+                    {
+                        //notification.Enqueue($" {time - timeTemp} hours passed ");
+                        WriteIn($" {time - timeTemp} часа спустя ", 2, 6, true, 3000, true, ConsoleColor.DarkGray);
+                        timeTemp = time;
+                    }
+                    
+                    Thread.Sleep(300);
+                    
                     //if (clients.Count > clientsTemp)
                     //{
                     //    notification.Enqueue($" {clients.Peek()} enters the store ");
@@ -86,32 +95,8 @@ namespace CodingCoursesButThisTimeForFree
                     //    WriteIn($" {latestClient} leaves the store ", 2, 7, true, 8000, true, ConsoleColor.DarkGray);
                     //    latestClient = "error";
                     //}
-
-                    if (time > timeTemp)
-                    {
-                        //notification.Enqueue($" {time - timeTemp} hours passed ");
-                        WriteIn($" {time - timeTemp} hours passed ", 2, 6, true, 3000, true, ConsoleColor.DarkGray);
-                        timeTemp = time;
-                    }
-
-                    Thread.Sleep(300);
                 }
             }); //notification write in q
-
-            //task.run(() =>
-            //{
-            //    while (true)
-            //    {
-            //        thread.sleep(300);
-
-            //        if (notification.count > 1)
-            //        {
-            //            writein(notification.dequeue(), 2, 6, true, 3000, true, consolecolor.darkgray);
-            //        }
-
-            //        thread.sleep(300);
-            //    }
-            //}); //notification out
 
             Task.Run(() =>
             {
@@ -131,7 +116,7 @@ namespace CodingCoursesButThisTimeForFree
 
             WriteIn("Alexander's game", 47, 14, true);
             WriteIn("The Store: Part 1", 46, 14, true, 2000);
-            WriteIn("For Nika", 53, 14, true, 2000);
+            WriteIn("Посвящается Нике", 53, 14, true, 2000);
 
 
             SelectOption(languageSelect, out selectedOption, 3, 1);
@@ -139,7 +124,6 @@ namespace CodingCoursesButThisTimeForFree
             switch (selectedOption)
             {
                 case 0: //english
-
                     Console.WriteLine("\n Welcome to WORK");
                     SelectOption(mainOptions, out selectedOption, 3, 3);
 
@@ -268,9 +252,9 @@ namespace CodingCoursesButThisTimeForFree
                                 }
 
                                 clients.Dequeue(); //0
-                                Notify($"You done with your second customer, I'm proud of you", "Unlike my father ever did");
+                                Notify($"You done your second customer, I'm proud of you", "Unlike my father ever did");
                                 time += 1; //24
-                                Notify($"People keeps going passed your store windows", "I kinda like that view");
+                                Notify($"It's starts raining", "I kinda like that view");
                                 clients.Enqueue("Grandpa"); //1
                                 Notify($"Suddenly, you hear a door bell", "I didn't know I had one");
                                 Notify($"You approuch the door and open it", "But it's open");
@@ -411,7 +395,7 @@ namespace CodingCoursesButThisTimeForFree
                                     if (clients.Count > 1)
                                     {
                                         Notify("<<...I’d rather not choose at all>>", "Geralt?", 2, 1, ConsoleColor.Yellow);
-                                        Notify($"{clients.Peek()} draws his sword and cut John in half", "Oh my God", 2, 1, ConsoleColor.Yellow);
+                                        Notify($"{clients.Peek()} draws his sword and cuts John in half", "Oh my God");
                                         clients.Dequeue(); //geralt leaves
                                         WriteIn($"                                        ", 2, 7); //geralt never leaves
                                         clients.Dequeue(); //frank leaves
@@ -424,7 +408,7 @@ namespace CodingCoursesButThisTimeForFree
                                     else
                                     {
                                         clients.Dequeue(); //0
-                                        Notify($"Frank slams the door (he even broke your door). He screams something but you can't recognize what", "What a terrible game", 2, 1, ConsoleColor.Yellow);
+                                        Notify($"Frank slams the door (he even broke your door). He screams something but you can't recognize what", "What a terrible game");
                                     }
                                 }
 
@@ -459,7 +443,7 @@ namespace CodingCoursesButThisTimeForFree
                                 else if (clients.Count == 1 & balance > 1000)
                                 {
                                     ColorizeText("\n  OLIVES ENDING");
-                                    Notify($"You and {clients.Peek()} moved to Novigrad. You even had enough G to buy best apartment in Novigrad. And since that monent you and Geralt lived happily ever after", "But I prefer to live alone", 2, 3);
+                                    Notify($"You and {clients.Peek()} moved to Novigrad. You even had enough G to buy the best apartment in Novigrad. And since that monent you and Geralt lived happily ever after", "But I prefer to live alone", 2, 3);
                                     isEndingDoneGoodGeralt = true;
                                 }
 
@@ -469,7 +453,7 @@ namespace CodingCoursesButThisTimeForFree
                                     Notify($"<<Tomorrow will be better day than today>>, - you say to yourself.", "It sure will", 2, 3);
 
                                     if (isRegretOn)
-                                        Notify($"But somehow next morning never came", "I CURSE YOU, FRANK");
+                                        Notify($"But somehow next morning never came", "Didn't I had enough");
                                     else
                                         Notify($"Will it?", "It will");
 
@@ -509,6 +493,7 @@ namespace CodingCoursesButThisTimeForFree
 
                                 if (isEndingDoneBadGeralt && isEndingDoneGoodGeralt && isEndingDoneBadAlone && isEndingDoneGoodAlone)
                                 {
+                                    Console.Clear();
                                     WriteIn("Wow", 50, 14, true, 2000);
                                     WriteIn("You completed all endings", 45, 14, true, 2000);
                                     WriteIn("Didn't know you had it in you, Nika", 40, 14, true, 2000);
@@ -533,7 +518,7 @@ namespace CodingCoursesButThisTimeForFree
                                     }
                                 }
 
-                                //we have some claning to do
+                                //we have some cleaning to do
                                 isRegretOn = false;
                                 balance = 0;
 
@@ -563,14 +548,430 @@ namespace CodingCoursesButThisTimeForFree
                     break;
 
                 case 1: //russian
-                    while (isWorkingHours)
-                    {
+                    Console.WriteLine("\n Добро пожаловать на РАБОТУ");
+                    SelectOption(mainOptionsRU, out selectedOption, 3, 3);
 
+                    switch (selectedOption)
+                    {
+                        case 0: //open store                              
+                            Notify($"Ваша цель проста. Заработайте {victoryBalance}g до 23:59", "Я справлюсь");
+                            Notify("Сейчас у вас... давайте проверим...", "Давайте");
+                            isHudOn = true;
+                            Notify("Внизу. Видите?", "Да");
+                            Notify("Еще там время есть. Видно? Видно?", "Да я уже заметила");
+                            Notify("Хорошо. Ждем вашего первого клиента", "О да");
+                            Notify("Он может появиться в любую секунду", "Жду не дождусь");
+                            Notify("Ожидание", "Хорошо");
+                            time += 4; //12
+                            Notify("4 часа спустя", "Серьезно?");
+                            Notify("А вот и клиент. Стоит за дверью!", "Наконец-то");
+                            Notify("О нет, он прошел мимо", "Будь ты проклят");
+                            time += 10; //22
+                            Notify("10 часов спустя", "Сегодня не мой день");
+                            Notify("И день почти закончился", "...");
+                            Notify("Может они все придут ночью?", "Да, конечно");
+                            Notify("Но скорее всего нет", "У меня нет слов");
+                            Notify("Секунду...", "Что теперь?");
+
+                            while (isWorkingHours)
+                            {
+                                isHudOn = true;
+                                if (isEndingDoneBadGeralt || isEndingDoneGoodGeralt || isEndingDoneBadAlone || isEndingDoneGoodAlone)
+                                    Notify("Ваш первый клиент открывает дверь!", "Надеюсь это не Фрэнк");
+                                else
+                                {
+                                    Notify("Ваш первый клиент открывает дверь!", "Прошло так много времени");
+                                }
+
+                                clients.Enqueue("Фрэнк"); //1
+
+                                if (isEndingDoneBadGeralt || isEndingDoneGoodGeralt || isEndingDoneBadAlone || isEndingDoneGoodAlone)
+                                    Notify($"{clients.Peek()} входит в магазин", "Это он");
+                                else
+                                    Notify($"{clients.Peek()} входит в магазин", "Я так рада, что вы пришли");
+
+                                ColorizeText("\n  <<Я хотел бы купить вот эти оливки, пожалуйста>>", ConsoleColor.Blue);
+
+                                List<string> johnAnswers = new List<string>();
+                                johnAnswers.AddRange(new string[] { "Ладно", "Не хотите две?", "Оливки, серьезно?" });
+
+                                SelectOption(johnAnswers, out selectedOption, 3, 3);
+
+                                switch (selectedOption)
+                                {
+                                    case 0: //okay then                                       
+                                        balance += checks.Peek();
+                                        checks.Dequeue();
+                                        Notify("<<Большое спасибо>>", "Неплохо", 2, 1, ConsoleColor.Blue);
+                                        break;
+                                    case 1: //do you want two
+                                        Notify("<<Почему бы и нет, две мне точно пригодятся>>", "Продолжить", 2, 1, ConsoleColor.Blue);
+                                        balance += checks.Peek() * 2;
+                                        checks.Dequeue();
+                                        Notify("Вы продали две оливки и получили в два раза больше G. Класс", "Теперь я точно иду на хорошую концовку");
+                                        break;
+                                    case 2: //olives, really
+                                        ColorizeText("\n  <<Да, с ними жить в семь раз лучше. Вы не знали?>>", ConsoleColor.Blue);
+
+                                        List<string> johnAnswer2 = new List<string>();
+                                        johnAnswer2.AddRange(new string[] { "Ну вообще знала", "Ну вообще не знала", "Ты сумасшедший" });
+                                        SelectOption(johnAnswer2, out selectedOption, 3, 3);
+
+                                        switch (selectedOption)
+                                        {
+                                            case 0:
+                                                ColorizeText("\n  <<Рад встретить еще одного любителя оливок. Так можно мне оливок?>>", ConsoleColor.Blue);
+                                                break;
+                                            case 1:
+                                                ColorizeText("\n  <<Ты сумасшедший, это все знают>>", ConsoleColor.Blue);
+                                                break;
+                                            case 2:
+                                                ColorizeText("\n  <<Как грубо. Вам везет, что я не могу жить без моих оливок>>", ConsoleColor.Blue);
+                                                break;
+                                        }
+
+                                        List<string> johnAnswer3 = new List<string>();
+                                        johnAnswer3.AddRange(new string[] { "Продать ему эти чертовы оливки", "Отказать в обслуживании" });
+                                        SelectOption(johnAnswer3, out selectedOption, 3, 3);
+
+                                        switch (selectedOption)
+                                        {
+                                            case 0: //sell                                     
+                                                balance += checks.Peek();
+                                                checks.Dequeue();
+                                                Notify("<<Спасибо. Надеюсь, я не опоздаю>>", "Ну и безумец");
+                                                break;
+                                            case 1: //refuse
+                                                isRegretOn = true;
+                                                Notify("<<Ты еще пожалеешь>>", "Сомневаюсь", 2, 1, ConsoleColor.Blue);
+                                                break;
+                                        }
+                                        break;
+                                }
+
+                                clients.Dequeue(); //0
+                                Notify($"Вы слышите как закрывается дверь", "Вообще-то не слышу");
+                                time += 1; //23
+                                Notify($"Лунный свет проникает в вашу чудесную лавку", "Хотелось бы мне это видеть");
+                                clients.Enqueue("Лариса"); //1
+                                Notify($"<<Здравствуйте, привет>>", "Откуда вы взялись?", 2, 1, ConsoleColor.Magenta);
+                                Notify($"<<У вас есть... аааа...>>", "У нас есть все", 2, 1, ConsoleColor.Magenta);
+                                Notify($"<<У вас есть немножко оливок?>>", "Ты тоже???", 2, 1, ConsoleColor.Magenta);
+                                ColorizeText($"\n  <<Мне нужны оливки>>", ConsoleColor.Magenta);
+
+                                List<string> larisaAnswer = new List<string>();
+                                larisaAnswer.AddRange(new string[] { "Черт с вами, забирайте свои оливки", "Прочь из моего магазины, больные культисты" });
+                                SelectOption(larisaAnswer, out selectedOption, 3, 3);
+
+                                switch (selectedOption)
+                                {
+                                    case 0: //sell                                     
+                                        balance += checks.Peek();
+                                        checks.Dequeue();
+                                        Notify("Она быстро хватает свои оливки и по-тихому уходит", "Я не уверена, что хочу продолжать в это играть");
+                                        break;
+                                    case 1: //refuse
+                                        Notify("Она выбегает из магазина. Неужели нельзя было по нормальному?", "Нет, нельзя");
+                                        break;
+                                }
+
+                                clients.Dequeue(); //0
+                                Notify($"Вы закончили со вторым клиентом. Я горжусь вами", "В отличии от моего отца");
+                                time += 1; //24
+                                Notify($"За окном идет дождь", "Такой вид мне больше нравится");
+                                clients.Enqueue("Дедушка Александра"); //1
+                                Notify($"Неожиданно, вы слышите дверной звонок", "Не знал, что у меня такой есть");
+                                Notify($"Вы подходите к двери и открываете ее", "Но она уже была открыта");
+                                Notify($"Это дедушка Александра", "Может предложить ему кофе?");
+                                Notify($"<<Наконец, мы сможем провести немного времени вместе>>, - мысль пролетает в вашей голове", "Но я впервые вижу этого человека");
+                                Notify($"<<Как учеба продвигается?>>", "О чем он вообще?", 2, 1, ConsoleColor.DarkRed);
+
+                                clients.Dequeue(); //0
+                                Notify($"Не дождавшись ответа, он покидает магазин", "Скорее всего дела");
+                                time += 1; //25
+                                Notify($"Вы стоите и размышляете, почему у него никогда нет на вас времени", "Время улетает незаметно");
+                                clients.Enqueue("Геральт"); //1 
+                                Notify($"{clients.Peek()} спрыгивает с зенитного окна", $"Что-что простите?");
+                                ColorizeText($"\n  <<Мне нужно два серебряных меча>>", ConsoleColor.Yellow);
+
+                                List<string> geraltAnswers = new List<string>();
+                                geraltAnswers.AddRange(new string[] { "У нас один остался", "Вы уверены, что не хотите оливок?" });
+                                SelectOption(geraltAnswers, out selectedOption, 3, 3);
+
+                                switch (selectedOption)
+                                {
+                                    case 0: //sell                                     
+                                        balance += checks.Peek();
+                                        checks.Dequeue();
+                                        Notify("<<Давайте один тогда. Кстати уже вам говорил, что я ведьмак?>>", "Пожалуйста не надо", 2, 1, ConsoleColor.Yellow);
+                                        clients.Dequeue(); //0
+                                        Notify($"Геральт покидает магазин. Он выглядит растроенным, потому что вы не позволили ему сказать это>>", "Я рада, что он ушел");
+                                        break;
+                                    case 1: //olives
+                                        Notify("<<Оливки это зло. Меньшие, большие, средние - все едины, пропорции условны, а...>>", "Да я слышала это", 2, 1, ConsoleColor.Yellow);
+                                        Notify($"<<...границы размыты. Я не святой отшельник, не только одно добро творил в жизни. Но...>>", "Он не может остановиться", 2, 1, ConsoleColor.Yellow);
+                                        Notify($"Вы настаиваете, чтобы он определился, что ему надо (кроме мечей), но похоже он в своей голове", "Замечательно");
+                                        Notify($"Теперь он просто стоит", "Потрясающе");
+                                        break;
+                                }
+
+                                time += 1; //26
+                                if (balance > doingGoodBalance)
+                                    Notify($"У вас больше {doingGoodBalance}. Дела идут неплохо", "Почему на моих часах 26:00?");
+                                else
+                                    Notify($"Меньше {balance}. Сегодня бизнес так себе", "Почему на моих часах 26:00?");
+
+                                clients.Enqueue("Ника"); //1 or 2
+                                Notify($"Ника идет к секции для животных", "Она выглядит милой");
+                                Notify($"Она поднимает маленький розовый мячик", "Это самая красивая девушка, которую я когла либо видела");
+                                Notify($"Вы замечаете кольцо на ее пальце", "Я невероятно разочарован");
+
+                                if (clients.Count > 1)
+                                    Notify($"<<Вы стоите в очереди, мистер?>>, - она спрашивает {clients.Peek()}а", "Нет, он просто здесь стоит. Не обращайте внимания", 2, 1, ConsoleColor.Cyan);
+
+                                ColorizeText($"\n  <<Сколько за этот мячик? Мне кажется моей собаке он крайне полюбится>>", ConsoleColor.Cyan);
+
+                                List<string> nikaAnswers = new List<string>();
+                                nikaAnswers.AddRange(new string[] { $"Давайте посмотрим... (random.Next(90, 100). Всего {checks.Peek()}", "Для вас - бесплатно" });
+                                SelectOption(nikaAnswers, out selectedOption, 3, 3);
+
+                                switch (selectedOption)
+                                {
+                                    case 0: //sell
+                                        Notify($"Вам кажется, что вы увидели что-то, что не должны были увидеть", "Но все наиболее точно так и было задумано");
+                                        balance += checks.Peek() + 25;
+                                        checks.Dequeue();
+                                        Notify("<<Спасибо. И небольшие чаевые. С праздником!>>", "Сегодня праздник?", 2, 1, ConsoleColor.Cyan);
+
+                                        if (clients.Count > 1)
+                                        {
+                                            clients.Dequeue(); //1
+                                            WriteIn($"                                        ", 2, 7); //geralt never leaves
+                                            clients.Dequeue(); //0
+                                            clients.Enqueue("Геральт"); //1
+                                            WriteIn($"                                        ", 2, 6); //geralt never comes
+                                            Notify($"<<И вас тоже, мистер>>", "Продолжить", 2, 1, ConsoleColor.Cyan);
+                                        }
+                                        else
+                                        {
+                                            clients.Dequeue(); //0
+                                            Notify($"И вот ее снова нет", "Как лучи солнца, сквозь мои пальцы");
+                                        }
+
+                                        Notify("Вы заработали на 25 G больше, но вместо этого, вы бы предпочли завоевать ее сердце", "Больше, чем что-либо еще", 2, 1);
+                                        Notify("Но она замужем", "Но она замужем", 2, 1);
+                                        Notify("Давайте двигаться вперед", "Я не смогу", 2, 1);
+                                        break;
+                                    case 1: //free
+                                        Notify("Вы пытаетесь с ней флиртовать?", "Ну...", 2, 1);
+                                        Notify("Разве вы не поняли, что она замужем?", "Как я мог устоять?", 2, 1);
+                                        Notify("Ладно, вы сами напросились", "Но", 2, 1);
+                                        Notify("Попробуем сначала", "Для вас - бесплатно, милашка", 2, 1);
+                                        Notify("Что вы пытаетесь сказать, но вместо этого вы стоите в тишине", "...", 2, 1);
+                                        Notify("Ослепленные ее красотой", "...", 2, 1);
+                                        Notify("Как полная неудачница", "...", 2, 1);
+                                        Notify("<<Вы в порядке?>>", "Мне кажется я люблю тебя", 2, 1, ConsoleColor.Cyan);
+                                        Notify("Но все, что она слышит это мертвая тишина вашего прекрасного магазина (скорее всего это к лучшему)", "...", 2, 1);
+                                        Notify("<<Я могу вам как-нибдуь помочь?>>", "Хотела бы я поговорить с тобой", 2, 1, ConsoleColor.Cyan);
+                                        Notify("К счастью, вы не можете", "...", 2, 1);
+                                        Notify("Смотрите, теперь она покидает магазин", "Пожалуйста не надо", 2, 1);
+                                        Notify("И думает, что вы чудачка", "Я этого не заслуживаю", 2, 1);
+
+                                        if (clients.Count > 1)
+                                        {
+                                            Notify($"<<Хорошего дня, мистер>>", "Она ска...", 2, 1, ConsoleColor.Cyan);
+                                            clients.Dequeue(); //geralt leaving 1
+                                            clients.Dequeue(); //nika leaving 0
+                                            clients.Enqueue("Геральт"); //geralt coming back 1
+                                            Notify("Нет, это она Геральту", "Я увижу тебя в моих снах", 2, 1);
+                                        }
+                                        else
+                                        {
+                                            Notify("Вы никогда не увидете ее снова", "Что это за жидкость в моих глазах?", 2, 1);
+                                            clients.Dequeue(); //nika is leaving 0
+                                        }
+
+                                        break;
+                                }
+
+                                if (isRegretOn)
+                                {
+                                    time += 1; //26
+                                    clients.Enqueue("Рук"); // 1 or 2
+                                    Notify($"Рук возникает из ниоткуда. На нем маска", "Какой еще Рук?");
+                                    Notify($"<<Я говорил, что ты пожалеешь>>", "Фрэнк?", 2, 1, ConsoleColor.DarkBlue);
+                                    balance = 0;
+                                    ColorizeText($"\n  Он хватает все ваши G (оливки тоже) и пытается убежать", ConsoleColor.Gray);
+
+                                    List<string> brookSituation = new List<string>();
+                                    brookSituation.AddRange(new string[] { "Остановить его", "Не останавливать его (вдруг у него есть пистолет)" });
+                                    SelectOption(brookSituation, out selectedOption, 3, 3);
+
+                                    switch (selectedOption)
+                                    {
+                                        case 0: //free                                     
+                                            Notify("Вы пытаетесь схватить его за руку. Но он был слишком ловок", "Только не так", 2, 1);
+                                            break;
+                                    }
+
+                                    if (clients.Count > 1)
+                                    {
+                                        Notify("<<...я предпочту не выбирать вовсе>>", "Геральт?", 2, 1, ConsoleColor.Yellow);
+                                        Notify($"{clients.Peek()} достает свой мечь и разрубает Фрэнка напополам", "Боже мой");
+                                        clients.Dequeue(); //geralt leaves
+                                        clients.Dequeue(); //frank leaves
+                                        clients.Enqueue("Geralt"); //geralt comes back
+                                        Notify($"Миллион оливок выкатываются из карманов Фрэнка. Теперь вы богаты", "Я богата?", 2, 1, ConsoleColor.Green);
+                                        balance += 1000000;
+                                        Notify($"Вы богаты", "Ну ничего себе", 2, 1, ConsoleColor.Green);
+                                    }
+                                    else
+                                    {
+                                        clients.Dequeue(); //0
+                                        Notify($"Фрэнк хлопает дверью (он даже сломал вашу дверь). Он кричит что-то напоследок, но вы не можете разобрать что", "Ужасная игра");
+                                    }
+                                }
+
+                                Notify($"На ваших часах {time}:00... То есть 0{time % 24}:00. Вы закончили день с {balance}G. Настало время конца", "Ну и ну");
+                                isHudOn = false;
+
+                                if (clients.Count == 1 & balance < 1000)
+                                {
+                                    ColorizeText("\n  УБИЙЦА ЧУДОВИЩ КОНЦОВКА");
+                                    Notify($"Нет, подождите. Мы забыли про {clients.Peek()}а", "Он ВСЕ ЕЩЕ здесь?!", 2, 3);
+                                    Notify($"Да, и он требует оплаты", "За что?!");
+                                    Notify($"Он говорит за работу охранником", "Я никогда этого не просила...");
+
+                                    if (balance < victoryBalance)
+                                    {
+                                        balance = 0;
+                                        clients.Dequeue(); //0
+                                        Notify($"Теперь вы бедны и совсем одиноки", "Все мои деньги?!");
+                                        Notify($"Худшая концовка достигнута, ты это сделала", "Прекрасно");
+                                    }
+                                    else
+                                    {
+                                        balance = 0;
+                                        clients.Dequeue(); //0
+                                        Notify($"Теперь вы бедны", "Все мои деньги?!");
+                                        Notify($"Но он пообещал, что останется с вами до конца ваших дней", "Да неужели");
+                                        Notify($"Наихудшейшая концовка достигнута?", "Холера");
+                                    }
+                                    isEndingDoneBadGeralt = true;
+                                }
+
+                                else if (clients.Count == 1 & balance > 1000)
+                                {
+                                    ColorizeText("\n  КОНЦОВКА С ОЛИВКАМИ");
+                                    Notify($"Вы и {clients.Peek()} переехали в Новиград. У вас даже хватило G, чтобы купить лучшую квартиру в Новиграде. И с этого момента вы с Геральтом жили долго и счастливо", "Уж лучше я бы жила одна", 2, 3);
+                                    isEndingDoneGoodGeralt = true;
+                                }
+
+                                else if (clients.Count == 0 & balance < victoryBalance)
+                                {
+                                    ColorizeText("\n  МОЖЕТ ЗАВТРА, КОНЕЦ");
+                                    Notify($"<<Завтра будет лучше чем вчера>>, - вы говорите себе.", "Точно будет", 2, 3);
+
+                                    if (isRegretOn)
+                                        Notify($"Но следующее утро так и не наступило", "Неужели я страдал не достаточно");
+                                    else
+                                        Notify($"Уверена?", "Уверена");
+
+                                    isEndingDoneBadAlone = true;
+                                }
+
+                                else if (clients.Count == 0 & balance > victoryBalance)
+                                {
+                                    ColorizeText("\n  ФИНАЛ СРЕДИ ЗВЕЗД");
+                                    Notify($"Вы закрываете глаза и думаете:", "Я это сделала", 2, 3);
+                                    Notify($"Что же дальше, мне интересно. Только звезды", "Мы летим в космос?");
+                                    isEndingDoneGoodAlone = true;
+                                }
+
+                                WriteIn("Конец", 4, 3, true);
+                                Console.SetCursorPosition(0, 1);
+
+                                if (isEndingDoneBadGeralt)
+                                    ColorizeText(" Убийца чудовищ концовка (достигнута)", ConsoleColor.Green);
+                                else
+                                    ColorizeText(" Убийца чудовищ концовка", ConsoleColor.White);
+
+                                if (isEndingDoneGoodGeralt)
+                                    ColorizeText(" Концовка с оливками (достигнута)", ConsoleColor.Green);
+                                else
+                                    ColorizeText(" Концовка с оливками", ConsoleColor.White);
+
+                                if (isEndingDoneBadAlone)
+                                    ColorizeText(" Может завтра, конец (достигнута)", ConsoleColor.Green);
+                                else
+                                    ColorizeText(" Может завтра, конец", ConsoleColor.White);
+
+                                if (isEndingDoneGoodAlone)
+                                    ColorizeText(" Финал среди звезд (Achived)", ConsoleColor.Green);
+                                else
+                                    ColorizeText(" Финал среди звезд", ConsoleColor.White);
+
+                                if (isEndingDoneBadGeralt && isEndingDoneGoodGeralt && isEndingDoneBadAlone && isEndingDoneGoodAlone)
+                                {
+                                    Console.Clear();
+                                    WriteIn("Надо же", 49, 14, true, 2000);
+                                    WriteIn("Вы получили все концовки", 45, 14, true, 2000);
+                                    WriteIn("Я знал, что ты справишься, Ника", 40, 14, true, 2000);
+                                    WriteIn("Фрэнк, Геральт и Ника вернуться в", 40, 14, true, 2000);
+                                    WriteIn("The Store", 48, 14, true, 2000);
+                                    WriteIn("The Store:", 48, 14, true, 2000);
+                                    WriteIn("The Store: Part 2", 48, 14, true, 2000);
+                                    isWorkingHours = false;
+                                }
+                                else
+                                {
+                                    WriteIn("Попробовать снова?", 2, 8, false);
+                                    List<string> tryAgain = new List<string>();
+                                    tryAgain.AddRange(new string[] { "Конечно, я еще не получила все концовки", "Нет (но сердце Александра будет разбито)" });
+                                    SelectOption(tryAgain, out selectedOption, 3, 10);
+
+                                    switch (selectedOption)
+                                    {
+                                        case 1: //free                                     
+                                            isWorkingHours = false;
+                                            break;
+                                    }
+                                }
+
+                                //we have some cleaning to do
+                                isRegretOn = false;
+                                balance = 0;
+
+                                for (int i = 0; i < 10; i++)
+                                    checks.Enqueue(random.Next(90, 100));
+
+                                for (int i = 0; i < transactions.Count; i++)
+                                    balance += transactions[i];
+
+                                balanceTemp = 161;
+                                latestClient = "";
+                                time = 22;
+                                timeTemp = 22;
+
+                                while (clients.Count > 0)
+                                {
+                                    clients.Dequeue();
+                                    WriteIn($"                                        ", 2, 8);
+                                }
+
+                            }
+                            break;
+                        case 1: //exit
+                            isWorkingHours = false;
+                            break;
                     }
                     break;
-            }
 
-            WriteIn(":(", 5, 2, true);
+            }
+            if (isEndingDoneBadGeralt && isEndingDoneGoodGeralt && isEndingDoneBadAlone && isEndingDoneGoodAlone)
+                WriteIn(":)", 50, 14, true);
+            else
+                WriteIn(":(", 5, 2, true);
         }
 
         static void DisplayBalanceAndTime(ref int balance, ref int time, int victoryBalance, bool isHudOn)
@@ -579,9 +980,9 @@ namespace CodingCoursesButThisTimeForFree
             {
                 Console.SetCursorPosition(0, 28);
                 ColorizeText($" {time}:00  |  ", ConsoleColor.DarkGray, false);
-                ColorizeText($" Balance:", ConsoleColor.DarkGray, false);
+                ColorizeText($" Баланс:", ConsoleColor.DarkGray, false);
                 ColorizeText($" {balance}g", ConsoleColor.Green, false);
-                ColorizeText($"  |  Goal: {victoryBalance}g", ConsoleColor.DarkGray, false);
+                ColorizeText($"  |  Цель: {victoryBalance}g", ConsoleColor.DarkGray, false);
                 Console.SetCursorPosition(0, 0);
             }
         }
