@@ -660,7 +660,7 @@ namespace CodingCoursesButThisTimeForFree
                                 ColorizeText($"\n  <<Мне нужны оливки>>", ConsoleColor.Magenta);
 
                                 List<string> larisaAnswer = new List<string>();
-                                larisaAnswer.AddRange(new string[] { "Черт с вами, забирайте свои оливки", "Прочь из моего магазины, больные культисты" });
+                                larisaAnswer.AddRange(new string[] { "Черт с вами, забирайте свои оливки", "Идите вы малину, больные культисты" });
                                 SelectOption(larisaAnswer, out selectedOption, 3, 3);
 
                                 switch (selectedOption)
