@@ -27,7 +27,7 @@ namespace CodingCoursesButThisTimeForFree
 
             WriteIn("Alexander's homework", 47, 14, true, 1600, false, ConsoleColor.White);
 
-            WriteIn("Динамический массив (коллекция на самом деле): продвинутый", 42, 14, true, 2000);
+            WriteIn("Dynamic array (collection actually): Advance", 35, 14, true, 2000);
 
             while (isOpen)
             {
@@ -56,9 +56,10 @@ namespace CodingCoursesButThisTimeForFree
                                 if (userInput != "y")
                                 {
                                     isAddingNumber = false;
-
-                                    if (userInput != "n")
-                                        Console.WriteLine("Я тебя не понимаю. Я пойду");
+                                }
+                                else
+                                {
+                                    Console.Clear();
                                 }
                             }
                             else
@@ -93,10 +94,10 @@ namespace CodingCoursesButThisTimeForFree
             if (isAtBottom)
                 Console.SetCursorPosition(0, 27);
 
-            for (int i = 0; i < list.Count; i++)
+            foreach (int item in list)
             {
-                sum += list[i];
-                ColorizeText($" {list[i]}", ConsoleColor.DarkGray, false);
+                sum += item;
+                ColorizeText($" {item}", ConsoleColor.DarkGray, false);
             }
 
             Console.WriteLine();
@@ -209,7 +210,7 @@ namespace CodingCoursesButThisTimeForFree
                 ColorizeText($"{title}", color);
             }
 
-            WriteIn($" {buttonText} ", menuStartX + 1, menuStartY + 2, false, 0, true);
+            WriteIn($" {buttonText} ", menuStartX + 1, menuStartY + 2, false, 0, true, ConsoleColor.Blue);
 
             while (!isOptionSelected)
             {
