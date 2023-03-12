@@ -32,6 +32,7 @@ namespace CodingCoursesButThisTimeForFree
                     "\n(tab) Look at Residents" +
                     "\n(esc) Leave Residents Alone", ConsoleColor.Gray);
                 ConsoleKeyInfo inputKey = Console.ReadKey();
+
                 switch (inputKey.Key)
                 {
                     case CommandAdd:
@@ -47,6 +48,7 @@ namespace CodingCoursesButThisTimeForFree
                         isOpen = false;
                         break;
                 }
+                Console.Clear();
             }
             Console.Clear();
             WriteInFor(":(");
