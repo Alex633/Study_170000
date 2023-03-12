@@ -1,4 +1,4 @@
-        static void ShowTitleScreen(string developer, string game, int startXDev = 47, int startXGame = 47)
+        static void #ShowTitleScreen(string developer, string game, int startXDev = 47, int startXGame = 47)
         {
             int startY = 14;
             int timingDev = 1600;
@@ -8,7 +8,7 @@
             WriteIn(game, startXGame, startY, true, timingGame);
         }
 
-        static void DrawHoverChar(int menuStartX, int menuStartY, bool isVisible = true, ConsoleColor color = ConsoleColor.DarkGreen)
+        static void #DrawHoverChar(int menuStartX, int menuStartY, bool isVisible = true, ConsoleColor color = ConsoleColor.DarkGreen)
         {
             char hoverChar = '♦';
             if (menuStartX > 1)
@@ -26,7 +26,7 @@
             }
         } //menu CHAR
 
-        static void DrawMenu(List<string> options, int selectedOption, int menuStartX = 55, int menuStartY = 14)
+        static void #DrawMenu(List<string> options, int selectedOption, int menuStartX = 55, int menuStartY = 14)
         {
             for (int i = 0; i < options.Count; i++)
             {
@@ -43,7 +43,7 @@
             }
         }  //menu DRAW
 
-        static void SelectOption(List<string> options, out int selectedOption, int menuStartX = 55, int menuStartY = 14)
+        static void #SelectOption(List<string> options, out int selectedOption, int menuStartX = 55, int menuStartY = 14)
         {
             ConsoleKeyInfo pressedButton;
             bool isOptionSelected = false;
@@ -98,7 +98,7 @@
             Console.CursorVisible = true;
         } //menu DRAW AND INPUT
 
-        static void Notify(string title, string buttonText, int menuStartX = 2, int menuStartY = 1, ConsoleColor color = ConsoleColor.Gray, bool displayTitle = true)
+        static void #Notify(string title, string buttonText, int menuStartX = 2, int menuStartY = 1, ConsoleColor color = ConsoleColor.Gray, bool displayTitle = true)
         {
             ConsoleKeyInfo pressedButton;
             bool isOptionSelected = false;
@@ -128,7 +128,7 @@
             Console.Clear();
         }
 
-        static void EnterTextGUI(out string userInput, string title, string buttonText = "Confirm", int menuStartX = 0, int menuStartY = 2)
+        static void #EnterTextGUI(out string userInput, string title, string buttonText = "Confirm", int menuStartX = 0, int menuStartY = 2)
         {
             Console.Clear();
             Console.WriteLine(title);
@@ -141,7 +141,7 @@
             Console.Clear();
         }
 
-        static void WriteIn(string text, int xPosition = 47, int yPosition = 14, bool isTimed = false, long duration = 1600, bool isSelected = false, ConsoleColor selectionColor = ConsoleColor.White)
+        static void #WriteIn(string text, int xPosition = 47, int yPosition = 14, bool isTimed = false, long duration = 1600, bool isSelected = false, ConsoleColor selectionColor = ConsoleColor.White)
         {
             Stopwatch timer = new Stopwatch();
             long currentTime = 0;
@@ -183,7 +183,7 @@
             Console.SetCursorPosition(0, 0);
         } //write TEXT
 
-        static void ClearInput(int xPos = 0, int yPos = 0, int length = 0)
+        static void #ClearInput(int xPos = 0, int yPos = 0, int length = 0)
         {
             Console.SetCursorPosition(xPos, yPos);
 
@@ -191,14 +191,14 @@
                 Console.Write(" ");
         } //clear
 
-        static void ColorizeText(char character, ConsoleColor color = ConsoleColor.Gray)
+        static void #ColorizeText(char character, ConsoleColor color = ConsoleColor.Gray)
         {
             Console.ForegroundColor = color;
             Console.Write(character);
             Console.ForegroundColor = ConsoleColor.White;
         } //colorize char
 
-        static void ColorizeText(string text, ConsoleColor color = ConsoleColor.Gray, bool isWriteLine = true)
+        static void #ColorizeText(string text, ConsoleColor color = ConsoleColor.Gray, bool isWriteLine = true)
         {
             if (isWriteLine)
             {
@@ -214,7 +214,7 @@
             }
         } //colorize text
 
-        static void ColorizeBackground(char character, ConsoleColor color = ConsoleColor.Gray)
+        static void #ColorizeBackground(char character, ConsoleColor color = ConsoleColor.Gray)
         {
             Console.BackgroundColor = color;
             Console.ForegroundColor = color;
@@ -222,7 +222,7 @@
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.White;
         } //colored tile
-        static void ColorizeBackground(string text, ConsoleColor color = ConsoleColor.Gray)
+        static void #ColorizeBackground(string text, ConsoleColor color = ConsoleColor.Gray)
         {
             Console.BackgroundColor = color;
             //Console.ForegroundColor = color;
@@ -231,7 +231,7 @@
             //Console.ForegroundColor = ConsoleColor.White;
         } //colored BG
 
-        public static class ConsoleHelper
+        public static class #ConsoleHelper
         {
             private const int FixedWidthTrueType = 54;
             private const int StandardOutputHandle = -11;
