@@ -25,7 +25,7 @@ array.getLength(lines/rows) //number of cells (lines or rows)
 
 # COLLECTIONS
 # list
-list<int> listName = new List<int>(size); //size is unnecessary
+List<int> listName = new List<int>(size); //size is unnecessary
 listName.Add(value); // adding value in the end
 listName.AddRange(new int[] { 3, 4, 5 }); //adding range of values in the end
 listName.RemoveAt(element); // deletes element
