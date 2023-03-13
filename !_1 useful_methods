@@ -141,41 +141,30 @@
             Console.Clear();
         }
 
-        static void #WriteIn(string text, int xPosition = 47, int yPosition = 14, bool isTimed = false, long duration = 1600, bool isSelected = false, ConsoleColor selectionColor = ConsoleColor.White)
+        static void #WriteInFor(string text, int xPosition = 47, int yPosition = 14, int duration = 1600, bool isSelected = false, ConsoleColor selectionColor = ConsoleColor.White)
         {
-            Stopwatch timer = new Stopwatch();
-            long currentTime = 0;
-
             Console.CursorVisible = false;
+            ConsoleHelper.SetCurrentFont("Unispace", 28);
             ClearInput(xPosition, yPosition, text.Length);
             Console.SetCursorPosition(xPosition, yPosition);
-            ConsoleHelper.SetCurrentFont("Consolas", 28);
 
             if (isSelected)
             {
                 Console.BackgroundColor = selectionColor;
                 Console.WriteLine(text);
-                Console.BackgroundColor = ConsoleColor.Black;
             }
             else
             {
                 Console.ForegroundColor = selectionColor;
                 Console.WriteLine(text);
-                Console.ForegroundColor = ConsoleColor.Black;
             }
 
+            Console.BackgroundColor = default;
+            Console.ForegroundColor = ConsoleColor.White;
 
-            if (isTimed)
+            if (duration > 0)
             {
-                while (currentTime < duration)
-                {
-                    timer.Start();
-                    currentTime = timer.ElapsedMilliseconds;
-                }
-
-                Console.SetCursorPosition(xPosition, yPosition);
-                Console.WriteLine("                                             ");
-                timer.Stop();
+                Thread.Sleep(duration);
                 ClearInput(xPosition, yPosition, text.Length);
             }
 
