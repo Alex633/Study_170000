@@ -67,6 +67,7 @@ i -= b //тоже самое что и i=i-b
 
 # CONSOLE COMMANDS
 Console.WriteLine("text");
+Console.WriteLine('-', 10); //writes ten -
 i = Console.ReadLine(); //for string
 i = Convert.ToInt32(Console.ReadLine()); //for number
 Console.ReadKey() //waits for user input (any key)
@@ -149,7 +150,7 @@ class ClassName //structure
     private string _privateFieldNameTwo;
     
     //constructor
-    public ClassName(int publicFieldName, string _privateFieldName)
+    public ClassName(int publicFieldName, string _privateFieldName, ClassName classObject)
     {
         PublicFieldName = publicFieldName
         _privateFieldName = privateFieldName
@@ -160,4 +161,5 @@ class ClassName //structure
     public void MethodName(args) {code}
 }
 ClassName objectName = new ClassName(args); // in () data from constructor
+ClassName objectName = { new ClassName(args), new ClassName(args) }; // for creating multiple instances (objects)
 this.objectName = var; //uses field of current class
