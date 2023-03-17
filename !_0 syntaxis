@@ -136,7 +136,28 @@ Console.Clear();
 string.ToLower //all symbols are know in lower case
 string.ToUpper //all symbols to upper case
 
-# MULTITHREAD
+# MULTITHREADING
 Task.Run(() =>
 {
 });
+
+# OOP
+class ClassName //structure
+{
+    //fields
+    public int PublicFieldNameOne;
+    private string _privateFieldNameTwo;
+    
+    //constructor
+    public ClassName(int publicFieldName, string _privateFieldName)
+    {
+        PublicFieldName = publicFieldName
+        _privateFieldName = privateFieldName
+    }
+    public ClassName() {} //if перегрузка (don't want to fill all data in main block all the time) is needed
+    
+    //methods
+    public void MethodName(args) {code}
+}
+ClassName objectName = new ClassName(args); // in () data from constructor
+this.objectName = var; //uses field of current class
