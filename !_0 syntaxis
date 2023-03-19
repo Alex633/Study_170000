@@ -143,17 +143,29 @@ Task.Run(() =>
 });
 
 # OOP
-class ClassName //structure
+class ClassName : ParentClass //structure
 {
     //fields
-    public int PublicFieldNameOne;
-    private string _privateFieldNameTwo;
+    public int PublicFieldName;
+    private string _privateFieldName;
+    public double getterSetterFieldName { get; private set; }
+    public float getterSetterFieldOpenName
+    {
+        get
+        {
+            return getterSetterFieldOpenName
+        }
+        private set
+        {
+            getterSetterFieldOpenName = value;
+        }
+    }
     
     //constructor
-    public ClassName(int publicFieldName, string _privateFieldName, ClassName classObject)
+    public ClassName(int publicFieldName, string _privateFieldName, ClassName classObject) : base(parent args)
     {
-        PublicFieldName = publicFieldName
-        _privateFieldName = privateFieldName
+        PublicFieldName = publicField
+        _privateFieldName = privateField
     }
     public ClassName() {} //if перегрузка (don't want to fill all data in main block all the time) is needed
     
