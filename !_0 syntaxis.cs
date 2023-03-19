@@ -158,7 +158,7 @@ class ClassName : ParentClass //structure
     public ClassName() {} //if перегрузка (don't want to fill all data in main block all the time) is needed
     
     //properties (getters and setters)
-    public double getterSetterFieldName { get; private set; }
+    public double getterSetterFieldName { get; private set; } //set не нужен, когда негде кроме конструктора значение не меняется
     public float getterSetterFieldOpenName
     {
         get
