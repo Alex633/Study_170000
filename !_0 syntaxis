@@ -148,6 +148,16 @@ class ClassName : ParentClass //structure
     //fields
     public int PublicFieldName;
     private string _privateFieldName;
+    
+    //constructor
+    public ClassName(int publicFieldName, string _privateFieldName, ClassName classObject) : base(parent args)
+    {
+        PublicFieldName = publicField
+        _privateFieldName = privateField
+    }
+    public ClassName() {} //if перегрузка (don't want to fill all data in main block all the time) is needed
+    
+    //properties (getters and setters)
     public double getterSetterFieldName { get; private set; }
     public float getterSetterFieldOpenName
     {
@@ -160,14 +170,6 @@ class ClassName : ParentClass //structure
             getterSetterFieldOpenName = value;
         }
     }
-    
-    //constructor
-    public ClassName(int publicFieldName, string _privateFieldName, ClassName classObject) : base(parent args)
-    {
-        PublicFieldName = publicField
-        _privateFieldName = privateField
-    }
-    public ClassName() {} //if перегрузка (don't want to fill all data in main block all the time) is needed
     
     //methods
     public void MethodName(args) {code}
