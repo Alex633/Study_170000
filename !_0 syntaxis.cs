@@ -143,7 +143,7 @@ Task.Run(() =>
 });
 
 # OOP
-class ClassName : ParentClass, IInterface //structure
+class ClassName : ParentClass, IInterfaceOne, IInterfaceTwo //structure
 {
     //fields
     public int PublicFieldName;
