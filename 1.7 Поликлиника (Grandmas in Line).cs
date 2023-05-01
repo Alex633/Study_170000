@@ -31,7 +31,7 @@ namespace _170000Courses
             }
             else if (people > 5)
             {
-            Console.WriteLine($"{people}? Ok. Maybe you should just turn around. Waiting time is {waitingTime} minutes, my man...");
+            Console.WriteLine($"{people}? Ok. Maybe you should just walk away. Waiting time is {waitingTime} minutes, my man...");
             }
         }
     }
