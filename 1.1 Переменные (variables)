@@ -14,7 +14,7 @@ namespace _170000Courses
             int number = 1;
             double subnumber = 0.1;
             char symbol = "#"
-            bool trueth = true;
+            bool truth = true;
         }
     }
 }
