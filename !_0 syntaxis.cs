@@ -137,7 +137,7 @@ Console.Clear();
 string.ToLower //all symbols are know in lower case
 string.ToUpper //all symbols to upper case
 string.Substring(x,y); //uses only string until coordinates
-int num = int.Parse("stringValue"); //converts string to int, returns exception if cant
+int num = double.Parse("stringValue", CultureInfo.InvariantCulture); //converts string to int, returns exception if cant; CultureInfo.InvariantCulture to use only . in a number
 TryParse(stringValue, out resultVar)
 
 # MULTITHREADING
