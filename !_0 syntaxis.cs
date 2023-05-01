@@ -1,11 +1,11 @@
 SHORTCUTS
 ctrl + k + d //number alignment in array
-alt + arrow //transport line of code
+alt + arrow //move line of code
 ctrl + r + r //rename variable 
 ctrl + alt //set new edit cursor (can be more then one)
 
 # DATA TYPES
-int32 - whole numbers
+int32 - integer;
 
 # VARIABLES
 int i;
@@ -84,7 +84,7 @@ Console.SetCursorPosition(x, y);
 Console.WriteLine("text" + i + 1);
 
 # INTERPOLATION
-Console.WriteLine($"text {i}");
+Console.WriteLine($"text {i}"");
 
 # CONVERT
 i = Convert.ToSingle(i);
@@ -126,7 +126,7 @@ FunctionName(var, var2, optionalVar2: 3); //function call
 
 # RANDOM
 Random randVarient = new Random(); //initialization
-i = randVarient.Next(0,10); //from-to (last number don't included)
+i = randVarient.Next(0,10); //from-to (last number dont included);
 
 # CONSOLE
 \n //перенос строки
@@ -136,6 +136,7 @@ Console.Clear();
 # TEXT
 string.ToLower //all symbols are know in lower case
 string.ToUpper //all symbols to upper case
+string.Substring(x,y); //uses only string until coordinates
 
 # MULTITHREADING
 Task.Run(() =>
@@ -155,7 +156,7 @@ class ClassName : ParentClass, IInterfaceOne, IInterfaceTwo //structure
         PublicFieldName = publicField
         _privateFieldName = privateField
     }
-    public ClassName() {} //if перегрузка (don't want to fill all data in main block all the time) is needed
+    public ClassName() {} //if перегрузка (dont want to fill all data in main block all the time) is needed
     
     //properties (getters and setters)
     public double getterSetterFieldName { get; private set; } //set не нужен, когда негде кроме конструктора значение не меняется
