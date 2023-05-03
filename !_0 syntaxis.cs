@@ -136,7 +136,7 @@ Console.Clear();
 # TEXT
 string.ToLower //all symbols are know in lower case
 string.ToUpper //all symbols to upper case
-string.Substring(a,b); //uses only string since a to b
+string.Substring(varStart); //uses only string from varStart till end
 int num = double.Parse("stringValue", CultureInfo.InvariantCulture); //converts string to int, returns exception if cant; CultureInfo.InvariantCulture to use only . in a number
 TryParse(stringValue, out resultVar)
 
