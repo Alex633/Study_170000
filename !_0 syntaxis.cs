@@ -136,7 +136,7 @@ Console.Clear();
 # TEXT
 string.ToLower //all symbols are know in lower case
 string.ToUpper //all symbols to upper case
-string.Substring(x,y); //uses only string until coordinates
+string.Substring(y,x); //uses only string until coordinates
 int num = double.Parse("stringValue", CultureInfo.InvariantCulture); //converts string to int, returns exception if cant; CultureInfo.InvariantCulture to use only . in a number
 TryParse(stringValue, out resultVar)
 
