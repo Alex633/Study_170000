@@ -4,10 +4,14 @@ namespace CsRealLearning
 {
     internal class Program
     {
+        //Создать класс игрока, у которого есть поля с его положением в x,y.
+        //Создать класс отрисовщик, с методом, который отрисует игрока.
+        //Попрактиковаться в работе со свойствами.
+
         static void Main()
         {
             Renderer renderer = new Renderer();
-            Player player = new Player(55,10);
+            Player player = new Player(55, 10);
 
             renderer.Draw(player.X, player.Y);
         }
