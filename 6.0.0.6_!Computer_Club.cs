@@ -11,7 +11,7 @@ namespace CsRealLearning
 
         static void Main()
         {
-            ComputerClub daClub = new ComputerClub(rnd.Next(5, 10), rnd.Next(10, 30));
+            ComputerClub daClub = new ComputerClub(rnd.Next(5, 10), rnd.Next(10, 16));
             daClub.Start();
         }
     }
