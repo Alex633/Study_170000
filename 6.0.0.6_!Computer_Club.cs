@@ -3,14 +3,15 @@ using System.Collections.Generic;
 
 namespace CsRealLearning
 {
-    //money not working (not adding when people using pc)
-    //timer on computer not working (when in use time is not going away)
-    //learn how to cycle dialogue
+    //money calculations
+
     internal class Program
     {
+        public static Random rnd { get; } = new Random();
+
         static void Main()
         {
-            ComputerClub daClub = new ComputerClub(5, 30);
+            ComputerClub daClub = new ComputerClub(rnd.Next(5, 10), rnd.Next(10, 30));
             daClub.Start();
         }
     }
@@ -20,6 +21,8 @@ namespace CsRealLearning
         public static Random rnd = new Random();
 
         private int _electricityCost;
+        private bool _isThereFreePcs;
+        private int _freePcsCount;
 
         public bool IsOpen { get; private set; }
 
@@ -27,8 +30,8 @@ namespace CsRealLearning
 
         public int Money { get; private set; }
 
-        private List<Computer> _computers = new List<Computer>();
-        private Queue<Client> _clients = new Queue<Client>();
+        private readonly List<Computer> _computers = new List<Computer>();
+        private readonly Queue<Client> _clients = new Queue<Client>();
 
 
         public ComputerClub(int computersAmount, int workMinutes)
@@ -50,12 +53,23 @@ namespace CsRealLearning
             {
                 if (_clients.Count > 0)
                 {
+                    foreach (Computer computer in _computers)
+                    {
+                        _isThereFreePcs = computer.IsOccupied;
+                        if (_isThereFreePcs)
+                            _freePcsCount++;
+                    }
+
                     ShowInfo();
 
                     Client nextClient = _clients.Dequeue();
                     Console.WriteLine("\nSomeone approaches you");
                     nextClient.AskForComputer();
-                    Console.WriteLine("Select a computer for this dude:");
+
+                    if (_freePcsCount > 0)
+                        Console.WriteLine("Select a computer for this dude:");
+                    else
+                        Console.WriteLine("You wished you could select a computer for this dude but there aren't any. Well, that's akward");
 
                     string userInputString;
                     Computer selectedComputer;
@@ -64,7 +78,13 @@ namespace CsRealLearning
                     if (int.TryParse(userInputString, out int userInput) && userInput > 0 && userInput <= _computers.Count)
                     {
                         selectedComputer = _computers[userInput - 1];
-                        selectedComputer.Assign(nextClient.RequiredMinutes, userInput);
+
+                        if (nextClient.CanPay(nextClient.RequiredMinutes * selectedComputer.DollarPerMinute))
+                        {
+                            AcceptMoney(nextClient.RequiredMinutes * selectedComputer.DollarPerMinute);
+                            selectedComputer.Assign(nextClient.RequiredMinutes, userInput);
+
+                        }
                     }
                     else if (int.TryParse(userInputString, out userInput))
                     {
@@ -84,10 +104,7 @@ namespace CsRealLearning
                         Console.WriteLine("\nAre you alright, administrator? Do you want me to call an ambulance?");
                         Console.WriteLine($"The Same Random Dude: ... I better be on my way...");
                         Console.WriteLine("He runs away");
-
-
                     }
-
 
                     ForwardMinute();
                 }
@@ -100,8 +117,6 @@ namespace CsRealLearning
                     ForwardMinute();
                 }
             }
-
-
         }
 
         private void ShowInfo()
@@ -167,6 +182,11 @@ namespace CsRealLearning
             Console.ReadKey();
             Console.Clear();
 
+            foreach (Computer computer in _computers)
+            {
+                computer.ForwardMinute();
+            }
+
             if (WorkMinutes > 0)
             {
                 WorkMinutes--;
@@ -193,10 +213,18 @@ namespace CsRealLearning
                 }
                 else
                 {
-                    Console.WriteLine($"DaClub is closing. Everybody GET OUT. You made: ${Money}. Congratilations. Could have been better");
+                    Console.WriteLine($"DaClub is closing. Everybody GET OUT. You made: ${Money}. But what you wish is to be free with your african pirates buddies");
+                    Console.ReadKey();
+                    Console.Clear();
+                    Console.WriteLine("The End");
                 }
                 IsOpen = false;
             }
+        }
+
+        public void AcceptMoney(int price)
+        {
+            Money += price;
         }
     }
 
@@ -217,7 +245,7 @@ namespace CsRealLearning
 
         public Computer()
         {
-            DollarPerMinute = rnd.Next(1, 10);
+            DollarPerMinute = rnd.Next(1, 9);
             MinutesRemaining = 0;
             IsOccupied = false;
         }
@@ -226,7 +254,14 @@ namespace CsRealLearning
         {
             int minute = 1;
 
-            if (MinutesRemaining > 0)
+            if (MinutesRemaining == 1)
+            {
+                MinutesRemaining -= minute;
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"Some random dude is left your club. The computer is now free");
+                Console.ResetColor();
+            }
+            else if (MinutesRemaining > 1)
             {
                 MinutesRemaining -= minute;
             }
@@ -253,32 +288,13 @@ namespace CsRealLearning
             if (IsOccupied)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Computer is occupied. Time Remaining: {MinutesRemaining}");
+                Console.WriteLine($"{MinutesRemaining} minutes remaining . Computer is occupied.");
                 Console.ResetColor();
             }
             else
             {
                 Console.ForegroundColor = ConsoleColor.Blue;
-                Console.WriteLine($"Computer is available! Price per minute: ${DollarPerMinute}");
-                Console.ResetColor();
-            }
-        }
-
-        public void AssignArchive()
-        {
-            if (!IsOccupied)
-            {
-                IsOccupied = true;
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"Computer occupied by this random dude for {MinutesRemaining}");
-                ForwardMinute();
-                Console.ResetColor();
-
-            }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Error. Computer is already occupied, administrator. If that's even your real name. Dude is left");
+                Console.WriteLine($"${DollarPerMinute} per minute. Computer is available");
                 Console.ResetColor();
             }
         }
@@ -289,31 +305,45 @@ namespace CsRealLearning
         public static Random rnd = new Random();
 
         private int _money;
-        private int _speach;
+
+        private static int _latestId = 0;
+        private int _id;
+
+        private int _speach => _id;
 
         public int RequiredMinutes { get; private set; }
 
         public Client()
         {
-            _speach = rnd.Next(1, 10);
-            _money = rnd.Next(20, 201);
-            RequiredMinutes = rnd.Next(5, 20);
+            if (_latestId != 9)
+            {
+                _id = ++_latestId;
+            }
+            else
+            {
+                _latestId = 0;
+                _id = ++_latestId;
+            }
+            _money = rnd.Next(15, 51);
+            RequiredMinutes = rnd.Next(3, 20);
         }
 
-        public void TryToPay(int price)
+        public bool CanPay(int price)
         {
-            if (price > _money)
+            if (price < _money)
             {
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"The guy paid you {price}. GG");
+                Console.WriteLine($"The guy paid you ${price}. GG");
                 Console.ResetColor();
                 Pay(price);
+                return true;
             }
             else
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"The guy is cheking his wallet... He is a loser that should get a job. You told him to get out");
                 Console.ResetColor();
+                return false;
             }
         }
 
@@ -336,7 +366,7 @@ namespace CsRealLearning
                     Console.WriteLine($"Random Dude: It's a robbery. I rob you of {RequiredMinutes} minutes of one of your PC. I will pay you of course.");
                     break;
                 case 4:
-                    Console.WriteLine($"Random Dude: Hey. Nice to meet you, Nia. I need to find something in the internet. I think {RequiredMinutes} minutes is what i need?");
+                    Console.WriteLine($"Random Dude: Hey. Nice to meet you, Nia. I need to find something in the internet. I think {RequiredMinutes} minutes is what i need");
                     break;
                 case 5:
                     Console.WriteLine($"Random Dude: Look, I aint' got no time for your pretty face [he said with new york accent]. I need it for how long I need it");
@@ -345,7 +375,7 @@ namespace CsRealLearning
                     Console.WriteLine($"Random Dude: Cool place you got here. I like the decorations. I would like to spend here {RequiredMinutes} minutes");
                     break;
                 case 7:
-                    Console.WriteLine($"Random Dude: Have you seen that video in the internet. It just {RequiredMinutes} minutes. Do you want to see it together");
+                    Console.WriteLine($"Random Dude: Have you seen that video in the internet. It just {RequiredMinutes} minutes. Do you want to see it together?");
                     break;
                 case 8:
                     Console.WriteLine($"Random Dude: I think I am lost. I don't know how I got here. Where am I?");
