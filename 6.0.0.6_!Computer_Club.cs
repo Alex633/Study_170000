@@ -12,7 +12,7 @@ namespace CsRealLearning
         static void Main()
         {
             ComputerClub daClub = new ComputerClub(rnd.Next(8, 12), rnd.Next(10, 30));
-            daClub.Start();
+            daClub.Work();
         }
     }
 
@@ -21,13 +21,9 @@ namespace CsRealLearning
         public static Random rnd = new Random();
 
         private int _electricityCost;
-        private bool _isThereFreePcs;
-        private int _freePcsCount;
 
         public bool IsOpen { get; private set; }
-
         public int WorkMinutes { get; private set; }
-
         public int Money { get; private set; }
 
         private readonly List<Computer> _computers = new List<Computer>();
@@ -47,68 +43,21 @@ namespace CsRealLearning
             }
         }
 
-        public void Start()
+        public void Work()
         {
             Promote(rnd.Next(1, 4));
             Console.Clear();
 
             while (IsOpen)
             {
+                ShowFullInfo();
+
                 if (_clients.Count > 0)
                 {
-                    foreach (Computer computer in _computers)
-                    {
-                        _isThereFreePcs = !computer.IsOccupied;
-                        if (_isThereFreePcs)
-                            _freePcsCount++;
-                    }
-
-                    ShowInfo();
-
-                    Client nextClient = _clients.Dequeue();
-                    Console.WriteLine("\nSomeone approaches you");
-                    nextClient.AskForComputer();
-
-                    if (_freePcsCount > 0)
-                        Console.WriteLine("Select a computer for this dude:");
-                    else
-                        Console.WriteLine("You wished you could select a computer for this dude but there aren't any. Well, that's akward");
-
-                    string userInputString;
-                    Computer selectedComputer;
-                    userInputString = Console.ReadLine();
-
-                    if (int.TryParse(userInputString, out int userInput) && userInput > 0 && userInput <= _computers.Count)
-                    {
-                        selectedComputer = _computers[userInput - 1];
-
-                        if (nextClient.CanPay(nextClient.RequiredMinutes * selectedComputer.DollarsPerMinute))
-                        {
-                            AcceptMoney(nextClient.RequiredMinutes * selectedComputer.DollarsPerMinute);
-                            selectedComputer.Assign(nextClient.RequiredMinutes, userInput);
-
-                        }
-                    }
-                    else if (int.TryParse(userInputString, out userInput))
-                    {
-                        Console.WriteLine($"\nI mean that's cool and all, but there is no computer {userInput}");
-                        Console.WriteLine($"You think about it...");
-                        Console.WriteLine($"You think about life...");
-                        Console.WriteLine($"You think about what is happening to us...");
-                        Console.WriteLine($"You think about where did we go wrong...");
-                        Console.WriteLine($"The dude's left");
-                    }
-                    else
-                    {
-                        Console.WriteLine("\nAre you alright, administrator? Do you want me to call an ambulance?");
-                        Console.WriteLine("The dude runs away");
-                    }
-
-                    ForwardMinute();
+                    GiveClientPc();
                 }
                 else
                 {
-                    ShowInfo();
                     Console.WriteLine("Seems like knowbody's here wants your computers");
                     Promote(rnd.Next(1, 7));
                     ForwardMinute();
@@ -116,10 +65,69 @@ namespace CsRealLearning
             }
         }
 
-        private void ShowInfo()
+        private void GiveClientPc()
         {
-            int count = 0;
+            Client nextClient = _clients.Dequeue();
+            Console.WriteLine("\nSomeone approaches you");
+            nextClient.AskForComputer();
 
+            if (IsThereFreePcs())
+                Console.WriteLine("Select a computer for this dude:");
+            else
+                Console.WriteLine("You wished you could select a computer for this dude but there aren't any. Well, that's akward");
+
+            string userInputString;
+            Computer selectedComputer;
+            userInputString = Console.ReadLine();
+
+            if (int.TryParse(userInputString, out int userInput) && userInput > 0 && userInput <= _computers.Count)
+            {
+                selectedComputer = _computers[userInput - 1];
+
+                if (nextClient.CanPay(nextClient.RequiredMinutes * selectedComputer.DollarsPerMinute))
+                {
+                    AcceptMoney(nextClient.RequiredMinutes * selectedComputer.DollarsPerMinute);
+                    selectedComputer.Assign(nextClient.RequiredMinutes, userInput);
+
+                }
+            }
+            else if (int.TryParse(userInputString, out userInput))
+            {
+                ThinkAboutWrongComputer(userInput);
+            }
+            else
+            {
+                Console.WriteLine("\nAre you alright, administrator? Do you want me to call an ambulance?");
+                Console.WriteLine("The dude runs away");
+            }
+        }
+
+        private bool IsThereFreePcs()
+        {
+            bool _isThereFreePcs;
+
+            foreach (Computer computer in _computers)
+            {
+                _isThereFreePcs = !computer.IsOccupied;
+                if (_isThereFreePcs)
+                    return true;
+            }
+
+            return false;
+        }
+
+        private void ThinkAboutWrongComputer(int userInput)
+        {
+            Console.WriteLine($"\nI mean that's cool and all, but there is no computer {userInput}");
+            Console.WriteLine($"You think about it...");
+            Console.WriteLine($"You think about life...");
+            Console.WriteLine($"You think about what is happening to us...");
+            Console.WriteLine($"You think about where did we go wrong...");
+            Console.WriteLine($"The dude's left");
+        }
+
+        private void ShowFullInfo()
+        {
             Console.WriteLine($"Club DaClab");
             Console.WriteLine($"Open for {WorkMinutes} more minutes");
 
@@ -146,7 +154,13 @@ namespace CsRealLearning
 
             }
 
-            Console.WriteLine();
+            ShowComputersInfo();
+        }
+
+        private void ShowComputersInfo()
+        {
+            int count = 0;
+
             Console.WriteLine(new string('-', 56));
             Console.WriteLine();
 
@@ -159,7 +173,6 @@ namespace CsRealLearning
 
             Console.WriteLine();
             Console.WriteLine(new string('-', 56));
-            Console.WriteLine();
         }
 
         private void Promote(int dudes)
@@ -196,29 +209,11 @@ namespace CsRealLearning
             {
                 if (Money < 0)
                 {
-                    Console.Clear();
-                    Console.WriteLine($"DaClub is closing. Everybody GET OUT. You own ${Money}. You decide to sold youself to slavery to an african pirates.");
-                    Console.WriteLine("Press anything to continue");
-                    Console.ReadKey();
-                    Console.Clear();
-                    Console.WriteLine("1 year later");
-                    Console.ReadKey();
-                    Console.Clear();
-                    Console.WriteLine("They feed you, they let you hold their guns sometimes. They even allow you to look at the sky (unlike the club job). \nLife is not bad!");
-                    Console.ReadKey();
-                    Console.Clear();
-                    Console.WriteLine("The End");
+                    GetFriendshipEnding();
                 }
                 else
                 {
-                    Console.Clear();
-                    Console.WriteLine($"DaClub is closing. Everybody GET OUT. You made: ${Money}");
-                    Console.ReadKey();
-                    Console.Clear();
-                    Console.WriteLine($"But what you wish is to be free with your African pirates buddies");
-                    Console.ReadKey();
-                    Console.Clear();
-                    Console.WriteLine("The End");
+                    GetLonelyEnding();
                 }
                 IsOpen = false;
             }
@@ -227,6 +222,34 @@ namespace CsRealLearning
         public void AcceptMoney(int price)
         {
             Money += price;
+        }
+
+        public void GetFriendshipEnding()
+        {
+            Console.Clear();
+            Console.WriteLine($"DaClub is closing. Everybody GET OUT. You own ${Money}. You decide to sold youself to slavery to an african pirates.");
+            Console.WriteLine("Press anything to continue");
+            Console.ReadKey();
+            Console.Clear();
+            Console.WriteLine("1 year later");
+            Console.ReadKey();
+            Console.Clear();
+            Console.WriteLine("They feed you, they let you hold their guns sometimes. They even allow you to look at the sky (unlike the club job). \nLife is not bad!");
+            Console.ReadKey();
+            Console.Clear();
+            Console.WriteLine("The End");
+        }
+
+        public void GetLonelyEnding()
+        {
+            Console.Clear();
+            Console.WriteLine($"DaClub is closing. Everybody GET OUT. You made: ${Money}");
+            Console.ReadKey();
+            Console.Clear();
+            Console.WriteLine($"But what you wish is to be free with your African pirates buddies");
+            Console.ReadKey();
+            Console.Clear();
+            Console.WriteLine("The End");
         }
     }
 
