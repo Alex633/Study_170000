@@ -24,7 +24,7 @@ namespace CsRealLearning
 
         public bool IsOpen { get; private set; }
         public int WorkMinutes { get; private set; }
-        public int Money { get; private set; }
+        public int Balance { get; private set; }
 
         private readonly List<Computer> _computers = new List<Computer>();
         private readonly Queue<Client> _clients = new Queue<Client>();
@@ -32,7 +32,7 @@ namespace CsRealLearning
 
         public ComputerClub(int computersAmount, int workMinutes)
         {
-            Money = 0;
+            Balance = 0;
             IsOpen = true;
             _electricityCost = computersAmount * 2;
             WorkMinutes = workMinutes;
@@ -58,10 +58,11 @@ namespace CsRealLearning
                 }
                 else
                 {
-                    Console.WriteLine("Seems like knowbody's here wants your computers");
+                    Console.WriteLine("Waitng room is empty. Seems like knowbody wants your computers");
                     Promote(rnd.Next(1, 7));
-                    ForwardMinute();
                 }
+
+                ForwardMinute();
             }
         }
 
@@ -72,9 +73,9 @@ namespace CsRealLearning
             nextClient.AskForComputer();
 
             if (IsThereFreePcs())
-                Console.WriteLine("Select a computer for this dude:");
+                Console.Write("Select a computer for this dude: ");
             else
-                Console.WriteLine("You wished you could select a computer for this dude but there aren't any. Well, that's akward");
+                Console.WriteLine("You wish you could select a computer for this dude but there aren't any. Well, that's akward. So...");
 
             string userInputString;
             Computer selectedComputer;
@@ -84,11 +85,10 @@ namespace CsRealLearning
             {
                 selectedComputer = _computers[userInput - 1];
 
-                if (nextClient.CanPay(nextClient.RequiredMinutes * selectedComputer.DollarsPerMinute))
+                if (nextClient.isEnoughMoney(selectedComputer))
                 {
-                    AcceptMoney(nextClient.RequiredMinutes * selectedComputer.DollarsPerMinute);
+                    Balance += nextClient.Pay();
                     selectedComputer.Assign(nextClient.RequiredMinutes, userInput);
-
                 }
             }
             else if (int.TryParse(userInputString, out userInput))
@@ -136,20 +136,20 @@ namespace CsRealLearning
             else
                 Console.WriteLine($"In your waiting room: {_clients.Count} geeks");
 
-            if (Money == 0)
+            if (Balance == 0)
             {
-                Console.WriteLine($"In your cash register: ${Money}\n");
+                Console.WriteLine($"In your cash register: ${Balance}\n");
             }
-            else if (Money < 0)
+            else if (Balance < 0)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"You own ${Money} to the government\n");
+                Console.WriteLine($"You own ${Balance} to the government\n");
                 Console.ResetColor();
             }
             else
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine($"In your cash register: ${Money}\n");
+                Console.WriteLine($"In your cash register: ${Balance}\n");
                 Console.ResetColor();
 
             }
@@ -200,14 +200,14 @@ namespace CsRealLearning
             if (WorkMinutes > 0)
             {
                 WorkMinutes--;
-                Money -= _electricityCost;
+                Balance -= _electricityCost;
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"You paid ${_electricityCost} for the electricity\n");
                 Console.ResetColor();
             }
             else
             {
-                if (Money < 0)
+                if (Balance < 0)
                 {
                     GetFriendshipEnding();
                 }
@@ -221,14 +221,13 @@ namespace CsRealLearning
 
         public void AcceptMoney(int price)
         {
-            Money += price;
+            Balance += price;
         }
 
         public void GetFriendshipEnding()
         {
             Console.Clear();
-            Console.WriteLine($"DaClub is closing. Everybody GET OUT. You own ${Money}. You decide to sold youself to slavery to an african pirates.");
-            Console.WriteLine("Press anything to continue");
+            Console.WriteLine($"DaClub is closing. Everybody GET OUT. You own ${Balance}. You decide to sold youself to slavery to an african pirates.");
             Console.ReadKey();
             Console.Clear();
             Console.WriteLine("1 year later");
@@ -243,7 +242,7 @@ namespace CsRealLearning
         public void GetLonelyEnding()
         {
             Console.Clear();
-            Console.WriteLine($"DaClub is closing. Everybody GET OUT. You made: ${Money}");
+            Console.WriteLine($"DaClub is closing. Everybody GET OUT. You made: ${Balance}");
             Console.ReadKey();
             Console.Clear();
             Console.WriteLine($"But what you wish is to be free with your African pirates buddies");
@@ -330,6 +329,7 @@ namespace CsRealLearning
         public static Random rnd = new Random();
 
         private int _money;
+        private int _priceToPay;
 
         private static int _latestId = 0;
         private int _id;
@@ -353,18 +353,20 @@ namespace CsRealLearning
             RequiredMinutes = rnd.Next(3, 16);
         }
 
-        public bool CanPay(int price)
+        public bool isEnoughMoney(Computer computer)
         {
-            if (price < _money)
+            _priceToPay = computer.DollarsPerMinute * RequiredMinutes;
+
+            if (_priceToPay < _money)
             {
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"The dude paid you ${price}. GG");
+                Console.WriteLine($"The dude is giving you ${_priceToPay}. GG");
                 Console.ResetColor();
-                Pay(price);
                 return true;
             }
             else
             {
+                _priceToPay = 0;
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"The dude is cheking his wallet... He is a loser that should get a job. You told him to get out");
                 Console.ResetColor();
@@ -372,9 +374,10 @@ namespace CsRealLearning
             }
         }
 
-        private void Pay(int price)
+        public int Pay()
         {
-            _money -= price;
+            _money -= _priceToPay;
+            return _priceToPay;
         }
 
         public void AskForComputer()
