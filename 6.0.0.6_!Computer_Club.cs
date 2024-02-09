@@ -87,8 +87,8 @@ namespace CsRealLearning
 
                 if (nextClient.isEnoughMoney(selectedComputer))
                 {
-                    Balance += nextClient.Pay();
                     selectedComputer.Assign(nextClient.RequiredMinutes, userInput);
+                    Balance += nextClient.Pay();
                 }
             }
             else if (int.TryParse(userInputString, out userInput))
@@ -182,7 +182,9 @@ namespace CsRealLearning
                 _clients.Enqueue(new Client());
             }
 
+            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"You promote your club. {dudes} dudes heard your promotion");
+            Console.ResetColor();
         }
 
         public void ForwardMinute()
@@ -299,12 +301,6 @@ namespace CsRealLearning
                 MinutesRemaining = durationInMinutes;
                 Console.WriteLine($"Computer {selectedComputerNumber} got occupied by this random dude for {MinutesRemaining} minutes");
             }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Error. Computer {selectedComputerNumber} is already occupied, administrator. If that's even your real name. Dude is left");
-                Console.ResetColor();
-            }
         }
 
         public void ShowInfo()
@@ -357,18 +353,26 @@ namespace CsRealLearning
         {
             _priceToPay = computer.DollarsPerMinute * RequiredMinutes;
 
-            if (_priceToPay < _money)
+            if (_priceToPay < _money && !computer.IsOccupied)
             {
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine($"The dude is giving you ${_priceToPay}. GG");
                 Console.ResetColor();
                 return true;
             }
-            else
+            else if (_priceToPay > _money)
             {
                 _priceToPay = 0;
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"The dude is cheking his wallet... He is a loser that should get a job. You told him to get out");
+                Console.ResetColor();
+                return false;
+            }
+            else
+            {
+                _priceToPay = 0;
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"This computer is already occupied, administrator. If that's even your real name. Dude is left");
                 Console.ResetColor();
                 return false;
             }
