@@ -1,0 +1,148 @@
+using System;
+using System.Collections.Generic;
+
+//Реализовать базу данных игроков и методы для работы с ней.
+//У игрока может быть уникальный номер, ник, уровень, флаг – забанен ли он(флаг - bool).
+//Реализовать возможность добавления игрока, бана игрока по уникальный номеру,
+//разбана игрока по уникальный номеру и удаление игрока.
+//Создание самой БД не требуется, задание выполняется инструментами,
+//которые вы уже изучили в рамках курса. Но нужен класс, который содержит игроков и её можно назвать "База данных".
+
+namespace CsRealLearning
+{
+    internal class Program
+    {
+        public static Random rnd { get; } = new Random();
+
+        static void Main()
+        {
+            DataBase dataBase = new DataBase();
+            dataBase.Work();
+            dataBase.ShowAll();
+        }
+
+        class DataBase
+        {
+            List<Player> players = new List<Player>();
+
+            public void Work()
+            {
+                while (true)
+                {
+                    ShowCommands();
+                    HandleCommand();
+
+                    Console.ReadKey();
+                    Console.Clear();
+                }
+            }
+            enum UserAction
+            {
+                add_player = 1,
+                remove_player_by_id,
+                ban_player,
+                show_all_players
+            }
+
+            private void ShowCommands()
+            {
+                Console.WriteLine("Select a command:");
+
+                foreach (UserAction command in Enum.GetValues(typeof(UserAction)))
+                {
+                    Usability.WriteLineInStyle($"{(int)(command)}. {command}", ConsoleColor.Yellow);
+                }
+            }
+
+            private void HandleCommand()
+            {
+                if (int.TryParse(Console.ReadLine(), out int userInput))
+                {
+                    switch (userInput)
+                    {
+                        case (int)UserAction.add_player:
+                            Console.Clear();
+                            Console.WriteLine("Enter a name for a player: ");
+                            AddPlayer(Console.ReadLine());
+                            break;
+                        case (int)UserAction.remove_player_by_id:
+                            break;
+                        case (int)UserAction.ban_player:
+                            break;
+                        case (int)UserAction.show_all_players:
+                            break;
+                        default:
+                            Usability.WriteLineInStyle("That's a wrong number. Try again, fool");
+                            break;
+                    }
+                }
+                else
+                {
+                    Usability.WriteLineInStyle("Not a number. I need a number");
+                }
+            }
+
+            public void AddPlayer(string name = "default name")
+            {
+                players.Add(new Player(name));
+                Console.WriteLine($"Player {name} succesfully added");
+            }
+
+            public void RemovePlayer(int Id)
+            {
+                players.Remove(players[Id]);
+            }
+
+            public void ShowAll()
+            {
+                foreach (Player player in players)
+                {
+                    player.ShowInfo();
+                }
+            }
+        }
+
+        class Player
+        {
+            public int Id { get; private set; }
+            public static int lastId;
+            private bool _isBanned = false;
+            private string _name;
+
+            public Player(string name)
+            {
+                _name = name;
+
+                Id = lastId++;
+            }
+
+            public int Level { get { return 1; } private set { } }
+
+            public void ShowInfo()
+            {
+                Console.Write($"Id: {Id}, name: {_name}, level: {Level}, ");
+
+                switch (_isBanned)
+                {
+                    case true:
+                        Console.WriteLine("status: banned");
+                        break;
+                    case false:
+                        Console.WriteLine("status: not banned");
+                        break;
+
+                }
+            }
+        }
+
+        class Usability
+        {
+            public static void WriteLineInStyle(string style, ConsoleColor color = ConsoleColor.Red)
+            {
+                Console.ForegroundColor = color;
+                Console.WriteLine(style);
+                Console.ResetColor();
+            }
+        }
+    }
+}
