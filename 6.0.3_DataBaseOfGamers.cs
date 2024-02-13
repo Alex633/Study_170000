@@ -16,12 +16,12 @@ namespace CsRealLearning
 
         static void Main()
         {
-            DataBase dataBase = new DataBase();
+            Database dataBase = new Database();
             dataBase.Work();
             dataBase.ShowAllPlayers();
         }
 
-        class DataBase
+        class Database
         {
             List<Player> players = new List<Player>();
 
@@ -111,7 +111,7 @@ namespace CsRealLearning
 
                     if (!int.TryParse(Console.ReadLine(), out int playerInput))
                     {
-                        Usability.WriteLineInStyle($"Input is incorrect");
+                        Usability.WriteLineInStyle($"Input is incorrect. Enter a number next time");
 
                     }
                     else
@@ -126,7 +126,7 @@ namespace CsRealLearning
 
                         if (selectedPlayer != null)
                         {
-                            Usability.WriteLineInStyle($"Player with id {playerInput} (name: {players[playerInput].Name}) succesfully removed", ConsoleColor.Green);
+                            Usability.WriteLineInStyle($"Player with id {selectedPlayer.Id} (name: {selectedPlayer.Name}) succesfully removed", ConsoleColor.Green);
                             players.Remove(selectedPlayer);
                         }
                         else
@@ -152,10 +152,10 @@ namespace CsRealLearning
 
         class Player
         {
-            public static int lastId;
+            private static int _lastId;
 
             public int Id { get; private set; }
-            public bool IsBanned { get; private set; }
+            public bool IsBanned { get { return false; } private set { } }
             public string Name { get; private set; }
             public int Level { get { return 1; } private set { } }
 
@@ -163,7 +163,7 @@ namespace CsRealLearning
             {
                 Name = name;
 
-                Id = lastId++;
+                Id = _lastId++;
             }
 
             public void ShowInfo()
