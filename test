@@ -1,110 +1,209 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace _170000Courses
+//Реализовать базу данных игроков и методы для работы с ней.
+//У игрока может быть уникальный номер, ник, уровень, флаг – забанен ли он(флаг - bool).
+//Реализовать возможность добавления игрока, бана игрока по уникальный номеру,
+//разбана игрока по уникальный номеру и удаление игрока.
+//Создание самой БД не требуется, задание выполняется инструментами,
+//которые вы уже изучили в рамках курса. Но нужен класс, который содержит игроков и её можно назвать "База данных".
+
+namespace CsRealLearning
 {
     internal class Program
     {
-        static void Main(string[] args)
+        public static Random rnd { get; } = new Random();
+
+        static void Main()
         {
-            string text;
-            int openBracketCounter = 0;
-            int closeBracketCounter = 0;
-            int insideBracket = 0;
-            int depth = 0;
-            bool isCorrectExpression = false;
-            int correctExpresion = 0;
+            Database dataBase = new Database();
+            dataBase.Work();
+            dataBase.ShowAllPlayers();
+        }
 
+        class Database
+        {
+            List<Player> players = new List<Player>();
+            private int _id;
 
-                Console.WriteLine("Enter your bracket expression. I'm waiting");
-                text = Console.ReadLine();
+            public Database()
+            {
+                _id = 0;
+            }
 
-                for (int i = 0; i < text.Length; i++)
+            public void Work()
+            {
+                while (true)
                 {
+                    ShowCommands();
+                    HandleCommand();
 
-                //прибавлять к счетчику глубины с каждой закрывающей
-                // один счетчику: + с открывающей - с закрывающей. когда 0 открывать новый счетчик +1. если 0 повторяется больше одного раза (новый счетчик 2 и больше) то высчитывать глубину по самому глубокому
-                // по достижению нуля присваивать глубину новой переменной, при достижении нового нуля сравнивать с предыдущим значением переписывать если выше
-
-                    //counting brackets
-                    switch (text[i])
-                    {
-                        case '(':
-                            openBracketCounter++;
-                            break;
-
-                        case ')':
-                            closeBracketCounter++;
-                            break;
-                    }
-                    
-                    //countung depth
-                    if (text[i] == '(')
-                    {
-                            depth++;
-                    }
-
-                    //countung complete insideBrackets
-                    if (text[i] == '(' && text[i + 1] == ')')
-                    {
-                        insideBracket++;
-                    }
-
-                    //correct or incorrect expression
-                    correctExpresion = openBracketCounter - closeBracketCounter;
-                    if (correctExpresion == 0)
-                    {
-                        isCorrectExpression = true;
-                    }
-                    else if (correctExpresion > 0 || correctExpresion < 0)
-                    {
-                        isCorrectExpression = false;
-                    }
-
+                    Console.ReadKey();
+                    Console.Clear();
                 }
+            }
+            enum UserAction
+            {
+                add_player = 1,
+                remove_player_by_id,
+                ban_player,
+                show_all_players
+            }
 
-                if (isCorrectExpression == true)
+            private void ShowCommands()
+            {
+                Console.WriteLine("Select a command:");
+
+                foreach (UserAction command in Enum.GetValues(typeof(UserAction)))
                 {
-                    Console.ForegroundColor = ConsoleColor.Blue;
-                    Console.WriteLine(text + " bracket expression is correct");
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.WriteLine($"There is {--openBracketCounter} bracket embeddings inside");
+                    Usability.WriteLineInStyle($"{(int)(command)}. {command}", ConsoleColor.Yellow);
+                }
+            }
 
-                    if (insideBracket > 1)
+            private void HandleCommand()
+            {
+                if (int.TryParse(Console.ReadLine(), out int userInput))
+                {
+                    switch (userInput)
                     {
-                        Console.WriteLine($"{insideBracket} empty inside brackets detected. Real depth is {depth -= insideBracket - 1}");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"There was {insideBracket} empty inside bracket(s)");
-                        Console.Write($"{depth} bracket depth\n");
+                        case (int)UserAction.add_player:
+                            AddPlayer();
+                            break;
+                        case (int)UserAction.remove_player_by_id:
+                            RemovePlayer();
+                            break;
+                        case (int)UserAction.ban_player:
+                            break;
+                        case (int)UserAction.show_all_players:
+                            Console.Clear();
+                            ShowAllPlayers();
+                            break;
+                        default:
+                            Usability.WriteLineInStyle("That's a wrong number. Try again, fool");
+                            break;
                     }
                 }
                 else
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine(text + " bracket expression is incorrect\n");
-                    Console.ForegroundColor = ConsoleColor.White;
+                    Usability.WriteLineInStyle("Not a number. I need a number");
                 }
+            }
 
-            
+            public void AddPlayer()
+            {
+                string input;
+
+                Console.Clear();
+                Console.WriteLine("Enter player name: ");
+                input = Console.ReadLine();
+                players.Add(new Player(input, _id));
+                Usability.WriteLineInStyle($"Player {input} succesfully added", ConsoleColor.Green);
+                _id++;
+            }
+
+            public void RemovePlayer()
+            {
+                bool playerFound = false;
+                int index = 0;
+
+                Console.Clear();
+
+                if (players.Count == 0)
+                {
+                    Usability.WriteLineInStyle("The players list is empty", ConsoleColor.Blue);
+                }
+                else
+                {
+                    ShowAllPlayers();
+                    Console.Write("\nEnter player ID you want to remove: ");
+
+                    if (!int.TryParse(Console.ReadLine(), out int playerInput))
+                    {
+                        Usability.WriteLineInStyle("Invalid input. Enter a number next time.");
+                    }
+                    else
+                    {
+                        while (!playerFound && index < players.Count)
+                        {
+                            if (players[index].Id == playerInput)
+                            {
+                                playerFound = true;
+                                break;
+                            }
+
+                            index++;
+                        }
+
+                        if (playerFound)
+                        {
+                            Usability.WriteLineInStyle($"Player with id {playerInput} (name: {players[playerInput].Name}) succesfully removed", ConsoleColor.Green);
+                            players.RemoveAt(index);
+                        }
+                        else
+                        {
+                            Usability.WriteLineInStyle($"Player with id {playerInput} not found", ConsoleColor.Red);
+                        }
+                    }
+                }
+            }
+
+            public void BanPlayer(int Id)
+            {
+                // TODO: Implement banning functionality, considering:
+                // - Identifying the player to ban (ID, name, etc.)
+                // - Updating the player's `IsBanned` status
+                // - Providing relevant feedback to the user
+                Console.WriteLine("Banning functionality not yet implemented.");
+            }
+
+            public void ShowAllPlayers()
+            {
+                foreach (Player player in players)
+                {
+                    player.ShowInfo();
+                }
+            }
+        }
+
+        class Player
+        {
+            public int Id { get; private set; }
+            public bool IsBanned { get { return false; } private set { } }
+            public string Name { get; private set; }
+            public int Level { get { return 1; } private set { } }
+
+            public Player(string name, int id)
+            {
+                Name = name;
+
+                Id = id;
+            }
+
+            public void ShowInfo()
+            {
+                Console.Write($"Id: {Id}, name: {Name}, level: {Level}, ");
+
+                switch (IsBanned)
+                {
+                    case true:
+                        Console.WriteLine("status: banned");
+                        break;
+                    case false:
+                        Console.WriteLine("status: not banned");
+                        break;
+
+                }
+            }
+        }
+
+        class Usability
+        {
+            public static void WriteLineInStyle(string style, ConsoleColor color = ConsoleColor.Red)
+            {
+                Console.ForegroundColor = color;
+                Console.WriteLine(style);
+                Console.ResetColor();
+            }
         }
     }
 }
-
-//if (openBracketCounter == closeBracketCounter && text[0] == '(' && text[text.Length - 1] == ')')
-//{
-//isCorrectExpression = true;
-//}
-
-
-//if (text[i] == '(' || i + 1 < text.Length)
-//{
-    //if (text[i + 1] != ')')
-    //{
-       // depth++;
-   // }
-//}
