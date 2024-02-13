@@ -18,7 +18,7 @@ namespace CsRealLearning
         {
             DataBase dataBase = new DataBase();
             dataBase.Work();
-            dataBase.ShowAll();
+            dataBase.ShowAllPlayers();
         }
 
         class DataBase
@@ -61,15 +61,16 @@ namespace CsRealLearning
                     switch (userInput)
                     {
                         case (int)UserAction.add_player:
-                            Console.Clear();
-                            Console.WriteLine("Enter a name for a player: ");
-                            AddPlayer(Console.ReadLine());
+                            AddPlayer();
                             break;
                         case (int)UserAction.remove_player_by_id:
+                            RemovePlayer();
                             break;
                         case (int)UserAction.ban_player:
                             break;
                         case (int)UserAction.show_all_players:
+                            Console.Clear();
+                            ShowAllPlayers();
                             break;
                         default:
                             Usability.WriteLineInStyle("That's a wrong number. Try again, fool");
@@ -82,18 +83,65 @@ namespace CsRealLearning
                 }
             }
 
-            public void AddPlayer(string name = "default name")
+            public void AddPlayer()
             {
-                players.Add(new Player(name));
-                Console.WriteLine($"Player {name} succesfully added");
+                string input;
+
+                Console.Clear();
+                Console.WriteLine("Enter player name: ");
+                input = Console.ReadLine();
+                players.Add(new Player(input));
+                Usability.WriteLineInStyle($"Player {input} succesfully added", ConsoleColor.Green);
             }
 
-            public void RemovePlayer(int Id)
+            public void RemovePlayer()
             {
-                players.Remove(players[Id]);
+                Player selectedPlayer = null;
+
+                Console.Clear();
+
+                if (players.Count == 0)
+                {
+                    Usability.WriteLineInStyle("The players list is empty", ConsoleColor.Blue);
+                }
+                else
+                {
+                    ShowAllPlayers();
+                    Console.Write("\nEnter player ID you want to remove: ");
+
+                    if (!int.TryParse(Console.ReadLine(), out int playerInput))
+                    {
+                        Usability.WriteLineInStyle($"Input is incorrect");
+
+                    }
+                    else
+                    {
+                        foreach (Player player in players)
+                        {
+                            if (player.Id == playerInput)
+                            {
+                                selectedPlayer = player;
+                            }
+                        }
+
+                        if (selectedPlayer != null)
+                        {
+                            Usability.WriteLineInStyle($"Player with id {playerInput} (name: {players[playerInput].Name}) succesfully removed", ConsoleColor.Green);
+                            players.Remove(selectedPlayer);
+                        }
+                        else
+                        {
+                            Usability.WriteLineInStyle($"Player with id {playerInput} not found", ConsoleColor.Red);
+                        }
+                    }
+                }
             }
 
-            public void ShowAll()
+            public void BanPlayer(int Id)
+            {
+            }
+
+            public void ShowAllPlayers()
             {
                 foreach (Player player in players)
                 {
@@ -104,25 +152,25 @@ namespace CsRealLearning
 
         class Player
         {
-            public int Id { get; private set; }
             public static int lastId;
-            private bool _isBanned = false;
-            private string _name;
+
+            public int Id { get; private set; }
+            public bool IsBanned { get; private set; }
+            public string Name { get; private set; }
+            public int Level { get { return 1; } private set { } }
 
             public Player(string name)
             {
-                _name = name;
+                Name = name;
 
                 Id = lastId++;
             }
 
-            public int Level { get { return 1; } private set { } }
-
             public void ShowInfo()
             {
-                Console.Write($"Id: {Id}, name: {_name}, level: {Level}, ");
+                Console.Write($"Id: {Id}, name: {Name}, level: {Level}, ");
 
-                switch (_isBanned)
+                switch (IsBanned)
                 {
                     case true:
                         Console.WriteLine("status: banned");
