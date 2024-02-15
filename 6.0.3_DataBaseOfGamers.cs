@@ -270,7 +270,6 @@ namespace CsRealLearning
                     case false:
                         Console.WriteLine("status: not banned");
                         break;
-
                 }
             }
         }
