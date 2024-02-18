@@ -7,6 +7,8 @@ using static CsRealLearning.Card;
 //После выводиться вся информация о вытянутых картах.
 //Возможные классы: Карта, Колода, Игрок.
 
+//todo: render hand in the row below
+
 namespace CsRealLearning
 {
     internal class Program
@@ -14,14 +16,27 @@ namespace CsRealLearning
         static void Main()
         {
             Deck deck = new Deck();
-            deck.ShowInfo();
+            Player player1 = new Player(deck);
+            
+            deck.Shuffle();
+
+            player1.RenderHand();
+
+            Console.ReadKey();
+            Console.Clear();
+            player1.DrawCard(deck);
+            player1.RenderHand();
+
+            Console.ReadKey();
+            Console.Clear();
+            player1.DrawCard(deck);
+            player1.RenderHand();
         }
     }
 
     class Deck
     {
-        List<Card> cards = new List<Card>();
-
+        public Stack<Card> Cards {  get; private set; } = new Stack<Card>();
 
         public Deck()
         {
@@ -29,16 +44,37 @@ namespace CsRealLearning
             {
                 foreach (Value value in Enum.GetValues(typeof(Value)))
                 {
-                    cards.Add(new Card(suit, value));
+                    Cards.Push(new Card(suit, value));
                 }
             }
         }
 
-        public void ShowInfo()
+        public void Shuffle()
         {
-            foreach (Card card in cards)
+            var tempDeck = new List<Card>(Cards);
+            Random rnd = new Random();
+
+            for (int i = tempDeck.Count - 1; i > 0; i--)
             {
-                card.ShowInfo();
+                int randomIndex = rnd.Next(0, i + 1);
+
+                Card tempCard = tempDeck[i];
+                tempDeck[i] = tempDeck[randomIndex];
+                tempDeck[randomIndex] = tempCard;
+            }
+
+            Cards.Clear();
+            foreach (var card in tempDeck)
+            {
+                Cards.Push(card);
+            }
+        }
+
+        private void ShowDeckInfo()
+        {
+            foreach (Card card in Cards)
+            {
+                card.ShowCardInfo();
             }
         }
     }
@@ -65,47 +101,106 @@ namespace CsRealLearning
 
         public enum Value { Two = 2, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King, Ace }
 
-        public void ShowInfo()
+        public void RenderCard(char suit, Value cardValue)
+        {
+            var suitColors = new Dictionary<Suit, ConsoleColor>()
+            {
+                { Suit.Hearts, ConsoleColor.DarkRed },
+                { Suit.Diamonds, ConsoleColor.DarkRed },
+                { Suit.Clubs, ConsoleColor.DarkGray },
+                { Suit.Spades, ConsoleColor.DarkGray },
+            };
+
+            var cardValueIcons = new Dictionary<Value, String>()
+            {
+                { Value.Two, "2" },
+                { Value.Three, "3" },
+                { Value.Four, "4" },
+                { Value.Five, "5" },
+                { Value.Six, "6" },
+                { Value.Seven, "7" },
+                { Value.Eight, "8" },
+                { Value.Nine, "9" },
+                { Value.Ten, "10" },
+                { Value.Jack, "J" },
+                { Value.Queen, "Q" },
+                { Value.King, "K" },
+                { Value.Ace, "A" },
+            };
+
+            string topBorder = "╔═════════╗";
+            string bottomBorder = "╚═════════╝";
+            string wall = "║         ║";
+
+
+            Console.ForegroundColor = suitColors[CardSuit];
+
+            Console.WriteLine(topBorder);
+            Console.WriteLine($"║{cardValueIcons[cardValue],-8} ║");
+            Console.WriteLine($"║{suit,-8} ║");
+            Console.WriteLine(wall);
+            //Console.WriteLine($"║{' ',3} {suit} {' ',3}║");
+            Console.WriteLine(wall);
+            Console.WriteLine($"║{' ',8}{suit}║");
+
+            if (cardValueIcons[cardValue] != "10")
+                Console.WriteLine($"║{' ',8}{cardValueIcons[cardValue]}║");
+            else
+                Console.WriteLine($"║{' ',7}{cardValueIcons[cardValue]}║");
+
+            Console.WriteLine(bottomBorder);
+            Console.ResetColor();
+        }
+
+        public void ShowCardInfo()
         {
             switch (CardSuit)
             {
                 case Suit.Hearts:
-                    NewConsole.WriteLine($" ---------", ConsoleColor.DarkRed);
-                    NewConsole.WriteLine($"[ ♥ {CardValue, - 5} ]", ConsoleColor.DarkRed);
-                    NewConsole.WriteLine($" ---------", ConsoleColor.DarkRed);
-
+                    RenderCard('\u2665', CardValue);
                     break;
                 case Suit.Diamonds:
-                    NewConsole.WriteLine($" ---------", ConsoleColor.DarkRed);
-                    NewConsole.WriteLine($"[ ♦ {CardValue,-5} ]", ConsoleColor.DarkRed);
-                    NewConsole.WriteLine($" ---------", ConsoleColor.DarkRed);
-
+                    RenderCard('\u2666', CardValue);
                     break;
                 case Suit.Clubs:
-                    NewConsole.WriteLine($" ---------", ConsoleColor.DarkGray);
-                    NewConsole.WriteLine($"[ ♣ {CardValue,-5} ]", ConsoleColor.DarkGray);
-                    NewConsole.WriteLine($" ---------", ConsoleColor.DarkGray);
+                    RenderCard('\u2663', CardValue);
                     break;
                 case Suit.Spades:
-                    NewConsole.WriteLine($" ---------", ConsoleColor.DarkGray);
-                    NewConsole.WriteLine($"[ ♠ {CardValue,-5} ]", ConsoleColor.DarkGray);
-                    NewConsole.WriteLine($" ---------", ConsoleColor.DarkGray);
+                    RenderCard('\u2660', CardValue);
                     break;
             }
         }
     }
 
-
-
-
-
     class Player
     {
+        List<Card> hand = new List<Card>();
+        public Player(Deck deck)
+        {
+            hand.Add(deck.Cards.Pop());
+            hand.Add(deck.Cards.Pop());
+        }
 
+        public void DrawCard(Deck deck)
+        {
+            hand.Add(deck.Cards.Pop());
+        }
+
+        public void RenderHand() 
+        {
+            //int xPos = 10;
+            //int yPos = 10;
+
+            foreach (Card card in hand)
+            {
+                //Console.SetCursorPosition(xPos, yPos);
+                card.ShowCardInfo();
+            }
+        }
     }
 }
 
-class NewConsole
+class ConsoleTwo
 {
     public static void WriteLine(string style, ConsoleColor color = ConsoleColor.Red)
     {
@@ -116,7 +211,7 @@ class NewConsole
 
     public static void PressAnything(string text = "\npress anything to continue")
     {
-        NewConsole.WriteLine(text, ConsoleColor.DarkYellow);
+        ConsoleTwo.WriteLine(text, ConsoleColor.DarkYellow);
         Console.ReadKey();
         Console.Clear();
     }
