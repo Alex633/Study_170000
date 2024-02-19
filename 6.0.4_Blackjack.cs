@@ -15,18 +15,59 @@ namespace CsRealLearning
     {
         static void Main()
         {
-            Deck deck = new Deck();
-            Player player1 = new Player(deck);
-            
+            Game game = new Game();
+
+            game.Start();
+        }
+    }
+
+    class Game
+    {
+        Deck deck = new Deck();
+
+        private int winningNumber = 21;
+
+        public void Start()
+        {
             deck.Shuffle();
+            
+            Player player1 = new Player(deck);
+            Player player2 = new Player(deck);
 
+            ConsoleTwo.WriteLine($"Your Cards (value: {player1.GetHandSumValue()}):", ConsoleColor.Gray);
             player1.RenderHand();
 
-            Console.ReadKey();
+            ConsoleTwo.WriteLine($"Player 1\nDraw more? (y or n)", ConsoleColor.Blue);
+            ConsoleKeyInfo playerInput = Console.ReadKey(true);
+
+            switch (playerInput.KeyChar)
+            {
+                case 'y':
+                    player1.DrawCard(deck);
+
+                    break;
+                case 'n':
+                    break;
+                default:
+                    break;
+            }
+
+            ConsoleTwo.WriteLine($"Player 2\nDraw more? (y or n)", ConsoleColor.Blue);
+            playerInput = Console.ReadKey(true);
+
+            switch (playerInput.KeyChar)
+            {
+                case 'y':
+                    player2.DrawCard(deck);
+                    break;
+                case 'n':
+                    break;
+                default:
+                    break;
+            }
+
             Console.Clear();
-            player1.DrawCard(deck);
             player1.RenderHand();
-
             Console.ReadKey();
             Console.Clear();
             player1.DrawCard(deck);
@@ -36,7 +77,7 @@ namespace CsRealLearning
 
     class Deck
     {
-        public Stack<Card> Cards {  get; private set; } = new Stack<Card>();
+        public Stack<Card> Cards { get; private set; } = new Stack<Card>();
 
         public Deck()
         {
@@ -186,16 +227,24 @@ namespace CsRealLearning
             hand.Add(deck.Cards.Pop());
         }
 
-        public void RenderHand() 
+        public void RenderHand()
         {
-            //int xPos = 10;
-            //int yPos = 10;
+            foreach (Card card in hand)
+            {
+                card.ShowCardInfo();
+            }
+        }
+
+        public int GetHandSumValue()
+        {
+            int sumHandValue = 0;
 
             foreach (Card card in hand)
             {
-                //Console.SetCursorPosition(xPos, yPos);
-                card.ShowCardInfo();
+                sumHandValue += (int)card.CardValue;
             }
+
+            return sumHandValue;
         }
     }
 }
