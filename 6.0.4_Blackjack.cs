@@ -32,8 +32,9 @@ namespace CsRealLearning
             Console.CursorVisible = false;
             deck.Shuffle();
 
-            Player player1 = new Player(deck);
-            Player player2 = new Player(deck);
+
+            Player player1 = new Player(deck, "PLAYER 1");
+            Player player2 = new Player(deck, "PLAYER 2");
 
             Turn(player1);
 
@@ -48,7 +49,7 @@ namespace CsRealLearning
             {
                 ConsoleTwo.WriteLine($"Your Cards (value: {player.GetHandSumValue()}):", ConsoleColor.Gray);
                 player.RenderHand();
-                ConsoleTwo.WriteLine($"Player 1\nDraw more? (y or n)", ConsoleColor.Blue);
+                ConsoleTwo.WriteLine($"{player.Name}\nDraw more? (y or n)", ConsoleColor.Blue);
 
                 switch (GetPlayerChoice())
                 {
@@ -236,10 +237,13 @@ namespace CsRealLearning
     class Player
     {
         List<Card> hand = new List<Card>();
-        public Player(Deck deck)
+        public string Name {  get; private set; }
+        
+        public Player(Deck deck, string name)
         {
             hand.Add(deck.Cards.Pop());
             hand.Add(deck.Cards.Pop());
+            Name = name;
         }
 
         public void DrawCard(Deck deck)
