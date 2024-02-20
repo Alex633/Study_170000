@@ -29,49 +29,60 @@ namespace CsRealLearning
 
         public void Start()
         {
+            Console.CursorVisible = false;
             deck.Shuffle();
-            
+
             Player player1 = new Player(deck);
             Player player2 = new Player(deck);
 
-            ConsoleTwo.WriteLine($"Your Cards (value: {player1.GetHandSumValue()}):", ConsoleColor.Gray);
-            player1.RenderHand();
+            Turn(player1);
 
-            ConsoleTwo.WriteLine($"Player 1\nDraw more? (y or n)", ConsoleColor.Blue);
-            ConsoleKeyInfo playerInput = Console.ReadKey(true);
 
-            switch (playerInput.KeyChar)
+        }
+
+        public void Turn(Player player)
+        {
+            bool isPlayerTurnOver = false;
+
+            while (!isPlayerTurnOver)
             {
-                case 'y':
-                    player1.DrawCard(deck);
+                ConsoleTwo.WriteLine($"Your Cards (value: {player.GetHandSumValue()}):", ConsoleColor.Gray);
+                player.RenderHand();
+                ConsoleTwo.WriteLine($"Player 1\nDraw more? (y or n)", ConsoleColor.Blue);
 
-                    break;
-                case 'n':
-                    break;
-                default:
-                    break;
+                switch (GetPlayerChoice())
+                {
+                    case 'y':
+                        player.DrawCard(deck);
+                        break;
+                    case 'n':
+                        isPlayerTurnOver = true;
+                        break;
+                }
+
+                Console.Clear();
             }
+        }
 
-            ConsoleTwo.WriteLine($"Player 2\nDraw more? (y or n)", ConsoleColor.Blue);
-            playerInput = Console.ReadKey(true);
+        public char GetPlayerChoice(int outputYPos = 12)
+        {
+            ConsoleKeyInfo playerInput;
 
-            switch (playerInput.KeyChar)
+            while (true)
             {
-                case 'y':
-                    player2.DrawCard(deck);
-                    break;
-                case 'n':
-                    break;
-                default:
-                    break;
-            }
+                playerInput = Console.ReadKey(true);
 
-            Console.Clear();
-            player1.RenderHand();
-            Console.ReadKey();
-            Console.Clear();
-            player1.DrawCard(deck);
-            player1.RenderHand();
+                switch (playerInput.KeyChar)
+                {
+                    case 'y':
+                    case 'n':
+                        return playerInput.KeyChar;
+                    default:
+                        Console.SetCursorPosition(0, outputYPos);
+                        ConsoleTwo.WriteLine("Uknown Command. Try again");
+                        break;
+                }
+            }
         }
     }
 
@@ -113,9 +124,13 @@ namespace CsRealLearning
 
         private void ShowDeckInfo()
         {
+            int xPos = 0;
+            int yPos = 1;
+
             foreach (Card card in Cards)
             {
-                card.ShowCardInfo();
+                card.ShowCardInfo(xPos, yPos);
+                xPos += 16;
             }
         }
     }
@@ -135,14 +150,13 @@ namespace CsRealLearning
             Id = lastID++;
             this.CardSuit = suit;
             this.CardValue = value;
-
         }
 
         public enum Suit { Hearts = 1, Diamonds, Clubs, Spades }
 
         public enum Value { Two = 2, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King, Ace }
 
-        public void RenderCard(char suit, Value cardValue)
+        public void RenderCard(char suit, Value cardValue, int xPos, int yPos)
         {
             var suitColors = new Dictionary<Suit, ConsoleColor>()
             {
@@ -175,39 +189,45 @@ namespace CsRealLearning
 
 
             Console.ForegroundColor = suitColors[CardSuit];
-
+            Console.SetCursorPosition(xPos, yPos);
             Console.WriteLine(topBorder);
+            Console.SetCursorPosition(xPos, ++yPos);
             Console.WriteLine($"║{cardValueIcons[cardValue],-8} ║");
+            Console.SetCursorPosition(xPos, ++yPos);
             Console.WriteLine($"║{suit,-8} ║");
+            Console.SetCursorPosition(xPos, ++yPos);
             Console.WriteLine(wall);
-            //Console.WriteLine($"║{' ',3} {suit} {' ',3}║");
+            Console.SetCursorPosition(xPos, ++yPos);
             Console.WriteLine(wall);
+            Console.SetCursorPosition(xPos, ++yPos);
             Console.WriteLine($"║{' ',8}{suit}║");
+            Console.SetCursorPosition(xPos, ++yPos);
 
             if (cardValueIcons[cardValue] != "10")
                 Console.WriteLine($"║{' ',8}{cardValueIcons[cardValue]}║");
             else
                 Console.WriteLine($"║{' ',7}{cardValueIcons[cardValue]}║");
 
+            Console.SetCursorPosition(xPos, ++yPos);
             Console.WriteLine(bottomBorder);
             Console.ResetColor();
         }
 
-        public void ShowCardInfo()
+        public void ShowCardInfo(int xPos, int yPos)
         {
             switch (CardSuit)
             {
                 case Suit.Hearts:
-                    RenderCard('\u2665', CardValue);
+                    RenderCard('\u2665', CardValue, xPos, yPos);
                     break;
                 case Suit.Diamonds:
-                    RenderCard('\u2666', CardValue);
+                    RenderCard('\u2666', CardValue, xPos, yPos);
                     break;
                 case Suit.Clubs:
-                    RenderCard('\u2663', CardValue);
+                    RenderCard('\u2663', CardValue, xPos, yPos);
                     break;
                 case Suit.Spades:
-                    RenderCard('\u2660', CardValue);
+                    RenderCard('\u2660', CardValue, xPos, yPos);
                     break;
             }
         }
@@ -229,9 +249,20 @@ namespace CsRealLearning
 
         public void RenderHand()
         {
+            int xPos = 0;
+            int yPos = 1;
+            int firstRow = 120;
+
             foreach (Card card in hand)
             {
-                card.ShowCardInfo();
+                card.ShowCardInfo(xPos, yPos);
+                xPos += 12;
+
+                if (xPos >= firstRow)
+                {
+                    yPos += 8;
+                    xPos = 0;
+                }
             }
         }
 
