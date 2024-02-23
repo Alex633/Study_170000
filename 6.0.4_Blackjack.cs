@@ -7,7 +7,10 @@ using static CsRealLearning.Card;
 //После выводиться вся информация о вытянутых картах.
 //Возможные классы: Карта, Колода, Игрок.
 
-//todo: render hand in the row below
+//todo: 1. render at specific position for player 2
+//      2. order of turns
+//      3. other blackjack commands
+//      4. score
 
 namespace CsRealLearning
 {
@@ -25,7 +28,14 @@ namespace CsRealLearning
     {
         Deck deck = new Deck();
 
-        private int winningNumber = 21;
+        private int _jackBlack = 21;
+        private bool _isGameFinished = false;
+
+        enum playerColor
+        {
+            Cyan = 1,
+            Green
+        }
 
         public void Start()
         {
@@ -36,36 +46,62 @@ namespace CsRealLearning
             Player player1 = new Player(deck, "PLAYER 1");
             Player player2 = new Player(deck, "PLAYER 2");
 
-            Turn(player1);
+            while (!_isGameFinished)
+            {
+                Turn(player1, player2);
+                //Turn(player2, player1);
+            }
+
+            Console.WriteLine("The End");
 
 
         }
 
-        public void Turn(Player player)
+        private void Turn(Player player, Player opponent)
         {
-            bool isPlayerTurnOver = false;
+            Custom.WriteLine($"{player.Name} turn", ConsoleColor.Cyan);
+            player.RenderHand(ConsoleColor.Cyan);
+            opponent.RenderHand(ConsoleColor.DarkGray, 50);
+            CheckIfEnd(player, opponent, ref _isGameFinished);
 
-            while (!isPlayerTurnOver)
+            if (_isGameFinished)
             {
-                ConsoleTwo.WriteLine($"Your Cards (value: {player.GetHandSumValue()}):", ConsoleColor.Gray);
-                player.RenderHand();
-                ConsoleTwo.WriteLine($"{player.Name}\nDraw more? (y or n)", ConsoleColor.Blue);
-
-                switch (GetPlayerChoice())
-                {
-                    case 'y':
-                        player.DrawCard(deck);
-                        break;
-                    case 'n':
-                        isPlayerTurnOver = true;
-                        break;
-                }
-
                 Console.Clear();
+                return;
+            }
+
+            Custom.WriteLine($"\nDraw more? (y or n)", ConsoleColor.Cyan, true, 1, 1);
+
+            switch (GetPlayerChoice())
+            {
+                case 'y':
+                    player.DrawCard(deck);
+                    break;
+                case 'n':
+                    break;
+            }
+
+            Console.Clear();
+        }
+
+        private void CheckIfEnd(Player player, Player opponent, ref bool _isGameFinished)
+        {
+            if (player.GetHandSumValue() == _jackBlack)
+            {
+                Custom.WriteLine($"{player.Name} blackjack! Giving turn", ConsoleColor.Yellow);
+                Console.ReadKey();
+                _isGameFinished = true;
+            }
+            else if (player.GetHandSumValue() > _jackBlack)
+            {
+                Custom.WriteLine($"{player.Name} bust!");
+                Custom.WriteLine($"{opponent.Name} won!", ConsoleColor.Yellow);
+                Console.ReadKey();
+                _isGameFinished = true;
             }
         }
 
-        public char GetPlayerChoice(int outputYPos = 12)
+        private char GetPlayerChoice(int outputXPos = 0, int outputYPos = 1)
         {
             ConsoleKeyInfo playerInput;
 
@@ -79,8 +115,8 @@ namespace CsRealLearning
                     case 'n':
                         return playerInput.KeyChar;
                     default:
-                        Console.SetCursorPosition(0, outputYPos);
-                        ConsoleTwo.WriteLine("Uknown Command. Try again");
+                        Console.SetCursorPosition(outputXPos, outputYPos);
+                        Custom.WriteLine("Uknown Command. Try again", ConsoleColor.Red, true, 0, 3);
                         break;
                 }
             }
@@ -140,22 +176,30 @@ namespace CsRealLearning
     {
         public static Random rnd { get; } = new Random();
 
-        private static int lastID = 1;
-        public int Id { get; private set; }
-
         public Suit CardSuit { get; private set; }
         public Value CardValue { get; private set; }
 
+        public int BlackjackValue
+        {
+            get
+            {
+                if ((int)CardValue > 10)
+                    return 10;
+                else
+                    return (int)CardValue;
+            }
+            private set { }
+        }
+
         public Card(Suit suit, Value value)
         {
-            Id = lastID++;
-            this.CardSuit = suit;
-            this.CardValue = value;
+            CardSuit = suit;
+            CardValue = value;
         }
 
         public enum Suit { Hearts = 1, Diamonds, Clubs, Spades }
 
-        public enum Value { Two = 2, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King, Ace }
+        public enum Value { Ace = 1, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King }
 
         public void RenderCard(char suit, Value cardValue, int xPos, int yPos)
         {
@@ -237,8 +281,8 @@ namespace CsRealLearning
     class Player
     {
         List<Card> hand = new List<Card>();
-        public string Name {  get; private set; }
-        
+        public string Name { get; private set; }
+
         public Player(Deck deck, string name)
         {
             hand.Add(deck.Cards.Pop());
@@ -251,21 +295,21 @@ namespace CsRealLearning
             hand.Add(deck.Cards.Pop());
         }
 
-        public void RenderHand()
+        public void RenderHand(ConsoleColor playerColor = ConsoleColor.Gray, int xStartPos = 0, int yStartPos = 1, int rowMaxSym = 40)
         {
-            int xPos = 0;
-            int yPos = 1;
-            int firstRow = 120;
+            Console.SetCursorPosition(xStartPos, yStartPos);
+
+            Custom.WriteLine($"(value: {GetHandSumValue()})", playerColor);
 
             foreach (Card card in hand)
             {
-                card.ShowCardInfo(xPos, yPos);
-                xPos += 12;
+                card.ShowCardInfo(xStartPos, yStartPos + 3);
+                xStartPos += 12;
 
-                if (xPos >= firstRow)
+                if (xStartPos >= rowMaxSym)
                 {
-                    yPos += 8;
-                    xPos = 0;
+                    yStartPos += 8;
+                    xStartPos = 0;
                 }
             }
         }
@@ -276,7 +320,10 @@ namespace CsRealLearning
 
             foreach (Card card in hand)
             {
-                sumHandValue += (int)card.CardValue;
+                if (card.CardValue == Value.Ace && sumHandValue < 10)
+                    sumHandValue += 11;
+
+                sumHandValue += card.BlackjackValue;
             }
 
             return sumHandValue;
@@ -284,18 +331,21 @@ namespace CsRealLearning
     }
 }
 
-class ConsoleTwo
+class Custom
 {
-    public static void WriteLine(string style, ConsoleColor color = ConsoleColor.Red)
+    public static void WriteLine(string text, ConsoleColor color = ConsoleColor.Red, bool customPos = false, int xPos = 0, int YPos = 0)
     {
+        if (customPos)
+            Console.SetCursorPosition(xPos, YPos);
+
         Console.ForegroundColor = color;
-        Console.WriteLine(style);
+        Console.WriteLine(text);
         Console.ResetColor();
     }
 
     public static void PressAnything(string text = "\npress anything to continue")
     {
-        ConsoleTwo.WriteLine(text, ConsoleColor.DarkYellow);
+        Custom.WriteLine(text, ConsoleColor.DarkYellow);
         Console.ReadKey();
         Console.Clear();
     }
