@@ -10,7 +10,8 @@ using static CsRealLearning.Card;
 //todo: 1. render TEXT of blackjack and bust at specific position for player 2
 //      3. other blackjack commands
 //      4. score
-//      5. custom player names
+//      5. money betting
+//      6. custom player names
 
 namespace CsRealLearning
 {
@@ -99,9 +100,11 @@ namespace CsRealLearning
         private bool isBlackjack(Player player, Player opponent)
         {
             int yPos = Console.CursorTop;
+            bool isJustGotBlackjack = false;
 
             if (player.GetHandSumValue() == _blackjackNum)
             {
+                isJustGotBlackjack = true;
                 Custom.WriteLine($"{player.Name} blackjack! Giving turn", ConsoleColor.Yellow, true, 0, yPos);
                 Custom.PressAnything();
                 return true;
