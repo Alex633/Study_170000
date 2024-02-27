@@ -7,12 +7,13 @@ using static CsRealLearning.Card;
 //После выводиться вся информация о вытянутых картах.
 //Возможные классы: Карта, Колода, Игрок.
 
-//todo: 1. press anything to continue at wrong position!!!!
-//      3. other blackjack commands
+//todo: 2. stand -- kill player
+//      3. ace
 //      4. score
-//      5. money betting
-//      6. custom player names
 //      7. change sits after every round
+//      5. money betting
+//      3. Double Down: (Available on initial two cards only) Double the bet, receive one more card, and automatically stand.
+//      6. custom player names
 
 namespace CsRealLearning
 {
@@ -39,13 +40,6 @@ namespace CsRealLearning
             BlackjackNum = 21;
         }
 
-
-        enum playerColor
-        {
-            Cyan = 1,
-            Green
-        }
-
         public void Start()
         {
             Console.CursorVisible = false;
@@ -67,14 +61,14 @@ namespace CsRealLearning
             }
         }
 
-        private void Turn(Player player1, Player player2)
+        private void Turn(Player player, Player opponent)
         {
-            if (player1.IsAlive)
+            if (player.IsPlaying)
             {
-                RenderTable(player1, player2);
-                HandleInput(player1);
-                RenderTable(player1, player2);
-                player1.CheckIfAlive();
+                RenderTable(player, opponent);
+                HandleInput(player);
+                RenderTable(player, opponent);
+                player.CheckIfAlive();
             }
         }
 
@@ -92,13 +86,16 @@ namespace CsRealLearning
                 return;
             }
 
-            if (!player1.IsAlive && !player2.IsAlive)
+            if (!player1.IsPlaying && !player2.IsPlaying)
             {
                 if (player1.GetHandSumValue() > player2.GetHandSumValue())
                     Custom.WriteFilled($"{player1.Name} victorius with {player1.GetHandSumValue()}");
 
                 if (player2.GetHandSumValue() > player1.GetHandSumValue())
                     Custom.WriteFilled($"{player2.Name} victorius with {player2.GetHandSumValue()}");
+
+                if (player1.GetHandSumValue() == player2.GetHandSumValue())
+                    Custom.WriteFilled($"Standoff with {player1.GetHandSumValue()}");
 
                 isGameOn = false;
             }
@@ -110,32 +107,35 @@ namespace CsRealLearning
             int player2XPos = player2.XPos;
             int player2YPos = 0;
 
-            Custom.WriteInColor($"{player1.Name} ({player1.GetHandSumValue()})", ConsoleColor.Cyan, true, player1XPos, player1YPos);
-            player1.RenderHand(ConsoleColor.Cyan);
+            Custom.WriteInColor($"{player1.Name} ({player1.GetHandSumValue()})", ConsoleColor.DarkGray, true, player1XPos, player1YPos);
+            player1.RenderHand();
 
-            Custom.WriteInColor($"{player2.Name} ({player2.GetHandSumValue()})", ConsoleColor.Green, true, player2XPos, player2YPos);
-            player2.RenderHand(ConsoleColor.Green);
+            Custom.WriteInColor($"{player2.Name} ({player2.GetHandSumValue()})", ConsoleColor.DarkGray, true, player2XPos, player2YPos);
+            player2.RenderHand();
         }
 
-        private void HandleInput(Player player)
+        private void HandleInput(Player player1)
         {
+            Custom.WriteInColor($"--- {player1.Name} ({player1.GetHandSumValue()}) Turn ---", ConsoleColor.Cyan, true, player1.XPos, 0);
+            Custom.WriteInColor("Commands:", ConsoleColor.Cyan, true, player1.XPos, player1.CmdYPos);
+            Custom.WriteInColor("[h] Hit", ConsoleColor.Cyan, true, player1.XPos, player1.CmdYPos + 1);
+            Custom.WriteInColor("[s] Stand", ConsoleColor.Cyan, true, player1.XPos, player1.CmdYPos + 2);
 
-            Custom.WriteInColor($"\nDo you want me to hit you? (y or n)", ConsoleColor.DarkBlue, true, player.XPos, player.CmdYPos);
-
-            switch (GetPlayerChoice(player))
+            switch (GetPlayerChoice(player1))
             {
-                case 'y':
-                    player.DrawCard(deck);
+                case 'h':
+                    player1.DrawCard(deck);
                     break;
-                case 'n':
+                case 's':
                     break;
             }
+
+            Console.Clear();
         }
 
         private char GetPlayerChoice(Player player)
         {
             ConsoleKeyInfo playerInput;
-            int yPos = 2;
 
             while (true)
             {
@@ -143,11 +143,11 @@ namespace CsRealLearning
 
                 switch (playerInput.KeyChar)
                 {
-                    case 'y':
-                    case 'n':
+                    case 'h':
+                    case 's':
                         return playerInput.KeyChar;
                     default:
-                        Custom.WriteInColor("Unknown Command.", ConsoleColor.Red, true, player.XPos, yPos);
+                        Custom.WriteInColor("Unknown Command. Try again:", ConsoleColor.Red, true, player.XPos, player.CmdYPos);
                         break;
                 }
             }
@@ -232,11 +232,6 @@ namespace CsRealLearning
 
         public enum Value { Ace = 1, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King }
 
-        public void GotBlackjack()
-        {
-
-        }
-
         public void RenderCard(char suit, Value cardValue, int xPos, int yPos)
         {
             var suitColors = new Dictionary<Suit, ConsoleColor>()
@@ -319,12 +314,12 @@ namespace CsRealLearning
         List<Card> hand = new List<Card>();
 
         public int CmdYPos;
-        private int _firstCardsRowYPos;
-        private int _notificationsYPos;
+        public int FirstRowCardsYPos;
+        public int NotificationsYPos;
 
         public int XPos { get; private set; }
         public string Name { get; private set; }
-        public bool IsAlive { get; private set; }
+        public bool IsPlaying { get; private set; }
         public bool IsBust { get; private set; }
         public bool IsBlackjack { get; private set; }
 
@@ -337,11 +332,11 @@ namespace CsRealLearning
             XPos = xPos;
             IsBlackjack = false;
             IsBust = false;
-            IsAlive = true;
+            IsPlaying = true;
 
-            CmdYPos = 0;
-            _firstCardsRowYPos = 0;
-            _notificationsYPos = 24;
+            CmdYPos = 1;
+            FirstRowCardsYPos = 4;
+            NotificationsYPos = 0;
 
         }
 
@@ -350,8 +345,8 @@ namespace CsRealLearning
             if (GetHandSumValue() == BlackjackGame.BlackjackNum)
             {
                 IsBlackjack = true;
-                Custom.WriteFilled($"{Name} just got blackjack!", ConsoleColor.Yellow, true, XPos, _notificationsYPos);
-                Custom.PressAnything(true, XPos, _notificationsYPos);
+                Custom.WriteFilled($"{Name} just got blackjack!", ConsoleColor.DarkYellow, true, XPos, NotificationsYPos);
+                Custom.PressAnythingToContinue(ConsoleColor.DarkGray, true, XPos, NotificationsYPos + 3);
             }
         }
         public void CheckIfBust()
@@ -359,8 +354,8 @@ namespace CsRealLearning
             if (GetHandSumValue() > BlackjackGame.BlackjackNum)
             {
                 IsBust = true;
-                Custom.WriteFilled($"{Name} bust!", ConsoleColor.DarkRed, true, XPos, _notificationsYPos);
-                Custom.PressAnything(true, XPos, _notificationsYPos);
+                Custom.WriteFilled($"{Name} bust!", ConsoleColor.DarkRed, true, XPos, NotificationsYPos);
+                Custom.PressAnythingToContinue(ConsoleColor.DarkGray, true, XPos, NotificationsYPos + 3);
             }
         }
 
@@ -371,7 +366,7 @@ namespace CsRealLearning
 
             if (IsBlackjack || IsBust)
             {
-                IsAlive = false;
+                IsPlaying = false;
             }
         }
 
@@ -380,17 +375,17 @@ namespace CsRealLearning
             hand.Add(deck.Cards.Pop());
         }
 
-        public void RenderHand(ConsoleColor playerColor = ConsoleColor.Gray, int maxCardsInTheRow = 4)
+        public void RenderHand(int maxCardsInTheRow = 4)
         {
             int cardsInTheRow = 0;
             int currentCardXPos = XPos;
-            int currentCardYPos = _firstCardsRowYPos;
+            int currentCardYPos = FirstRowCardsYPos;
 
             Console.SetCursorPosition(currentCardXPos, currentCardYPos);
 
             foreach (Card card in hand)
             {
-                card.ShowCardInfo(currentCardXPos, currentCardYPos + 3);
+                card.ShowCardInfo(currentCardXPos, currentCardYPos);
                 currentCardXPos += 12;
                 cardsInTheRow++;
 
@@ -406,14 +401,18 @@ namespace CsRealLearning
         public int GetHandSumValue()
         {
             int sumHandValue = 0;
+            bool hasAce = false;
 
             foreach (Card card in hand)
             {
-                if (card.CardValue == Value.Ace && sumHandValue < 10)
-                    sumHandValue += 11;
-
                 sumHandValue += card.BlackjackValue;
+
+                if (card.CardValue == Value.Ace)
+                    hasAce = true;
             }
+
+            if (hasAce && sumHandValue + 10 <= 21)
+                sumHandValue += 10;
 
             return sumHandValue;
         }
@@ -432,23 +431,39 @@ class Custom
         Console.ResetColor();
     }
 
-    public static void WriteFilled(string text, ConsoleColor color = ConsoleColor.DarkYellow, bool customPos = false, int xPos = 0, int YPos = 0)
+    public static void PressAnythingToContinue(ConsoleColor color = ConsoleColor.DarkYellow, bool customPos = false, int xPos = 0, int YPos = 0, string text = "press anything to continue")
     {
         if (customPos)
             Console.SetCursorPosition(xPos, YPos);
 
-        Console.BackgroundColor = color;
+        Console.ForegroundColor = color;
         Console.WriteLine(text);
+        Console.ResetColor();
+        Console.ReadKey();
+        Console.Clear();
+    }
+
+    public static void WriteFilled(string text, ConsoleColor color = ConsoleColor.DarkYellow, bool customPos = false, int xPos = 0, int yPos = 0)
+    {
+        int borderLength = text.Length + 2;
+        string filler = new string('═', borderLength);
+        string topBorder = "╔" + filler + "╗";
+        string line = $"║ {text} ║";
+        string bottomBorder = "╚" + filler + "╝";
+
+        Console.ForegroundColor = ConsoleColor.Black;
+        Console.BackgroundColor = color;
+
+        WriteAtPosition(xPos, yPos, topBorder);
+        WriteAtPosition(xPos, yPos + 1, line);
+        WriteAtPosition(xPos, yPos + 2, bottomBorder);
+
         Console.ResetColor();
     }
 
-    public static void PressAnything(bool customPos = false, int xPos = 0, int YPos = 0, string text = "\npress anything to continue")
+    public static void WriteAtPosition(int xPos, int yPos, string text)
     {
-        if (customPos)
-            Console.SetCursorPosition(xPos, YPos);
-
-        Custom.WriteInColor(text, ConsoleColor.DarkGray);
-        Console.ReadKey();
-        Console.Clear();
+        Console.SetCursorPosition(xPos, yPos);
+        Console.WriteLine(text); 
     }
 }
