@@ -7,8 +7,8 @@ using static CsRealLearning.Card;
 //После выводиться вся информация о вытянутых картах.
 //Возможные классы: Карта, Колода, Игрок.
 
-//todo: 2. stand -- kill player
-//      3. ace
+//todo: 1. victories displays wrong (as second player not a second player but the opponent?)
+//      //!! - nulify data
 //      4. score
 //      7. change sits after every round
 //      5. money betting
@@ -29,9 +29,10 @@ namespace CsRealLearning
 
     class BlackjackGame
     {
+        Renderer renderer = new Renderer();
         Deck deck = new Deck();
 
-        private bool isGameOn = true;
+        private bool isRoundOn = true;
 
         static public int BlackjackNum { get; private set; }
 
@@ -49,7 +50,7 @@ namespace CsRealLearning
             Player player1 = new Player(deck, "Player 1", 0);
             Player player2 = new Player(deck, "Player 2", 60);
 
-            while (isGameOn)
+            while (true)
             {
                 if (!player2.IsBust)
                     Turn(player1, player2);
@@ -57,7 +58,7 @@ namespace CsRealLearning
                 if (!player1.IsBust)
                     Turn(player2, player1);
 
-                CheckIfOver(player1, player2, ref isGameOn);
+                CheckIfOver(player1, player2);
             }
         }
 
@@ -65,58 +66,52 @@ namespace CsRealLearning
         {
             if (player.IsPlaying)
             {
-                RenderTable(player, opponent);
+                renderer.RenderTable(player, opponent);
                 HandleInput(player);
-                RenderTable(player, opponent);
+                renderer.RenderTable(player, opponent);
                 player.CheckIfAlive();
             }
         }
 
-        private void CheckIfOver(Player player1, Player player2, ref bool isGameOn)
+        private void CheckIfOver(Player player1, Player player2)
         {
+            bool isRoundOn = true;
+
             if (player1.IsBust || player2.IsBust)
-            {
-                if (player1.IsBust)
-                    Custom.WriteFilled($"{player2.Name} victorius with {player2.GetHandSumValue()}");
-
-                if (player2.IsBust)
-                    Custom.WriteFilled($"{player1.Name} victorius with {player1.GetHandSumValue()}");
-
-                isGameOn = false;
-                return;
-            }
+                isRoundOn = false;
 
             if (!player1.IsPlaying && !player2.IsPlaying)
-            {
-                if (player1.GetHandSumValue() > player2.GetHandSumValue())
-                    Custom.WriteFilled($"{player1.Name} victorius with {player1.GetHandSumValue()}");
+                isRoundOn = false;
 
-                if (player2.GetHandSumValue() > player1.GetHandSumValue())
+            if (!isRoundOn)
+            {   //!!
+                if (player1.GetHandSumValue() > player2.GetHandSumValue())
+                {
+                    player1.EarnWin();
+                    Custom.WriteFilled($"{player1.Name} victorius with {player2.GetHandSumValue()}");
+                }
+                else if (player2.GetHandSumValue() > player1.GetHandSumValue())
+                {
+                    player1.EarnWin();
                     Custom.WriteFilled($"{player2.Name} victorius with {player2.GetHandSumValue()}");
 
-                if (player1.GetHandSumValue() == player2.GetHandSumValue())
+                }
+                else if (player1.GetHandSumValue() == player2.GetHandSumValue())
+                {
+                    player1.EarnWin();
                     Custom.WriteFilled($"Standoff with {player1.GetHandSumValue()}");
+                }
 
-                isGameOn = false;
+                Custom.PressAnythingToContinue();
+                player1.IsPlaying = true;
+                player2.IsPlaying = true;
             }
-        }
-        private void RenderTable(Player player1, Player player2)
-        {
-            int player1XPos = player1.XPos;
-            int player1YPos = 0;
-            int player2XPos = player2.XPos;
-            int player2YPos = 0;
 
-            Custom.WriteInColor($"{player1.Name} ({player1.GetHandSumValue()})", ConsoleColor.DarkGray, true, player1XPos, player1YPos);
-            player1.RenderHand();
-
-            Custom.WriteInColor($"{player2.Name} ({player2.GetHandSumValue()})", ConsoleColor.DarkGray, true, player2XPos, player2YPos);
-            player2.RenderHand();
         }
 
         private void HandleInput(Player player1)
         {
-            Custom.WriteInColor($"--- {player1.Name} ({player1.GetHandSumValue()}) Turn ---", ConsoleColor.Cyan, true, player1.XPos, 0);
+            Custom.WriteInColor($"--- {player1.Name} ({player1.GetHandSumValue()} (wins: {player1.Wins})) Turn ---", ConsoleColor.Cyan, true, player1.XPos, 0);
             Custom.WriteInColor("Commands:", ConsoleColor.Cyan, true, player1.XPos, player1.CmdYPos);
             Custom.WriteInColor("[h] Hit", ConsoleColor.Cyan, true, player1.XPos, player1.CmdYPos + 1);
             Custom.WriteInColor("[s] Stand", ConsoleColor.Cyan, true, player1.XPos, player1.CmdYPos + 2);
@@ -127,6 +122,7 @@ namespace CsRealLearning
                     player1.DrawCard(deck);
                     break;
                 case 's':
+                    player1.IsPlaying = false;
                     break;
             }
 
@@ -197,49 +193,22 @@ namespace CsRealLearning
 
             foreach (Card card in Cards)
             {
-                card.ShowCardInfo(xPos, yPos);
+                card.DisplayCard(xPos, yPos);
                 xPos += 16;
             }
         }
     }
 
-    class Card
+    class Renderer
     {
-        public static Random rnd { get; } = new Random();
-
-        public Suit CardSuit { get; private set; }
-        public Value CardValue { get; private set; }
-
-        public int BlackjackValue
+        public void RenderCard(char suitChar, Value cardValue, int xPos, int yPos)
         {
-            get
+            var cardSuitIcons = new Dictionary<char, ConsoleColor>()
             {
-                if ((int)CardValue > 10)
-                    return 10;
-                else
-                    return (int)CardValue;
-            }
-            private set { }
-        }
-
-        public Card(Suit suit, Value value)
-        {
-            CardSuit = suit;
-            CardValue = value;
-        }
-
-        public enum Suit { Hearts = 1, Diamonds, Clubs, Spades }
-
-        public enum Value { Ace = 1, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King }
-
-        public void RenderCard(char suit, Value cardValue, int xPos, int yPos)
-        {
-            var suitColors = new Dictionary<Suit, ConsoleColor>()
-            {
-                { Suit.Hearts, ConsoleColor.Red },
-                { Suit.Diamonds, ConsoleColor.Red },
-                { Suit.Clubs, ConsoleColor.DarkGray },
-                { Suit.Spades, ConsoleColor.DarkGray },
+                { '♥', ConsoleColor.Red },
+                { '♦', ConsoleColor.Red },
+                { '♣', ConsoleColor.DarkGray },
+                { '♠', ConsoleColor.DarkGray },
             };
 
             var cardValueIcons = new Dictionary<Value, String>()
@@ -264,19 +233,19 @@ namespace CsRealLearning
             string wall = "║         ║";
 
 
-            Console.ForegroundColor = suitColors[CardSuit];
+            Console.ForegroundColor = cardSuitIcons[suitChar];
             Console.SetCursorPosition(xPos, yPos);
             Console.WriteLine(topBorder);
             Console.SetCursorPosition(xPos, ++yPos);
             Console.WriteLine($"║{cardValueIcons[cardValue],-8} ║");
             Console.SetCursorPosition(xPos, ++yPos);
-            Console.WriteLine($"║{suit,-8} ║");
+            Console.WriteLine($"║{suitChar,-8} ║");
             Console.SetCursorPosition(xPos, ++yPos);
             Console.WriteLine(wall);
             Console.SetCursorPosition(xPos, ++yPos);
             Console.WriteLine(wall);
             Console.SetCursorPosition(xPos, ++yPos);
-            Console.WriteLine($"║{' ',8}{suit}║");
+            Console.WriteLine($"║{' ',8}{suitChar}║");
             Console.SetCursorPosition(xPos, ++yPos);
 
             if (cardValueIcons[cardValue] != "10")
@@ -289,45 +258,123 @@ namespace CsRealLearning
             Console.ResetColor();
         }
 
-        public void ShowCardInfo(int xPos, int yPos)
+        public void RenderHand(Player player, int maxCardsInTheRow = 4)
         {
+            int cardsInTheRow = 0;
+            int currentCardXPos = player.XPos;
+            int currentCardYPos = player.FirstRowCardsYPos;
+
+            Console.SetCursorPosition(currentCardXPos, currentCardYPos);
+
+            foreach (Card card in player.Hand)
+            {
+                card.DisplayCard(currentCardXPos, currentCardYPos);
+                currentCardXPos += 12;
+                cardsInTheRow++;
+
+                if (cardsInTheRow == maxCardsInTheRow)
+                {
+                    currentCardXPos = player.XPos;
+                    currentCardYPos += 8;
+                    cardsInTheRow = 0;
+                }
+            }
+        }
+
+        public void RenderTable(Player player1, Player player2)
+        {
+            int player1XPos = player1.XPos;
+            int player1YPos = 0;
+            int player2XPos = player2.XPos;
+            int player2YPos = 0;
+
+            Custom.WriteInColor($"{player1.Name} ({player1.GetHandSumValue()}) (wins: {player1.Wins})", ConsoleColor.DarkGray, true, player1XPos, player1YPos);
+            RenderHand(player1);
+
+            Custom.WriteInColor($"{player2.Name} ({player2.GetHandSumValue()}) (wins: {player1.Wins})", ConsoleColor.DarkGray, true, player2XPos, player2YPos);
+            RenderHand(player2);
+        }
+    }
+
+    class Card
+    {
+        Renderer renderer = new Renderer();
+        public static Random rnd { get; } = new Random();
+
+        public Suit CardSuit { get; private set; }
+        public Value CardValue { get; private set; }
+
+        public int BlackjackValue
+        {
+            get
+            {
+                if ((int)CardValue > 10)
+                    return 10;
+                else
+                    return (int)CardValue;
+            }
+            private set { }
+        }
+
+        public Card(Suit suit, Value value)
+        {
+            CardSuit = suit;
+            CardValue = value;
+        }
+
+        public enum Suit
+        {
+            Hearts = 1,
+            Diamonds,
+            Clubs,
+            Spades
+        }
+
+        public enum Value { Ace = 1, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King }
+
+        public void DisplayCard(int xPos, int yPos)
+        {
+            char suitSym = '.';
             switch (CardSuit)
             {
                 case Suit.Hearts:
-                    RenderCard('\u2665', CardValue, xPos, yPos);
+                    suitSym = '♥';
                     break;
                 case Suit.Diamonds:
-                    RenderCard('\u2666', CardValue, xPos, yPos);
+                    suitSym = '♦';
                     break;
                 case Suit.Clubs:
-                    RenderCard('\u2663', CardValue, xPos, yPos);
+                    suitSym = '♣';
                     break;
                 case Suit.Spades:
-                    RenderCard('\u2660', CardValue, xPos, yPos);
+                    suitSym = '♠';
                     break;
             }
+
+            renderer.RenderCard(suitSym, CardValue, xPos, yPos);
         }
     }
 
     class Player
     {
-        List<Card> hand = new List<Card>();
+        public List<Card> Hand = new List<Card>();
 
         public int CmdYPos;
         public int FirstRowCardsYPos;
         public int NotificationsYPos;
+        public bool IsPlaying;
 
         public int XPos { get; private set; }
+        public int Wins { get; private set; }
         public string Name { get; private set; }
-        public bool IsPlaying { get; private set; }
         public bool IsBust { get; private set; }
         public bool IsBlackjack { get; private set; }
 
 
         public Player(Deck deck, string name, int xPos)
         {
-            hand.Add(deck.Cards.Pop());
-            hand.Add(deck.Cards.Pop());
+            Hand.Add(deck.Cards.Pop());
+            Hand.Add(deck.Cards.Pop());
             Name = name;
             XPos = xPos;
             IsBlackjack = false;
@@ -337,6 +384,7 @@ namespace CsRealLearning
             CmdYPos = 1;
             FirstRowCardsYPos = 4;
             NotificationsYPos = 0;
+            Wins = 0;
 
         }
 
@@ -345,16 +393,17 @@ namespace CsRealLearning
             if (GetHandSumValue() == BlackjackGame.BlackjackNum)
             {
                 IsBlackjack = true;
-                Custom.WriteFilled($"{Name} just got blackjack!", ConsoleColor.DarkYellow, true, XPos, NotificationsYPos);
+                Custom.WriteFilled($"    {Name} just got blackjack!    ", ConsoleColor.DarkYellow, true, XPos, NotificationsYPos);
                 Custom.PressAnythingToContinue(ConsoleColor.DarkGray, true, XPos, NotificationsYPos + 3);
             }
         }
+
         public void CheckIfBust()
         {
             if (GetHandSumValue() > BlackjackGame.BlackjackNum)
             {
                 IsBust = true;
-                Custom.WriteFilled($"{Name} bust!", ConsoleColor.DarkRed, true, XPos, NotificationsYPos);
+                Custom.WriteFilled($"          {Name} bust!           ", ConsoleColor.DarkRed, true, XPos, NotificationsYPos);
                 Custom.PressAnythingToContinue(ConsoleColor.DarkGray, true, XPos, NotificationsYPos + 3);
             }
         }
@@ -372,30 +421,7 @@ namespace CsRealLearning
 
         public void DrawCard(Deck deck)
         {
-            hand.Add(deck.Cards.Pop());
-        }
-
-        public void RenderHand(int maxCardsInTheRow = 4)
-        {
-            int cardsInTheRow = 0;
-            int currentCardXPos = XPos;
-            int currentCardYPos = FirstRowCardsYPos;
-
-            Console.SetCursorPosition(currentCardXPos, currentCardYPos);
-
-            foreach (Card card in hand)
-            {
-                card.ShowCardInfo(currentCardXPos, currentCardYPos);
-                currentCardXPos += 12;
-                cardsInTheRow++;
-
-                if (cardsInTheRow == maxCardsInTheRow)
-                {
-                    currentCardXPos = XPos;
-                    currentCardYPos += 8;
-                    cardsInTheRow = 0;
-                }
-            }
+            Hand.Add(deck.Cards.Pop());
         }
 
         public int GetHandSumValue()
@@ -403,7 +429,7 @@ namespace CsRealLearning
             int sumHandValue = 0;
             bool hasAce = false;
 
-            foreach (Card card in hand)
+            foreach (Card card in Hand)
             {
                 sumHandValue += card.BlackjackValue;
 
@@ -415,6 +441,11 @@ namespace CsRealLearning
                 sumHandValue += 10;
 
             return sumHandValue;
+        }
+
+        public void EarnWin()
+        {
+            Wins++;
         }
     }
 }
@@ -464,6 +495,6 @@ class Custom
     public static void WriteAtPosition(int xPos, int yPos, string text)
     {
         Console.SetCursorPosition(xPos, yPos);
-        Console.WriteLine(text); 
+        Console.WriteLine(text);
     }
 }
