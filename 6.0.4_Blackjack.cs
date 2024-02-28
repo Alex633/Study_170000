@@ -7,7 +7,7 @@ using static CsRealLearning.Card;
 //После выводиться вся информация о вытянутых картах.
 //Возможные классы: Карта, Колода, Игрок.
 
-//todo: 1. victories displays wrong (as second player not a second player but the opponent?)
+//todo: 
 //      //!! - nulify data
 //      4. score
 //      7. change sits after every round
@@ -85,23 +85,31 @@ namespace CsRealLearning
 
             if (!isRoundOn)
             {   //!!
-                if (player1.GetHandSumValue() > player2.GetHandSumValue())
+                if (player1.IsBust || player2.IsBust)
+                {
+                    if (player1.IsBust)
+                        player2.EarnWin();
+
+                    if (player2.IsBust)
+                        player1.EarnWin();
+                }
+                else if (player1.GetHandSumValue() > player2.GetHandSumValue())
                 {
                     player1.EarnWin();
                     Custom.WriteFilled($"{player1.Name} victorius with {player2.GetHandSumValue()}");
                 }
                 else if (player2.GetHandSumValue() > player1.GetHandSumValue())
                 {
-                    player1.EarnWin();
+                    player2.EarnWin();
                     Custom.WriteFilled($"{player2.Name} victorius with {player2.GetHandSumValue()}");
 
                 }
                 else if (player1.GetHandSumValue() == player2.GetHandSumValue())
                 {
-                    player1.EarnWin();
                     Custom.WriteFilled($"Standoff with {player1.GetHandSumValue()}");
                 }
 
+                Console.WriteLine($"player1 = {player1.Wins}, player 2 = {player2.Wins}");
                 Custom.PressAnythingToContinue();
                 player1.IsPlaying = true;
                 player2.IsPlaying = true;
@@ -291,7 +299,7 @@ namespace CsRealLearning
             Custom.WriteInColor($"{player1.Name} ({player1.GetHandSumValue()}) (wins: {player1.Wins})", ConsoleColor.DarkGray, true, player1XPos, player1YPos);
             RenderHand(player1);
 
-            Custom.WriteInColor($"{player2.Name} ({player2.GetHandSumValue()}) (wins: {player1.Wins})", ConsoleColor.DarkGray, true, player2XPos, player2YPos);
+            Custom.WriteInColor($"{player2.Name} ({player2.GetHandSumValue()}) (wins: {player2.Wins})", ConsoleColor.DarkGray, true, player2XPos, player2YPos);
             RenderHand(player2);
         }
     }
