@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using static CsRealLearning.Card;
 
 //Есть колода с картами. Игрок достает карты, пока не решит, что ему хватит карт
@@ -8,12 +9,11 @@ using static CsRealLearning.Card;
 //Возможные классы: Карта, Колода, Игрок.
 
 //todo: 
-//      //!! - nulify data
-//      4. score
-//      7. change sits after every round
-//      5. money betting
-//      3. Double Down: (Available on initial two cards only) Double the bet, receive one more card, and automatically stand.
-//      6. custom player names
+//      - player 2 vic..., player 2 is dumbass and count display at correct XPos
+//      - standoff display message at the middle
+//      - money betting
+//      - Double Down: (Available on initial two cards only) Double the bet, receive one more card, and automatically stand.
+//      - custom player names
 
 namespace CsRealLearning
 {
@@ -30,9 +30,12 @@ namespace CsRealLearning
     class BlackjackGame
     {
         Renderer renderer = new Renderer();
-        Deck deck = new Deck();
+        Dealer dealer = new Dealer();
+        Player player1 = new Player("Player 1", 0);
+        Player player2 = new Player("Player 2", 60);
 
-        private bool isRoundOn = true;
+        private bool _isRoundOn = false;
+        private int _round = 0;
 
         static public int BlackjackNum { get; private set; }
 
@@ -44,21 +47,31 @@ namespace CsRealLearning
         public void Start()
         {
             Console.CursorVisible = false;
-            deck.Shuffle();
 
 
-            Player player1 = new Player(deck, "Player 1", 0);
-            Player player2 = new Player(deck, "Player 2", 60);
-
-            while (true)
+            while (player1.Wins > -1 && player2.Wins > -1)
             {
-                if (!player2.IsBust)
-                    Turn(player1, player2);
+                RoundStarts();
+                Custom.WriteAtPosition(50, 16, $"{_round}");
 
-                if (!player1.IsBust)
-                    Turn(player2, player1);
+                if (_round % 2 != 0)
+                {
+                    if (!player2.IsBust)
+                        Turn(player1, player2);
 
-                CheckIfOver(player1, player2);
+                    if (!player1.IsBust)
+                        Turn(player2, player1);
+                }
+                else
+                {
+                    if (!player1.IsBust)
+                        Turn(player2, player1);
+
+                    if (!player2.IsBust)
+                        Turn(player1, player2);
+                }
+
+                CheckIfOver();
             }
         }
 
@@ -73,30 +86,53 @@ namespace CsRealLearning
             }
         }
 
-        private void CheckIfOver(Player player1, Player player2)
+        private void RoundStarts()
         {
-            bool isRoundOn = true;
+            if (!_isRoundOn)
+            {
+                _round++;
+                _isRoundOn = true;
+                player1.IsPlaying = true;
+                player2.IsPlaying = true;
+                player1.IsBust = false;
+                player2.IsBust = false;
+                dealer.CollectFromPlayer(player1);
+                dealer.CollectFromPlayer(player2);
+                dealer.Shuffle();
+                dealer.DealStartingHands(player1, player2);
+            }
+        }
 
+        private void CheckIfOver()
+        {
             if (player1.IsBust || player2.IsBust)
-                isRoundOn = false;
+                _isRoundOn = false;
 
             if (!player1.IsPlaying && !player2.IsPlaying)
-                isRoundOn = false;
+                _isRoundOn = false;
 
-            if (!isRoundOn)
-            {   //!!
+            if (!_isRoundOn)
+            {
                 if (player1.IsBust || player2.IsBust)
                 {
                     if (player1.IsBust)
+                    {
                         player2.EarnWin();
+                        renderer.RenderTable(player1, player2);
+                        Custom.WriteFilled($"{player2.Name} victorius because {player1.Name} can't count to 21");
+                    }
 
                     if (player2.IsBust)
+                    {
                         player1.EarnWin();
+                        renderer.RenderTable(player1, player2);
+                        Custom.WriteFilled($"{player1.Name} victorius because {player2.Name} can't count to 21");
+                    }
                 }
                 else if (player1.GetHandSumValue() > player2.GetHandSumValue())
                 {
                     player1.EarnWin();
-                    Custom.WriteFilled($"{player1.Name} victorius with {player2.GetHandSumValue()}");
+                    Custom.WriteFilled($"{player1.Name} victorius with {player1.GetHandSumValue()}");
                 }
                 else if (player2.GetHandSumValue() > player1.GetHandSumValue())
                 {
@@ -106,31 +142,28 @@ namespace CsRealLearning
                 }
                 else if (player1.GetHandSumValue() == player2.GetHandSumValue())
                 {
-                    Custom.WriteFilled($"Standoff with {player1.GetHandSumValue()}");
+                    Custom.WriteFilled($"     Standoff with {player1.GetHandSumValue()}     ");
                 }
 
-                Console.WriteLine($"player1 = {player1.Wins}, player 2 = {player2.Wins}");
                 Custom.PressAnythingToContinue();
-                player1.IsPlaying = true;
-                player2.IsPlaying = true;
             }
 
         }
 
-        private void HandleInput(Player player1)
+        private void HandleInput(Player player)
         {
-            Custom.WriteInColor($"--- {player1.Name} ({player1.GetHandSumValue()} (wins: {player1.Wins})) Turn ---", ConsoleColor.Cyan, true, player1.XPos, 0);
-            Custom.WriteInColor("Commands:", ConsoleColor.Cyan, true, player1.XPos, player1.CmdYPos);
-            Custom.WriteInColor("[h] Hit", ConsoleColor.Cyan, true, player1.XPos, player1.CmdYPos + 1);
-            Custom.WriteInColor("[s] Stand", ConsoleColor.Cyan, true, player1.XPos, player1.CmdYPos + 2);
+            Custom.WriteInColor($"--- {player.Name} ({player.GetHandSumValue()} (wins: {player.Wins})) Turn ---", ConsoleColor.Cyan, true, player.XPos, 0);
+            Custom.WriteInColor("Commands:", ConsoleColor.Cyan, true, player.XPos, player.CmdYPos);
+            Custom.WriteInColor("[h] Hit", ConsoleColor.Cyan, true, player.XPos, player.CmdYPos + 1);
+            Custom.WriteInColor("[s] Stand", ConsoleColor.Cyan, true, player.XPos, player.CmdYPos + 2);
 
-            switch (GetPlayerChoice(player1))
+            switch (GetPlayerChoice(player))
             {
                 case 'h':
-                    player1.DrawCard(deck);
+                    dealer.DealCardToPlayer(player);
                     break;
                 case 's':
-                    player1.IsPlaying = false;
+                    player.IsPlaying = false;
                     break;
             }
 
@@ -158,54 +191,6 @@ namespace CsRealLearning
         }
     }
 
-    class Deck
-    {
-        public Stack<Card> Cards { get; private set; } = new Stack<Card>();
-
-        public Deck()
-        {
-            foreach (Suit suit in Enum.GetValues(typeof(Suit)))
-            {
-                foreach (Value value in Enum.GetValues(typeof(Value)))
-                {
-                    Cards.Push(new Card(suit, value));
-                }
-            }
-        }
-
-        public void Shuffle()
-        {
-            var tempDeck = new List<Card>(Cards);
-            Random rnd = new Random();
-
-            for (int i = tempDeck.Count - 1; i > 0; i--)
-            {
-                int randomIndex = rnd.Next(0, i + 1);
-
-                Card tempCard = tempDeck[i];
-                tempDeck[i] = tempDeck[randomIndex];
-                tempDeck[randomIndex] = tempCard;
-            }
-
-            Cards.Clear();
-            foreach (var card in tempDeck)
-            {
-                Cards.Push(card);
-            }
-        }
-
-        private void ShowDeckInfo()
-        {
-            int xPos = 0;
-            int yPos = 1;
-
-            foreach (Card card in Cards)
-            {
-                card.DisplayCard(xPos, yPos);
-                xPos += 16;
-            }
-        }
-    }
 
     class Renderer
     {
@@ -304,6 +289,82 @@ namespace CsRealLearning
         }
     }
 
+    class Dealer
+    {
+        private Stack<Card> _deck52 = new Stack<Card>();
+
+        public Dealer()
+        {
+            foreach (Suit suit in Enum.GetValues(typeof(Suit)))
+            {
+                foreach (Value value in Enum.GetValues(typeof(Value)))
+                {
+                    _deck52.Push(new Card(suit, value));
+                }
+            }
+        }
+
+        public void Shuffle()
+        {
+            var tempDeck = new List<Card>(_deck52);
+            Random rnd = new Random();
+
+            for (int i = tempDeck.Count - 1; i > 0; i--)
+            {
+                int randomIndex = rnd.Next(0, i + 1);
+
+                Card tempCard = tempDeck[i];
+                tempDeck[i] = tempDeck[randomIndex];
+                tempDeck[randomIndex] = tempCard;
+            }
+
+            _deck52.Clear();
+            foreach (var card in tempDeck)
+            {
+                _deck52.Push(card);
+            }
+        }
+
+
+        public void DealCardToPlayer(Player player)
+        {
+            player.Hand.Add(_deck52.Pop());
+        }
+
+        public void DealStartingHands(Player player1, Player player2)
+        {
+            int startingHandNum = 2;
+
+            for (int i = 0; i < startingHandNum; i++)
+                player1.Hand.Add(_deck52.Pop());
+
+            for (int i = 0; i < startingHandNum; i++)
+                player2.Hand.Add(_deck52.Pop());
+        }
+
+        public void CollectFromPlayer(Player player)
+        {
+            foreach (Card card in player.Hand)
+            {
+                _deck52.Push(card);
+            }
+
+            player.Hand.Clear();
+        }
+
+        private void ShowDeckInfo()
+        {
+            int xPos = 0;
+            int yPos = 1;
+
+            foreach (Card card in _deck52)
+            {
+                card.DisplayCard(xPos, yPos);
+                xPos += 16;
+            }
+        }
+    }
+
     class Card
     {
         Renderer renderer = new Renderer();
@@ -371,18 +432,16 @@ namespace CsRealLearning
         public int FirstRowCardsYPos;
         public int NotificationsYPos;
         public bool IsPlaying;
+        public bool IsBust;
 
         public int XPos { get; private set; }
         public int Wins { get; private set; }
         public string Name { get; private set; }
-        public bool IsBust { get; private set; }
         public bool IsBlackjack { get; private set; }
 
 
-        public Player(Deck deck, string name, int xPos)
+        public Player(string name, int xPos)
         {
-            Hand.Add(deck.Cards.Pop());
-            Hand.Add(deck.Cards.Pop());
             Name = name;
             XPos = xPos;
             IsBlackjack = false;
@@ -425,11 +484,6 @@ namespace CsRealLearning
             {
                 IsPlaying = false;
             }
-        }
-
-        public void DrawCard(Deck deck)
-        {
-            Hand.Add(deck.Cards.Pop());
         }
 
         public int GetHandSumValue()
