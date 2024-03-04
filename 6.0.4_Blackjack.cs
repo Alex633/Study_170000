@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Security.Policy;
 using static CsRealLearning.Card;
 
 //Есть колода с картами. Игрок достает карты, пока не решит, что ему хватит карт
@@ -10,7 +9,7 @@ using static CsRealLearning.Card;
 
 //todo: 
 //      - 
-//      - how dealer takes money from player to the pot if player's money and the pot private
+//      - pot doesnt calculate
 //      - money betting
 //      - Double Down: (Available on initial two cards only) Double the bet, receive one more card, and automatically stand.
 //      - custom player names
@@ -36,13 +35,14 @@ namespace CsRealLearning
 
         private bool _isRoundOn = false;
         private int _round = 0;
-        static public int Bet { get; private set; }
+        static public int BlackjackBet { get; private set; }
 
         static public int BlackjackNum { get; private set; }
 
         public BlackjackGame()
         {
             BlackjackNum = 21;
+            BlackjackBet = 25;
         }
 
         public void Start()
@@ -50,7 +50,7 @@ namespace CsRealLearning
             Console.CursorVisible = false;
 
 
-            while (player1.Money > 0 && player2.Money > 0)
+            while (HandleBets())
             {
                 RoundStarts();
                 Custom.WriteAtPosition(50, 16, $"{_round}");
@@ -74,6 +74,26 @@ namespace CsRealLearning
 
                 CheckIfOver();
             }
+
+            CongrazWinner();
+        }
+
+        private void CongrazWinner()
+        {
+            if (player1.Money > 25)
+            {
+                Custom.WriteFilled($"Gz {player1.Name}. You won everything");
+            }
+            else if (player2.Money > 25)
+            {
+                Custom.WriteFilled($"Gz {player2.Name}. You won everything");
+            }
+            else
+            {
+                Custom.WriteFilled("There is no winnders. How did that happened?..");
+            }
+
+            Custom.PressAnythingToContinue();
         }
 
         private void Turn(Player player, Player opponent)
@@ -83,7 +103,7 @@ namespace CsRealLearning
                 renderer.RenderTable(player, opponent);
                 HandleInput(player);
                 renderer.RenderTable(player, opponent);
-                player.CheckIfAlive();
+                player.UpdateAliveStatus();
             }
         }
 
@@ -95,10 +115,9 @@ namespace CsRealLearning
                 _isRoundOn = true;
                 player1.IsPlaying = true;
                 player2.IsPlaying = true;
-                player1.IsBust = false;
                 player2.IsBust = false;
-                dealer.CollectCardsFromPlayer(player1);
-                dealer.CollectCardsFromPlayer(player2);
+                dealer.CollectCards(player1);
+                dealer.CollectCards(player2);
                 dealer.Shuffle();
                 dealer.DealStartingHands(player1, player2);
             }
@@ -118,30 +137,30 @@ namespace CsRealLearning
                 {
                     if (player1.IsBust)
                     {
-                        dealer.GivePotToPlayer(player2);
+                        CollectPot(player2);
                         renderer.RenderTable(player1, player2);
-                        Custom.WriteFilled($"{player2.Name} is victorius because {player1.Name} can't count to 21", ConsoleColor.DarkYellow, true, player2.XPos);
+                        Custom.WriteFilled($"   {player2.Name} is victorius"   , ConsoleColor.DarkYellow, true, player2.XPos);
                         Custom.PressAnythingToContinue(ConsoleColor.DarkYellow, true, player2.XPos, player2.CmdYPos + 2);
                     }
 
                     if (player2.IsBust)
                     {
-                        dealer.GivePotToPlayer(player1);
+                        CollectPot(player1);
                         renderer.RenderTable(player1, player2);
-                        Custom.WriteFilled($"{player1.Name} is victorius because {player2.Name} can't count to 21");
+                        Custom.WriteFilled($"   {player1.Name} is victorius   ");
                         Custom.PressAnythingToContinue();
                     }
                 }
                 else if (player1.GetHandSumValue() > player2.GetHandSumValue())
                 {
-                    dealer.GivePotToPlayer(player2);
+                    CollectPot(player2);
                     renderer.RenderTable(player1, player2);
                     Custom.WriteFilled($"{player1.Name} is victorius with {player1.GetHandSumValue()}");
                     Custom.PressAnythingToContinue();
                 }
                 else if (player2.GetHandSumValue() > player1.GetHandSumValue())
                 {
-                    dealer.GivePotToPlayer(player2);
+                    CollectPot(player2);
                     renderer.RenderTable(player1, player2);
                     Custom.WriteFilled($"{player2.Name} is victorius with {player2.GetHandSumValue()}", ConsoleColor.DarkYellow, true, player2.XPos);
                     Custom.PressAnythingToContinue(ConsoleColor.DarkYellow, true, player2.XPos, player2.CmdYPos + 2);
@@ -166,7 +185,7 @@ namespace CsRealLearning
             switch (GetPlayerChoice(player))
             {
                 case 'h':
-                    dealer.DealCardToPlayer(player);
+                    dealer.DealCard(player);
                     break;
                 case 's':
                     player.IsPlaying = false;
@@ -194,6 +213,24 @@ namespace CsRealLearning
                         break;
                 }
             }
+        }
+
+        private bool HandleBets()
+        {
+            if (dealer.AttemptCollectBet(player1) && dealer.AttemptCollectBet(player2))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private void CollectPot(Player player)
+        {
+            dealer.MovePotToWinner();
+            player.CollectPot(dealer);
         }
     }
 
@@ -334,7 +371,7 @@ namespace CsRealLearning
         }
 
 
-        public void DealCardToPlayer(Player player)
+        public void DealCard(Player player)
         {
             player.Hand.Add(_deck52.Pop());
         }
@@ -350,7 +387,7 @@ namespace CsRealLearning
                 player2.Hand.Add(_deck52.Pop());
         }
 
-        public void CollectCardsFromPlayer(Player player)
+        public void CollectCards(Player player)
         {
             foreach (Card card in player.Hand)
             {
@@ -358,11 +395,30 @@ namespace CsRealLearning
             }
 
             player.Hand.Clear();
-        }             
+        }
 
-        public void GivePotToPlayer(Player player)
+        public bool AttemptCollectBet(Player player)
         {
+            if (player.AttemptBet())
+            {
+                Pot += BlackjackGame.BlackjackBet;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
 
+        public int MovePotToWinner()
+        {
+            int potOnTheTable;
+            potOnTheTable = Pot;
+            Custom.WriteAtPosition(40, 12, $"{Pot}");
+            Custom.WriteAtPosition(40, 13, $"on the table {potOnTheTable}");
+
+            Pot = 0;
+            return potOnTheTable;
         }
 
         private void ShowDeckInfo()
@@ -464,11 +520,10 @@ namespace CsRealLearning
             CmdYPos = 1;
             FirstRowCardsYPos = 4;
             NotificationsYPos = 0;
-            Money = 500;
-
+            Money = 100;
         }
 
-        public void CheckBlackjack()
+        public void UpdateBlackjackStatus()
         {
             if (GetHandSumValue() == BlackjackGame.BlackjackNum)
             {
@@ -478,7 +533,7 @@ namespace CsRealLearning
             }
         }
 
-        public void CheckIfBust()
+        public void UpdateBustStatus()
         {
             if (GetHandSumValue() > BlackjackGame.BlackjackNum)
             {
@@ -488,10 +543,10 @@ namespace CsRealLearning
             }
         }
 
-        public void CheckIfAlive()
+        public void UpdateAliveStatus()
         {
-            CheckIfBust();
-            CheckBlackjack();
+            UpdateBustStatus();
+            UpdateBlackjackStatus();
 
             if (IsBlackjack || IsBust)
             {
@@ -518,13 +573,22 @@ namespace CsRealLearning
             return sumHandValue;
         }
 
-        public void MakeBet(Dealer dealer)
+        public bool AttemptBet()
         {
-            if (Money > BlackjackGame.Bet)
+            if (Money > BlackjackGame.BlackjackBet)
             {
-                Money -= BlackjackGame.Bet;
-                dealer.Pot += BlackjackGame.Bet;
+                Money -= BlackjackGame.BlackjackBet;
+                return true;
             }
+            else
+            {
+                return false;
+            }
+        }
+
+        public void CollectPot(Dealer dealer)
+        {
+            Money += dealer.MovePotToWinner();
         }
     }
 }
