@@ -110,7 +110,17 @@ namespace CsRealLearning
 
             }
 
-            public void SearchBook()
+            public void SearchBook(string titleOrAuthor)
+            {
+
+            }
+
+            public void SearchBook(int year)
+            {
+
+            }
+
+            private void ShowResult()
             {
 
             }
