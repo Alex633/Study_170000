@@ -11,7 +11,7 @@ using static CsRealLearning.Card;
 //todo: 
 //      - Double Down: (Available on initial two cards only) Double the bet, receive one more card, and automatically stand.
 //      - get rid of static method NamePlayer
-//      - proper pot management (private set)
+//      - proper pot management (private set)!
 
 namespace CsRealLearning
 {
