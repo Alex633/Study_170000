@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.Remoting.Messaging;
 using static CsRealLearning.Card;
 
 //Есть колода с картами. Игрок достает карты, пока не решит, что ему хватит карт
@@ -18,7 +19,7 @@ namespace CsRealLearning
     {
         static void Main()
         {
-            BlackjackGame game = new BlackjackGame();         
+            BlackjackGame game = new BlackjackGame();
 
             Player player1 = new Player(NamePlayer(1), 0);
             Player player2 = new Player(NamePlayer(2), 60);
@@ -58,8 +59,7 @@ namespace CsRealLearning
 
             while (player1.Money >= BlackjackBet && player2.Money >= BlackjackBet)
             {
-                RoundStarts(player1, player2);
-                Custom.WriteInColor($"Pot: ${dealer.Pot}", ConsoleColor.Green, true, 40, 0);
+                RoundStarts(player1, player2);              
 
                 if (_round % 2 != 0)
                 {
@@ -106,9 +106,10 @@ namespace CsRealLearning
         {
             if (player.IsPlaying)
             {
-                renderer.RenderTable(player, opponent);
+                player.UpdateAliveStatus();
+                renderer.RenderTable(player, opponent, dealer);
                 HandleInput(player);
-                renderer.RenderTable(player, opponent);
+                renderer.RenderTable(player, opponent, dealer);
                 player.UpdateAliveStatus();
             }
         }
@@ -117,11 +118,13 @@ namespace CsRealLearning
         {
             if (!_isRoundOn)
             {
-                _round++;
                 HandleBets(player1, player2);
+                _round++;
                 _isRoundOn = true;
+                Custom.WriteAtPosition(40, 1, $"Round: {_round}");
                 player1.IsPlaying = true;
                 player2.IsPlaying = true;
+                player1.IsBust = false;
                 player2.IsBust = false;
                 dealer.CollectCards(player1);
                 dealer.CollectCards(player2);
@@ -144,15 +147,15 @@ namespace CsRealLearning
                 {
                     if (player1.IsBust)
                     {
-                        renderer.RenderTable(player1, player2);
-                        Custom.WriteFilled($"   {player2.Name} is victorius. Won: ${dealer.Pot}"   , ConsoleColor.DarkYellow, true, player2.XPos);
+                        renderer.RenderTable(player1, player2, dealer);
+                        Custom.WriteFilled($"   {player2.Name} is victorius. Won: ${dealer.Pot}", ConsoleColor.DarkYellow, true, player2.XPos);
                         player2.CollectPot(dealer);
                         Custom.PressAnythingToContinue(ConsoleColor.DarkYellow, true, player2.XPos, player2.CmdYPos + 2);
                     }
 
                     if (player2.IsBust)
                     {
-                        renderer.RenderTable(player1, player2);
+                        renderer.RenderTable(player1, player2, dealer);
                         Custom.WriteFilled($"   {player1.Name} is victorius. Won: ${dealer.Pot}   ");
                         player1.CollectPot(dealer);
                         Custom.PressAnythingToContinue();
@@ -160,14 +163,14 @@ namespace CsRealLearning
                 }
                 else if (player1.GetHandSumValue() > player2.GetHandSumValue())
                 {
-                    renderer.RenderTable(player1, player2);
+                    renderer.RenderTable(player1, player2, dealer);
                     Custom.WriteFilled($"{player1.Name} is victorius with {player1.GetHandSumValue()}. Won: ${dealer.Pot}");
                     player1.CollectPot(dealer);
                     Custom.PressAnythingToContinue();
                 }
                 else if (player2.GetHandSumValue() > player1.GetHandSumValue())
                 {
-                    renderer.RenderTable(player1, player2);
+                    renderer.RenderTable(player1, player2, dealer);
                     Custom.WriteFilled($"{player2.Name} is victorius with {player2.GetHandSumValue()}. Won: ${dealer.Pot}", ConsoleColor.DarkYellow, true, player2.XPos);
                     player2.CollectPot(dealer);
                     Custom.PressAnythingToContinue(ConsoleColor.DarkYellow, true, player2.XPos, player2.CmdYPos + 2);
@@ -177,7 +180,6 @@ namespace CsRealLearning
                     Custom.WriteFilled($"     Standoff with {player1.GetHandSumValue()}. Bets are returned     ", ConsoleColor.DarkYellow, true, 27);
                     ReturnBets(player1, player2);
                     Custom.PressAnythingToContinue(ConsoleColor.DarkYellow, true, 27, player1.CmdYPos + 2);
-
                 }
 
             }
@@ -186,7 +188,7 @@ namespace CsRealLearning
 
         private void HandleInput(Player player)
         {
-            Custom.WriteInColor($"--- {player.Name} (${player.Money})) Turn ---", ConsoleColor.Cyan, true, player.XPos, 0);
+            Custom.WriteInColor($"==== {player.Name} {player.GetHandSumValue()} (${player.Money})) Turn ====", ConsoleColor.Cyan, true, player.XPos, 0);
             Custom.WriteInColor("Commands:", ConsoleColor.Cyan, true, player.XPos, player.CmdYPos);
             Custom.WriteInColor("[h] Hit", ConsoleColor.Cyan, true, player.XPos, player.CmdYPos + 1);
             Custom.WriteInColor("[s] Stand", ConsoleColor.Cyan, true, player.XPos, player.CmdYPos + 2);
@@ -227,13 +229,9 @@ namespace CsRealLearning
         private bool HandleBets(Player player1, Player player2)
         {
             if (dealer.AttemptCollectBet(player1) && dealer.AttemptCollectBet(player2))
-            {
                 return true;
-            }
             else
-            {
                 return false;
-            }
         }
 
         private void ReturnBets(Player player1, Player player2)
@@ -336,17 +334,19 @@ namespace CsRealLearning
             }
         }
 
-        public void RenderTable(Player player1, Player player2)
+        public void RenderTable(Player player1, Player player2, Dealer dealer)
         {
             int player1XPos = player1.XPos;
             int player1YPos = 0;
             int player2XPos = player2.XPos;
             int player2YPos = 0;
 
-            Custom.WriteInColor($"{player1.Name} (${player1.Money})", ConsoleColor.DarkGray, true, player1XPos, player1YPos);
+            Custom.WriteInColor($"Pot: ${dealer.Pot}", ConsoleColor.Green, true, 40, 0);
+
+            Custom.WriteInColor($"{player1.Name} {player1.GetHandSumValue()} (${player1.Money}) - Playing: {player1.IsPlaying}", ConsoleColor.DarkGray, true, player1XPos, player1YPos);
             RenderHand(player1);
 
-            Custom.WriteInColor($"{player2.Name} (${player2.Money})", ConsoleColor.DarkGray, true, player2XPos, player2YPos);
+            Custom.WriteInColor($"{player2.Name} {player2.GetHandSumValue()} (${player2.Money}) - Playing: {player2.IsPlaying}", ConsoleColor.DarkGray, true, player2XPos, player2YPos);
             RenderHand(player2);
         }
     }
@@ -539,7 +539,7 @@ namespace CsRealLearning
             CmdYPos = 1;
             FirstRowCardsYPos = 4;
             NotificationsYPos = 0;
-            Money = 500;
+            Money = 150;
         }
 
         public void UpdateBlackjackStatus()
@@ -570,6 +570,8 @@ namespace CsRealLearning
             if (IsBlackjack || IsBust)
             {
                 IsPlaying = false;
+                //Custom.WriteAtPosition(20, 0, $"BJ: {IsBlackjack}\nBust: {IsBust}\nIn Game status: {IsPlaying}\n");
+                //Console.ReadKey();
             }
         }
 
