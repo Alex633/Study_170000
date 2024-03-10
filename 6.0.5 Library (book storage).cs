@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Xml.Linq;
 
 //Создать хранилище книг.
 //Каждая книга имеет название, автора и год выпуска (можно добавить еще параметры).
@@ -19,13 +20,9 @@ namespace CsRealLearning
         {
             Librarian librarian = new Librarian();
 
-            librarian.Greet();
 
-            while (true)
-            {
-                librarian.ShowCommands();
-                librarian.HandleCommand();
-            }
+            librarian.Work();
+
         }
 
         class Librarian
@@ -35,12 +32,12 @@ namespace CsRealLearning
             const string CommandRemove = "2";
             const string CommandSearch = "3";
             const string CommandShowAllBooks = "4";
-            const string CommandExit = "0";
-
+            const string CommandSayGoodbye = "`";
+            
             public void Greet()
             {
                 Console.WriteLine($"Librarian <with monotonomus voice>:\n" +
-                    $"  Welcome to our library {library.Name}, traveler. What can I do for you today? ");
+                    $"Welcome to our library {library.Name}, traveler. What can I do for you today? ");
             }
 
             public void ShowCommands()
@@ -49,7 +46,7 @@ namespace CsRealLearning
                                     $"({CommandRemove}) Borrow a Book\n" +
                                     $"({CommandSearch}) Search a Book\n" +
                                     $"({CommandShowAllBooks}) See all Books\n" +
-                                    $"({CommandExit}) Leave this weardo");
+                                    $"({CommandSayGoodbye}) Leave this weardo");
             }
 
             public void HandleCommand()
@@ -68,11 +65,22 @@ namespace CsRealLearning
                     case CommandShowAllBooks:
                         library.ShowAllBooks();
                         break;
-                    case CommandExit:
+                    case CommandSayGoodbye:
+                        library.SayGoodbye();
                         break;
                 }
             }
 
+            public void Work()
+            {
+                Greet();
+
+                while (library.IsOpen)
+                {
+                    ShowCommands();
+                    HandleCommand();
+                }
+            }
         }
 
         class Library
@@ -80,11 +88,13 @@ namespace CsRealLearning
             private List<Book> _books = new List<Book>();
 
             public string Name { get; private set; }
+            public bool IsOpen { get; private set; }
+
 
             public Library(string name)
             {
-                Name = name;
-
+                Name = name;              
+                IsOpen = true;
                 _books.Add(new Book("Leviathan Wakes", "James Corey", 2011));
                 _books.Add(new Book("The Hitchhiker's Guide to the Galaxy", "Douglas Adams", 1979));
                 _books.Add(new Book("To Kill a Mockingbird", "Harper Lee", 1960));
@@ -161,6 +171,13 @@ namespace CsRealLearning
             private void ShowResult()
             {
 
+            }
+
+            public void SayGoodbye()
+            {
+                Console.WriteLine($"\nLibrarian:\n" +
+                    $"I wish you enjoyed your visit to {Name}. We hope to see you again very soon. Tomorrow. Bye");
+                IsOpen = false;
             }
         }
 
