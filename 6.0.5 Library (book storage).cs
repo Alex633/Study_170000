@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Xml.Linq;
 
 //Создать хранилище книг.
 //Каждая книга имеет название, автора и год выпуска (можно добавить еще параметры).
@@ -8,7 +7,7 @@ using System.Xml.Linq;
 //Про указанный параметр, к примеру нужен конкретный автор, выбирается показ по авторам, запрашивается у пользователя автор и показываются все книги с этим автором. 
 
 //todo: 
-//      - handlecommand
+//      - searches
 //      - 
 //      - 
 
@@ -33,7 +32,7 @@ namespace CsRealLearning
             const string CommandSearch = "3";
             const string CommandShowAllBooks = "4";
             const string CommandSayGoodbye = "`";
-            
+
             public void Greet()
             {
                 Console.WriteLine($"Librarian <with monotonomus voice>:\n" +
@@ -59,8 +58,10 @@ namespace CsRealLearning
                         library.AddBook();
                         break;
                     case CommandRemove:
+                        library.RemoveBook();
                         break;
                     case CommandSearch:
+                        library.SearchBook();
                         break;
                     case CommandShowAllBooks:
                         library.ShowAllBooks();
@@ -93,7 +94,7 @@ namespace CsRealLearning
 
             public Library(string name)
             {
-                Name = name;              
+                Name = name;
                 IsOpen = true;
                 _books.Add(new Book("Leviathan Wakes", "James Corey", 2011));
                 _books.Add(new Book("The Hitchhiker's Guide to the Galaxy", "Douglas Adams", 1979));
@@ -145,32 +146,44 @@ namespace CsRealLearning
 
             public void RemoveBook()
             {
+                Console.WriteLine("\nWhich one?");
+                ShowAllBooks();
 
+                if (Int32.TryParse(Console.ReadLine(), out int userInput))
+                {
+                    Console.WriteLine($"\nHere, it's yours. You better bring it back <she puts the book on the table>");
+                    _books[userInput - 1].ShowInfo();
+                    _books.RemoveAt(userInput - 1);
+                }
+                else
+                {
+                    Console.WriteLine($"\nI don't know what's wrong with you mister. Did your wife left you or something? But there is no book {userInput}");
+                }
+
+                Console.WriteLine($"\nLibrarian:\n" +
+                                     $"Thank you for using {Name}. Eshneshto?");
             }
 
             public void ShowAllBooks()
             {
+                int count = 0;
                 Console.WriteLine();
 
                 foreach (Book book in _books)
                 {
+                    Console.Write(++count + ". ");
                     book.ShowInfo();
                 }
             }
 
-            public void SearchBook(string titleOrAuthor)
+            public void SearchBook()
             {
-
+                _books[1].ShowInfo();
             }
 
             public void SearchBook(int year)
             {
-
-            }
-
-            private void ShowResult()
-            {
-
+                _books[1].ShowInfo();
             }
 
             public void SayGoodbye()
