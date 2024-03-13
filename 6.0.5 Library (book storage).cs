@@ -64,7 +64,7 @@ namespace CsRealLearning
                         library.SearchBook();
                         break;
                     case CommandShowAllBooks:
-                        library.ShowAllBooks();
+                        library.ShowAllBooks(true);
                         break;
                     case CommandSayGoodbye:
                         library.SayGoodbye();
@@ -142,12 +142,13 @@ namespace CsRealLearning
                 _books.Add(new Book(title, author, releaseYear));
                 Console.WriteLine($"\nLibrarian:\n" +
                     $"I'll take {title} by {author} ({releaseYear}) to my library. Thank you for using {Name}. Eshneshto?");
+                Custom.PressAnythingToContinue();
             }
 
             public void RemoveBook()
             {
                 Console.WriteLine("\nWhich one?");
-                ShowAllBooks();
+                ShowAllBooks(false);
 
                 if (Int32.TryParse(Console.ReadLine(), out int userInput))
                 {
@@ -162,9 +163,10 @@ namespace CsRealLearning
 
                 Console.WriteLine($"\nLibrarian:\n" +
                                      $"Thank you for using {Name}. Eshneshto?");
+                Custom.PressAnythingToContinue();
             }
 
-            public void ShowAllBooks()
+            public void ShowAllBooks(bool StopUser)
             {
                 int count = 0;
                 Console.WriteLine();
@@ -174,16 +176,36 @@ namespace CsRealLearning
                     Console.Write(++count + ". ");
                     book.ShowInfo();
                 }
+
+                if (StopUser)
+                    Custom.PressAnythingToContinue();
             }
 
             public void SearchBook()
             {
-                _books[1].ShowInfo();
-            }
+                string userInput;
+                bool isFound = false;
 
-            public void SearchBook(int year)
-            {
-                _books[1].ShowInfo();
+                Console.WriteLine($"\nWhat do you want to find?");
+                userInput = Console.ReadLine();
+
+                Console.WriteLine($"\nBooks, that contain {userInput}:");
+
+                foreach (Book book in _books)
+                {
+                    if (book.Title == userInput || book.Author == userInput ||
+                        (Int32.TryParse(userInput, out int userInputNumber) && userInputNumber == book.ReleaseYear))
+                    {
+                        book.ShowInfo();
+                        isFound = true;
+                    }
+                }
+
+                if (!isFound)
+                    Console.WriteLine("Nothing found");
+
+                Custom.PressAnythingToContinue();
+
             }
 
             public void SayGoodbye()
@@ -196,25 +218,25 @@ namespace CsRealLearning
 
         class Book
         {
-            private readonly string _title;
-            private readonly string _author;
-            private readonly int _releaseYear;
+            public string Title { get; private set; }
+            public string Author { get; private set; }
+            public int ReleaseYear { get; private set; }
 
             public Book(string title, string author, int releaseYear)
             {
-                _title = title;
-                _author = author;
+                Title = title;
+                Author = author;
 
                 if (releaseYear < 0)
                 {
                     throw new ArgumentException("Release year cannot be negative");
                 }
-                _releaseYear = releaseYear;
+                ReleaseYear = releaseYear;
             }
 
             public void ShowInfo()
             {
-                Console.WriteLine($"{_title} by {_author} ({_releaseYear})");
+                Console.WriteLine($"{Title} by {Author} ({ReleaseYear})");
             }
         }
     }
