@@ -96,6 +96,12 @@ namespace CsRealLearning
             {
                 Name = name;
                 IsOpen = true;
+
+                FillLibrary();
+            }
+
+            public void FillLibrary()
+            {
                 _books.Add(new Book("Leviathan Wakes", "James Corey", 2011));
                 _books.Add(new Book("The Hitchhiker's Guide to the Galaxy", "Douglas Adams", 1979));
                 _books.Add(new Book("To Kill a Mockingbird", "Harper Lee", 1960));
@@ -193,7 +199,7 @@ namespace CsRealLearning
 
                 foreach (Book book in _books)
                 {
-                    if (book.Title == userInput || book.Author == userInput ||
+                    if (book.Title.ToLower() == userInput.ToLower() || book.Author.ToLower() == userInput.ToLower() ||
                         (Int32.TryParse(userInput, out int userInputNumber) && userInputNumber == book.ReleaseYear))
                     {
                         book.ShowInfo();
