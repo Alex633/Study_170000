@@ -6,8 +6,8 @@ using System.Collections.Generic;
 //Возможные классы – игрок, продавец, товар.
 
 //todo: 
-//      - enum for commands 
-//      - 
+//      -
+//      -
 //      - 
 
 namespace CsRealLearning
@@ -22,17 +22,26 @@ namespace CsRealLearning
 
         class Game
         {
-            private Seller _reMerchant = new Seller();
+            private Merchant _reMerchant = new Merchant();
             private Player _leon = new Player();
-            private bool _isBuying = true;
+            private bool _isShopping = true;
+
+            enum PlayerInput
+            {
+                Buy = '1',
+                OpenInventory = '2',
+                Close = '3',
+            }
 
             public void Start()
             {
-                _reMerchant.StartSelling();
+                _reMerchant.OpenStore();
 
-                while (_isBuying)
+                while (_isShopping)
                 {
-                    HandleInput(out _isBuying);
+                    ShowCommands();
+                    HandleInput(out _isShopping);
+                    Console.Clear();
                 }
 
                 _reMerchant.CloseStore();
@@ -40,68 +49,118 @@ namespace CsRealLearning
 
             public void HandleInput(out bool isBuying)
             {
-                isBuying = false;
-                string playerInput = Console.ReadLine();
+                isBuying = true;
+                char playerInput = Console.ReadKey(true).KeyChar;
 
                 switch (playerInput)
                 {
-                    case "true":
+                    case (char)PlayerInput.Buy:
+                        CompleteTransaction();
                         break;
-                    case "false":
-                        isBuying = false;
-                        break;
-                    case "show items":
+                    case (char)PlayerInput.OpenInventory:
                         _leon.OpenInventory();
+                        break;
+                    case (char)PlayerInput.Close:
+                        Close();
+                        break;
                     default:
                         break;
                 }
             }
+
+            public void ShowCommands()
+            {
+                Console.WriteLine("Got a selection of good things on sale, stranger");
+                Console.WriteLine($"{(char)PlayerInput.Buy}. {PlayerInput.Buy}");
+                Console.WriteLine($"{(char)PlayerInput.OpenInventory}. {PlayerInput.OpenInventory}");
+                Console.WriteLine($"{(char)PlayerInput.Close}. {PlayerInput.Close}");
+            }
+
+            public void Close()
+            {
+                _isShopping = false;
+            }
+
+            public void CompleteTransaction()
+            {
+                if (_reMerchant.AtemptToSell(out Item soldItem))
+                    _leon.ReceiveItem(ref soldItem);
+            }
         }
 
-        class Seller
+        class Merchant
         {
             private int _money = 0;
-            public List<Item> Items { get; private set; }
+            private readonly List<Item> _items;
+
+            public Merchant()
+            {
+                _items = new List<Item>();
+                FillStore();
+            }
+
 
             public void ShowGoods()
             {
+                int count = 0;
+
+                Console.Clear();
                 Console.WriteLine("What are you buying?");
 
-                foreach (Item item in Items)
+                foreach (Item item in _items)
                 {
+                    Console.Write("\n" + ++count + ".");
                     item.ShowInfo();
+
                 }
             }
 
-            public void Sell()
+            public bool AtemptToSell(out Item soldItem)
             {
+                ShowGoods();
 
-                Console.WriteLine("Hehehe, Thank you");
+                if (Int32.TryParse(Console.ReadLine(), out int playerInput) && _items.Count >= playerInput && playerInput > 0)
+                {
+                    soldItem = _items[playerInput - 1];
+                    _items.RemoveAt(playerInput - 1);
+
+
+                    Console.Clear();
+                    Console.WriteLine($"Hehehe, Thank you (you bought {soldItem.Name})");
+                    Custom.PressAnythingToContinue();
+                    return true;
+                }
+                else
+                {
+                    soldItem = null;
+                    Console.Clear();
+                    Console.WriteLine("Sorry, stranger. I don't have it");
+                    Custom.PressAnythingToContinue();
+                    return false;
+                }
             }
 
             public void FillStore()
             {
-                Items.AddRange(new Item[]
+                _items.AddRange(new Item[]
                 {
-                    new Item("Red9", 14000, "A powerful 9mm handgun."),
-                    new Item("Shotgun", 20000, "A 12-gauge pump-action shotgun. Don't leave home without it."),
-                    new Item("First Aid Spray", 1000, "A healing spray that will restore you to full health."),
+                    new Item("Red9", 14000, "A powerful 9mm handgun"),
+                    new Item("Shotgun", 20000, "A 12-gauge pump-action shotgun. Don't leave home without it"),
+                    new Item("First Aid Spray", 1000, "A healing spray that will restore you to full health"),
                     new Item("Green Herb", 500, "Restores some health"),
-                    new Item("Hand Grenade", 2000, "A handy explosive that will detonate several seconds after throwing it.")
+                    new Item("Hand Grenade", 2000, "A handy explosive that will detonate several seconds after throwing it")
 
             });
             }
 
-            public void StartSelling()
+            public void OpenStore()
             {
-                Console.WriteLine("Hello stranger?");
-                ShowGoods();
+                Console.WriteLine("Hello, stranger");
             }
 
             public void CloseStore()
             {
                 Console.WriteLine("Come back any time");
-
             }
         }
 
@@ -119,21 +178,44 @@ namespace CsRealLearning
             }
             public void ShowInfo()
             {
-                Console.WriteLine($"{Name}: {Description}. {Price} pecetas");
+                Console.WriteLine($"\n{Name}\n{Description}.\nPrice: {Price} ptas.");
             }
         }
 
         class Player
         {
-            private int _money = 49500;
+            private readonly List<Item> _items;
 
-            public List<Item> Items { get; private set; }          
+            public Player()
+            {
+                _items = new List<Item>();
+            }
 
             public void OpenInventory()
             {
+                Console.Clear();
+                Console.WriteLine("INVENTORY");
+
+                if (_items.Count > 0)
+                {
+                    foreach (Item item in _items)
+                    {
+                        item.ShowInfo();
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("such empty");
+                }
+
+                Custom.PressAnythingToContinue();
+            }
+
+            public void ReceiveItem(ref Item soldItem)
+            {
+                _items.Add(soldItem);
             }
         }
-
     }
 
     class Custom
