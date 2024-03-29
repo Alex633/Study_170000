@@ -90,7 +90,6 @@ namespace CsRealLearning
 
         class Merchant
         {
-            private int _money = 0;
             private readonly List<Item> _items;
 
             public Merchant()
@@ -98,7 +97,6 @@ namespace CsRealLearning
                 _items = new List<Item>();
                 FillStore();
             }
-
 
             public void ShowGoods()
             {
