@@ -1,0 +1,206 @@
+using System;
+using System.Collections.Generic;
+
+//У вас есть программа, которая помогает пользователю составить план поезда.
+//Есть 4 основных шага в создании плана:
+//-Создать направление - создает направление для поезда(к примеру Бийск - Барнаул)
+//-Продать билеты - вы получаете рандомное кол-во пассажиров, которые купили билеты на это направление
+//-Сформировать поезд - вы создаете поезд и добавляете ему столько вагонов(вагоны могут быть разные по вместительности), сколько хватит для перевозки всех пассажиров.
+//-Отправить поезд - вы отправляете поезд, после чего можете снова создать направление.
+//В верхней части программы должна выводиться полная информация о текущем рейсе или его отсутствии. 
+
+//todo: 
+//      -
+//      -
+//      - 
+
+namespace CsRealLearning
+{
+    internal class Program
+    {
+        static void Main()
+        {
+            TrainControlSystem trainControlSystem = new TrainControlSystem();
+            trainControlSystem.Start();
+        }
+
+        class TrainControlSystem
+        {
+            enum Stations
+            {
+                City17Trainstation,
+                BlackMesa,
+                NovaProspekt,
+                Citadel,
+                Ravenholm,
+                ApertureScience
+            }
+
+            private Train _train;
+            private List<Station> _stations = new List<Station>();
+
+            public TrainControlSystem()
+            {
+                GetStations();
+            }
+
+            public void Start()
+            {
+                CreateRoute();
+            }
+
+            public void CreateRoute()
+            {
+                _train = new Train("Passenger Train");
+
+                Console.WriteLine($"\nPlease, select DEPARTURE location for {_train.Name}:");
+                DisplayStations();
+                _train.DepartureLocation = Console.ReadLine();
+                Console.WriteLine($"\nPlease, enter DESTINATION location for {_train.Name}:");
+            }
+
+            public void GetPassengerTickets()
+            {
+
+            }
+
+            public void GetStations()
+            {
+                foreach (Stations stationName in Enum.GetValues(typeof(Stations)))
+                {
+                    _stations.Add(new Station(stationName.ToString()));
+                }
+            }
+
+            public void DisplayStations()
+            {
+                int count = 0;
+                foreach (Station station in _stations)
+                {
+                    Console.Write(++count + " ");
+                    station.ShowInfo();
+                }
+            }
+        }
+
+        class Train
+        {
+            private List<Wagon> _wagons = new List<Wagon>();
+            public string DestinationLocation;
+            public string DepartureLocation;
+
+            public Train(string name)
+            {
+                Name = name;
+            }
+
+            public string Name { get; private set; }
+
+
+            private void StartJourney()
+            {
+
+            }
+
+            private void ShowCurrentInfo()
+            {
+            }
+
+            private void AddWagon()
+            { }
+
+            private void RemoveWagon()
+            { }
+
+        }
+
+        class Wagon
+        {
+            private readonly int _num;
+            private readonly int _maxSeats;
+            private List<Passenger> _passengers = new List<Passenger>();
+
+            public Wagon(int num, int seats)
+            {
+                _num = num;
+                _maxSeats = seats;
+            }
+        }
+
+        class Passenger
+        {
+            private readonly string _name;
+            private readonly int _seat;
+            private readonly int _wagon;
+
+            public void Board()
+            {
+
+            }
+        }
+
+        class Station
+        {
+            private readonly string _name;
+
+            public Station(string name)
+            {
+                _name = name;
+            }
+
+            public void ShowInfo()
+            {
+                Console.WriteLine($"station : {_name}");
+            }
+        }
+    }
+
+    class Custom
+    {
+        public static void WriteInColor(string text, ConsoleColor color = ConsoleColor.DarkRed, bool customPos = false, int xPos = 0, int YPos = 0)
+        {
+            if (customPos)
+                Console.SetCursorPosition(xPos, YPos);
+
+            Console.ForegroundColor = color;
+            Console.WriteLine(text);
+            Console.ResetColor();
+        }
+
+        public static void PressAnythingToContinue(ConsoleColor color = ConsoleColor.DarkYellow, bool customPos = false, int xPos = 0, int YPos = 0, string text = "press anything to continue")
+        {
+            if (customPos)
+                Console.SetCursorPosition(xPos, YPos);
+
+            Console.ForegroundColor = color;
+            Console.WriteLine(text);
+            Console.ResetColor();
+            Console.ReadKey();
+            Console.Clear();
+        }
+
+        public static void WriteFilled(string text, ConsoleColor color = ConsoleColor.DarkYellow, bool customPos = false, int xPos = 0, int yPos = 0)
+        {
+            int borderLength = text.Length + 2;
+            string filler = new string('═', borderLength);
+            string topBorder = "╔" + filler + "╗";
+            string line = $"║ {text} ║";
+            string bottomBorder = "╚" + filler + "╝";
+
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.BackgroundColor = color;
+
+            WriteAtPosition(xPos, yPos, topBorder);
+            WriteAtPosition(xPos, yPos + 1, line);
+            WriteAtPosition(xPos, yPos + 2, bottomBorder);
+
+            Console.ResetColor();
+        }
+
+        public static void WriteAtPosition(int xPos, int yPos, string text)
+        {
+            Console.SetCursorPosition(xPos, yPos);
+            Console.WriteLine(text);
+        }
+    }
+}
