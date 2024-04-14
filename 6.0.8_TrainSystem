@@ -26,18 +26,19 @@ namespace CsRealLearning
 
         class TrainControlSystem
         {
-            enum Stations
+            private readonly List<Station> _stations = new List<Station>();
+            private Train _train;
+            private bool _isWorking = true;
+
+            enum StationName
             {
-                City17Trainstation,
+                City17,
                 BlackMesa,
                 NovaProspekt,
                 Citadel,
                 Ravenholm,
                 ApertureScience
             }
-
-            private Train _train;
-            private List<Station> _stations = new List<Station>();
 
             public TrainControlSystem()
             {
@@ -46,17 +47,123 @@ namespace CsRealLearning
 
             public void Start()
             {
-                CreateRoute();
+                Console.WriteLine("Welcome to Combine Train Control System, soldier\n");
+
+                while (_isWorking)
+                {
+                    DisplayCommands();
+                    HandleInput();
+                }
+
+                Console.WriteLine("\nGlory to the Combine");
+            }
+
+            public void HandleInput()
+            {
+                string userInput;
+
+                userInput = Console.ReadLine();
+
+                switch (userInput)
+                {
+                    default:
+                        DisplayError();
+                        break;
+                    case "1":
+                        CreateRoute();
+                        break;
+                    case "2":
+                        _isWorking = false;
+                        break;
+                }
+            }
+
+            public void DisplayCommands()
+            {
+                Console.WriteLine("Commands");
+                Console.WriteLine($"1. Create a new route\n" +
+                    $"2. Exit");
             }
 
             public void CreateRoute()
             {
-                _train = new Train("Passenger Train");
+                Console.Clear();
+                Console.WriteLine("Train name:");
+                _train = new Train(Console.ReadLine());
+                Console.Clear();
 
-                Console.WriteLine($"\nPlease, select DEPARTURE location for {_train.Name}:");
+                GetRountePoint("DEPARTURE", ref _train.DepartureStation);
+                GetRountePoint("DESTINATION", ref _train.DestinationStation, true);
+
+                Console.WriteLine($"Departure:{_train.DepartureStation.Name} Station\n" +
+                    $"Destination: {_train.DestinationStation.Name} Station\n");
+                Custom.PressAnythingToContinue();
+            }
+
+            public int GetUserStation(string startMessage = "The station number", int maxInput = 100)
+            {
+                int userInput = 0;
+                bool isValidInput = false;
+
+                Console.WriteLine(startMessage);
                 DisplayStations();
-                _train.DepartureLocation = Console.ReadLine();
-                Console.WriteLine($"\nPlease, enter DESTINATION location for {_train.Name}:");
+
+                while (!isValidInput)
+                {
+                    if (int.TryParse(Console.ReadLine(), out userInput))
+                    {
+                        if (userInput > 0 && userInput <= maxInput)
+                            isValidInput = true;
+                        else
+                            Custom.WriteInColor($"\nPlease enter a number between 1 and {maxInput}:", ConsoleColor.Red);
+
+                    }
+                    else
+                    {
+                        Custom.WriteInColor("\nInvalid input. Please enter a number:", ConsoleColor.Red);
+                    }
+                }
+
+                return userInput - 1;
+            }
+
+            public void GetRountePoint(string pointTitle, ref Station station, bool isDestination = false)
+            {
+                bool isValidStation = false;
+                int userInput;
+
+                while (!isValidStation)
+                {
+                    Console.Clear();
+                    string message = $"{pointTitle} station for {_train.Name} train:\n";
+                    userInput = GetUserStation(message, _stations.Count);
+                    station = _stations[userInput];
+
+                    if (isDestination)
+                    {
+                        if (station == _train.DepartureStation)
+                        {
+                            Custom.WriteInColor("\nDestination and departure stations cannot be the same. Try again", ConsoleColor.Red);
+                            Custom.PressAnythingToContinue();
+                        }
+                        else
+                        {
+                            isValidStation = true;
+                        }
+                    }
+                    else
+                    {
+                        isValidStation = true;
+                    }
+
+                    Console.Clear();
+                }
+            }
+
+            public void DisplayError()
+            {
+                Custom.WriteInColor("\nUnknown Command. Try again:", ConsoleColor.Red);
+                Custom.PressAnythingToContinue();
             }
 
             public void GetPassengerTickets()
@@ -66,7 +173,7 @@ namespace CsRealLearning
 
             public void GetStations()
             {
-                foreach (Stations stationName in Enum.GetValues(typeof(Stations)))
+                foreach (StationName stationName in Enum.GetValues(typeof(StationName)))
                 {
                     _stations.Add(new Station(stationName.ToString()));
                 }
@@ -86,8 +193,8 @@ namespace CsRealLearning
         class Train
         {
             private List<Wagon> _wagons = new List<Wagon>();
-            public string DestinationLocation;
-            public string DepartureLocation;
+            public Station DepartureStation;
+            public Station DestinationStation;
 
             public Train(string name)
             {
@@ -141,16 +248,16 @@ namespace CsRealLearning
 
         class Station
         {
-            private readonly string _name;
+            public readonly string Name;
 
             public Station(string name)
             {
-                _name = name;
+                Name = name;
             }
 
             public void ShowInfo()
             {
-                Console.WriteLine($"station : {_name}");
+                Console.WriteLine($"station : {Name}");
             }
         }
     }
