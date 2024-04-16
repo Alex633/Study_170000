@@ -27,8 +27,9 @@ namespace CsRealLearning
         class TrainControlSystem
         {
             private readonly List<Station> _stations = new List<Station>();
-            private Train _train;
             private bool _isWorking = true;
+            private Train _train;
+            private Route _route;
 
             enum StationName
             {
@@ -42,7 +43,7 @@ namespace CsRealLearning
 
             public TrainControlSystem()
             {
-                GetStations();
+                GetAvailableStations();
             }
 
             public void Start()
@@ -52,6 +53,7 @@ namespace CsRealLearning
                 while (_isWorking)
                 {
                     DisplayCommands();
+                    CreateTrain();
                     HandleInput();
                 }
 
@@ -88,60 +90,79 @@ namespace CsRealLearning
             public void CreateRoute()
             {
                 Console.Clear();
-                Console.WriteLine("Train name:");
-                _train = new Train(Console.ReadLine());
-                Console.Clear();
-
-                GetRountePoint("DEPARTURE", ref _train.DepartureStation);
-                GetRountePoint("DESTINATION", ref _train.DestinationStation, true);
-
-                Console.WriteLine($"Departure:{_train.DepartureStation.Name} Station\n" +
-                    $"Destination: {_train.DestinationStation.Name} Station\n");
+                _route = new Route();
+                GetRountePoint("DEPARTURE", ref _route.DepartureStation);
+                GetRountePoint("DESTINATION", ref _route.DestinationStation, true);
+                Console.WriteLine($"Departure:{_route.DepartureStation.Name} Station\n" +
+                    $"Destination: {_route.DestinationStation.Name} Station\n");
                 Custom.PressAnythingToContinue();
             }
 
-            public int GetUserStation(string startMessage = "The station number", int maxInput = 100)
+            public void CreateTrain()
             {
-                int userInput = 0;
-                bool isValidInput = false;
-
-                Console.WriteLine(startMessage);
-                DisplayStations();
-
-                while (!isValidInput)
-                {
-                    if (int.TryParse(Console.ReadLine(), out userInput))
-                    {
-                        if (userInput > 0 && userInput <= maxInput)
-                            isValidInput = true;
-                        else
-                            Custom.WriteInColor($"\nPlease enter a number between 1 and {maxInput}:", ConsoleColor.Red);
-
-                    }
-                    else
-                    {
-                        Custom.WriteInColor("\nInvalid input. Please enter a number:", ConsoleColor.Red);
-                    }
-                }
-
-                return userInput - 1;
+                Console.WriteLine("Train name:");
+                _train =  new Train(Console.ReadLine());
             }
 
-            public void GetRountePoint(string pointTitle, ref Station station, bool isDestination = false)
+
+            public void DisplayError()
+            {
+                Custom.WriteInColor("\nUnknown Command. Try again:", ConsoleColor.Red);
+                Custom.PressAnythingToContinue();
+            }
+
+            public void GetPassengerTickets()
+            {
+
+            }
+
+            public void GetAvailableStations()
+            {
+                foreach (StationName stationName in Enum.GetValues(typeof(StationName)))
+                {
+                    _stations.Add(new Station(stationName.ToString()));
+                }
+            }
+
+            public void DisplayStations()
+            {
+                int count = 0;
+                foreach (Station station in _stations)
+                {
+                    Console.Write(++count + " ");
+                    station.ShowInfo();
+                }
+            }
+
+            public void SaleTickets()
+            {
+
+            }
+        }
+
+        class Route
+        {
+            public Station DepartureStation;
+            public Station DestinationStation;
+
+            public Route() { }
+
+            public void SelectDepartureOrDestinationStation(string stationType, List<Station> stations, bool isDestination = false)
             {
                 bool isValidStation = false;
                 int userInput;
+                Station station;
 
                 while (!isValidStation)
                 {
                     Console.Clear();
-                    string message = $"{pointTitle} station for {_train.Name} train:\n";
-                    userInput = GetUserStation(message, _stations.Count);
-                    station = _stations[userInput];
+                    string message = $"{stationType} station:\n";
+                    userInput = Custom.GetUserNumberInRange(message, stations.Count);
+                    station = stations[userInput];
 
                     if (isDestination)
                     {
-                        if (station == _train.DepartureStation)
+                        if (station == DepartureStation)
                         {
                             Custom.WriteInColor("\nDestination and departure stations cannot be the same. Try again", ConsoleColor.Red);
                             Custom.PressAnythingToContinue();
@@ -159,42 +180,11 @@ namespace CsRealLearning
                     Console.Clear();
                 }
             }
-
-            public void DisplayError()
-            {
-                Custom.WriteInColor("\nUnknown Command. Try again:", ConsoleColor.Red);
-                Custom.PressAnythingToContinue();
-            }
-
-            public void GetPassengerTickets()
-            {
-
-            }
-
-            public void GetStations()
-            {
-                foreach (StationName stationName in Enum.GetValues(typeof(StationName)))
-                {
-                    _stations.Add(new Station(stationName.ToString()));
-                }
-            }
-
-            public void DisplayStations()
-            {
-                int count = 0;
-                foreach (Station station in _stations)
-                {
-                    Console.Write(++count + " ");
-                    station.ShowInfo();
-                }
-            }
         }
 
         class Train
         {
             private List<Wagon> _wagons = new List<Wagon>();
-            public Station DepartureStation;
-            public Station DestinationStation;
 
             public Train(string name)
             {
@@ -206,7 +196,14 @@ namespace CsRealLearning
 
             private void StartJourney()
             {
+            }
 
+            private void Construct()
+            {
+                int wagonCount = 1;
+
+                Console.WriteLine($"Creating wagon number {wagonCount}. Number of seats::");
+                _wagons.Add(new Wagon(wagonCount, 1));
             }
 
             private void ShowCurrentInfo()
@@ -214,7 +211,9 @@ namespace CsRealLearning
             }
 
             private void AddWagon()
-            { }
+            {
+
+            }
 
             private void RemoveWagon()
             { }
@@ -308,6 +307,32 @@ namespace CsRealLearning
         {
             Console.SetCursorPosition(xPos, yPos);
             Console.WriteLine(text);
+        }
+
+        public static int GetUserNumberInRange(string startMessage = "The station number", int maxInput = 100)
+        {
+            int userInput = 0;
+            bool isValidInput = false;
+
+            Console.WriteLine(startMessage);
+
+            while (!isValidInput)
+            {
+                if (int.TryParse(Console.ReadLine(), out userInput))
+                {
+                    if (userInput > 0 && userInput <= maxInput)
+                        isValidInput = true;
+                    else
+                        Custom.WriteInColor($"\nPlease enter a number between 1 and {maxInput}:", ConsoleColor.Red);
+
+                }
+                else
+                {
+                    Custom.WriteInColor("\nInvalid input. Please enter a number:", ConsoleColor.Red);
+                }
+            }
+
+            return userInput - 1;
         }
     }
 }
