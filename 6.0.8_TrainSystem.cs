@@ -1,21 +1,21 @@
-using System;
-using System.Collections.Generic;
-
-//У вас есть программа, которая помогает пользователю составить план поезда.
-//Есть 4 основных шага в создании плана:
-//-Создать направление - создает направление для поезда(к примеру Бийск - Барнаул)
-//-Продать билеты - вы получаете рандомное кол-во пассажиров, которые купили билеты на это направление
-//-Сформировать поезд - вы создаете поезд и добавляете ему столько вагонов(вагоны могут быть разные по вместительности), сколько хватит для перевозки всех пассажиров.
-//-Отправить поезд - вы отправляете поезд, после чего можете снова создать направление.
-//В верхней части программы должна выводиться полная информация о текущем рейсе или его отсутствии. 
-
-//todo: 
-//      -
-//      -
-//      - 
-
-namespace CsRealLearning
+namespace millionDollarsCourses
 {
+    using System;
+    using System.Collections.Generic;
+
+    //У вас есть программа, которая помогает пользователю составить план поезда.
+    //Есть 4 основных шага в создании плана:
+    //-Создать направление - создает направление для поезда(к примеру Бийск - Барнаул)
+    //-Продать билеты - вы получаете рандомное кол-во пассажиров, которые купили билеты на это направление
+    //-Сформировать поезд - вы создаете поезд и добавляете ему столько вагонов(вагоны могут быть разные по вместительности), сколько хватит для перевозки всех пассажиров.
+    //-Отправить поезд - вы отправляете поезд, после чего можете снова создать направление.
+    //В верхней части программы должна выводиться полная информация о текущем рейсе или его отсутствии. 
+
+    //todo: 
+    //      make train naming after entering "creating a route"
+    //      display hud info at the bottom
+    //      - 
+
     internal class Program
     {
         static void Main()
@@ -91,8 +91,8 @@ namespace CsRealLearning
             {
                 Console.Clear();
                 _route = new Route();
-                GetRountePoint("DEPARTURE", ref _route.DepartureStation);
-                GetRountePoint("DESTINATION", ref _route.DestinationStation, true);
+                _route.SelectStationType("DEPARTURE", _stations);
+                _route.SelectStationType("DESTINATION", _stations, true);
                 Console.WriteLine($"Departure:{_route.DepartureStation.Name} Station\n" +
                     $"Destination: {_route.DestinationStation.Name} Station\n");
                 Custom.PressAnythingToContinue();
@@ -101,7 +101,7 @@ namespace CsRealLearning
             public void CreateTrain()
             {
                 Console.WriteLine("Train name:");
-                _train =  new Train(Console.ReadLine());
+                _train = new Train(Console.ReadLine());
             }
 
 
@@ -134,7 +134,7 @@ namespace CsRealLearning
                 }
             }
 
-            public void SaleTickets()
+            public void SellTickets()
             {
 
             }
@@ -147,7 +147,7 @@ namespace CsRealLearning
 
             public Route() { }
 
-            public void SelectDepartureOrDestinationStation(string stationType, List<Station> stations, bool isDestination = false)
+            public void SelectStationType(string stationType, List<Station> stations, bool isDestination = false)
             {
                 bool isValidStation = false;
                 int userInput;
