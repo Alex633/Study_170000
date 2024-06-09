@@ -1,6 +1,7 @@
 namespace millionDollarsCourses
 {
     using System;
+    using System.Collections.Generic;
 
     //Создать 5 классов, пользователь выбирает 2 воина и они сражаются друг с другом до смерти. У каждого класса могут быть свои статы.
     //Каждый класс должен иметь особую способность для атаки, которая свойственна только его типу класса!
@@ -19,16 +20,74 @@ namespace millionDollarsCourses
         {
             BattleSystem battleSystem = new BattleSystem();
 
+            battleSystem.SelectFighter();
             battleSystem.Fight();
         }
 
         class BattleSystem
         {
             private int _round = 0;
+            private Fighter _fighter1;
+            private Fighter _fighter2;
+            List<Fighter> fighters = new List<Fighter>
+                {
+                    new Knight(),
+                    new Thief(),
+                    new Dualist(),
+                    new Summoner(),
+                    new BloodHunter()
+                };
 
             public BattleSystem()
             {
 
+            }
+
+            public void SelectFighter()
+            {
+                int fighterNumOne;
+                int fighterNumTwo;
+                bool isUniqueFighter = false;
+
+                DisplayFighters();
+                fighterNumOne = Custom.GetUserNumberInRange("Select a fighter: ", fighters.Count);
+                _fighter1 = fighters[fighterNumOne - 1];
+
+                while (!isUniqueFighter)
+                {                 
+                    fighterNumTwo = Custom.GetUserNumberInRange($"Select opponent for {_fighter1.GetType().Name}:", fighters.Count);
+
+                    if (fighterNumTwo != fighterNumOne)
+                    {
+                        _fighter2 = fighters[fighterNumTwo - 1];
+                        isUniqueFighter = true;
+                    }
+                    else
+                    {
+                        Custom.WriteInColor($"{_fighter1.GetType().Name} can't fight with himself, can't he?");
+                        Custom.PressAnythingToContinue();
+                        DisplayFighters();
+                    }
+                }
+
+                Custom.WriteInColor($"\n{_fighter1.GetType().Name} vs {_fighter2.GetType().Name}", ConsoleColor.Blue);
+
+                Custom.PressAnythingToContinue();
+            }
+
+            public void DisplayFighters()
+            {
+                Custom.WriteInColor("Fighters:\n", ConsoleColor.DarkGray);
+
+                int count = 1;
+
+                foreach (Fighter fighter in fighters)
+                {
+                    Console.Write(count + ". ");
+                    count++;
+                    fighter.DisplayStats();
+                    Console.WriteLine();
+                }
             }
 
             public void Fight()
@@ -55,12 +114,17 @@ namespace millionDollarsCourses
             }
         }
 
-        abstract class Warrior
+        abstract class Fighter
         {
             protected int _health;
             protected int _damage;
 
-            public Warrior(int health, int damage)
+            public Fighter()
+            {
+                _health = 30;
+                _damage = 2;
+            }
+            public Fighter(int health, int damage)
             {
                 _health = health;
                 _damage = damage;
@@ -68,8 +132,8 @@ namespace millionDollarsCourses
 
             public virtual void DisplayStats()
             {
-                Console.WriteLine($"{GetType().Name} stats:\n" +
-                    $"HP: {_health}\n" +
+                Custom.WriteInColor($"{GetType().Name}", ConsoleColor.Blue);
+                Console.WriteLine($"HP: {_health}\n" +
                     $"Damage: {_damage}");
             }
 
@@ -91,64 +155,64 @@ namespace millionDollarsCourses
 
         }
 
-        class Knight : Warrior
+        class Knight : Fighter
         {
             private int _block;
 
-            public Knight(int health, int damage, int block) : base(health, damage)
+            public Knight() : base(40, 1)
             {
-                _block = block;
+                _block = 3; //every third attack is blocked
             }
 
             public override void DisplayStats()
             {
                 base.DisplayStats();
-                Console.WriteLine($"Block: {_block}");
+                Console.WriteLine($"Block: every {_block} hit");
             }
         }
 
-        class Thief : Warrior
+        class Thief : Fighter
         {
             private int _dodge;
             private int _crit;
 
-            public Thief(int health, int damage, int dodge, int crit) : base(health, damage)
+            public Thief() : base(25, 2)
             {
-                _dodge = dodge;
-                _crit = crit;
+                _dodge = 25;
+                _crit = 50;
             }
             public override void DisplayStats()
             {
                 base.DisplayStats();
-                Console.WriteLine($"Dodge: {_dodge}");
-                Console.WriteLine($"Critical Change: {_crit}");
+                Console.WriteLine($"Dodge: {_dodge}%");
+                Console.WriteLine($"Critical Change: {_crit}%");
             }
         }
 
-        class Dualist : Warrior
+        class Dualist : Fighter
         {
             private int _parry;
 
-            public Dualist(int health, int damage, int parry) : base(health, damage)
+            public Dualist() : base()
             {
-                _parry = parry;
+                _parry = 4; //every fourth attack is parried
             }
             public override void DisplayStats()
             {
                 base.DisplayStats();
-                Console.WriteLine($"Parry: {_parry}");
+                Console.WriteLine($"Parry: Every {_parry} strike");
             }
         }
 
-        class Summoner : Warrior
+        class Summoner : Fighter
         {
             private int _petDamage;
             private int _petHealth;
 
-            public Summoner(int health, int damage, int petDamage, int petHealth) : base(health, damage)
+            public Summoner() : base(20, 1)
             {
-                _petDamage = petDamage;
-                _petHealth = petHealth;
+                _petDamage = 2;
+                _petHealth = 15;
             }
 
             public override void DisplayStats()
@@ -159,22 +223,21 @@ namespace millionDollarsCourses
             }
         }
 
-        class BloodHunter : Warrior
+        class BloodHunter : Fighter
         {
             private int _vamp;
 
-            public BloodHunter(int health, int damage, int vamp) : base(health, damage)
+            public BloodHunter() : base(20, 1)
             {
-                _vamp = vamp;
+                _vamp = 100;
             }
 
             public override void DisplayStats()
             {
                 base.DisplayStats();
-                Console.WriteLine($"Vamp: {_vamp}");
+                Console.WriteLine($"Vamp: {_vamp}%");
             }
         }
-
     }
 
     class Custom
@@ -225,7 +288,7 @@ namespace millionDollarsCourses
             Console.WriteLine(text);
         }
 
-        public static int GetUserNumberInRange(string startMessage = "The station number", int maxInput = 100)
+        public static int GetUserNumberInRange(string startMessage = "Select Number: ", int maxInput = 100)
         {
             int userInput = 0;
             bool isValidInput = false;
@@ -244,11 +307,11 @@ namespace millionDollarsCourses
                 }
                 else
                 {
-                    Custom.WriteInColor("\nInvalid input. Please enter a number:", ConsoleColor.Red);
+                    Custom.WriteInColor("\nInvalid input. Please enter a number instead:", ConsoleColor.Red);
                 }
             }
 
-            return userInput - 1;
+            return userInput;
         }
     }
 }
