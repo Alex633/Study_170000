@@ -9,9 +9,8 @@ namespace millionDollarsCourses
     //Пример, что может быть уникальное у бойцов. Кто-то каждый 3 удар наносит удвоенный урон, другой имеет 30% увернуться от полученного урона,
     //кто-то при получении урона немного себя лечит. Будут новые поля у наследников. У кого-то может быть мана и это только его особенность.
 
-    //todo: 
-    //      -
-    //      -
+    //todo:
+    //special abilities and stats
     //      -
 
     internal class Program
@@ -54,7 +53,7 @@ namespace millionDollarsCourses
                 _fighter1 = fighters[fighterNumOne - 1];
 
                 while (!isUniqueFighter)
-                {                 
+                {
                     fighterNumTwo = Custom.GetUserNumberInRange($"Select opponent for {_fighter1.GetType().Name}:", fighters.Count);
 
                     if (fighterNumTwo != fighterNumOne)
@@ -92,64 +91,66 @@ namespace millionDollarsCourses
 
             public void Fight()
             {
-                while (true)
+                while (_fighter1.IsAlive() && _fighter2.IsAlive())
                 {
                     RoundStart();
-                    RoundEnd();
+                    _fighter1.Attack(_fighter2);
+                    _fighter2.Attack(_fighter1);
+                    Custom.PressAnythingToContinue(ConsoleColor.DarkYellow, false, 0, 26, "press anything to continue", false);
                 }
+
+                DisplayWinner();
             }
 
             private void RoundStart()
             {
-                int textXPos = 0;
-                int textYPos = 0;
-
                 _round++;
-                Custom.WriteAtPosition(textXPos, textYPos, $"Round: {_round}");
+                Console.WriteLine($"\nRound {_round}");
             }
 
-            private void RoundEnd()
+            private void DisplayWinner()
             {
-                Custom.PressAnythingToContinue();
+                if (_fighter1.IsAlive())
+                    Custom.WriteInColor($"\n{_fighter1.GetType().Name} is Victorious!\n", ConsoleColor.Green);
+                else if (_fighter2.IsAlive())
+                    Custom.WriteInColor($"\n{_fighter2.GetType().Name} is Victorious!\n", ConsoleColor.Green);
+                else
+                    Custom.WriteInColor($"\nIt's just two corpses. Bummer\n", ConsoleColor.Red);
             }
         }
 
         abstract class Fighter
         {
-            protected int _health;
-            protected int _damage;
+            public int Health { get; protected set; }
+            public int Damage { get; protected set; }
 
             public Fighter()
             {
-                _health = 30;
-                _damage = 2;
+                Health = 30;
+                Damage = 2;
             }
             public Fighter(int health, int damage)
             {
-                _health = health;
-                _damage = damage;
+                Health = health;
+                Damage = damage;
             }
 
             public virtual void DisplayStats()
             {
                 Custom.WriteInColor($"{GetType().Name}", ConsoleColor.Blue);
-                Console.WriteLine($"HP: {_health}\n" +
-                    $"Damage: {_damage}");
+                Console.WriteLine($"HP: {Health}\n" +
+                    $"Damage: {Damage}");
             }
 
-            protected virtual void Attack()
+            public virtual void Attack(Fighter target)
             {
-
+                target.Health -= Damage;
+                Console.WriteLine($"[❤️{Health}] {GetType().Name} [⚔︎{Damage}] {target.GetType().Name} [❤️{target.Health}]");
             }
 
-            protected virtual void TakeDamage()
+            public bool IsAlive()
             {
-
-            }
-
-            protected bool isAlive()
-            {
-                return _health > 0;
+                return Health > 0;
             }
 
 
@@ -252,7 +253,7 @@ namespace millionDollarsCourses
             Console.ResetColor();
         }
 
-        public static void PressAnythingToContinue(ConsoleColor color = ConsoleColor.DarkYellow, bool customPos = false, int xPos = 0, int YPos = 0, string text = "press anything to continue")
+        public static void PressAnythingToContinue(ConsoleColor color = ConsoleColor.DarkYellow, bool customPos = false, int xPos = 0, int YPos = 0, string text = "press anything to continue", bool consoleClear = true)
         {
             if (customPos)
                 Console.SetCursorPosition(xPos, YPos);
@@ -260,8 +261,10 @@ namespace millionDollarsCourses
             Console.ForegroundColor = color;
             Console.WriteLine(text);
             Console.ResetColor();
-            Console.ReadKey();
-            Console.Clear();
+            Console.ReadKey(true);
+
+            if (consoleClear)
+                Console.Clear();
         }
 
         public static void WriteFilled(string text, ConsoleColor color = ConsoleColor.DarkYellow, bool customPos = false, int xPos = 0, int yPos = 0)
