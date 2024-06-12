@@ -236,9 +236,7 @@ namespace millionDollarsCourses
                 }
                 else
                 {
-                    target.TakeDamage(Damage);
-                    Console.Write($"[❤️{Health}] {GetType().Name} ⚔︎{Damage} attacks ");
-                    Custom.WriteLineInColor($"{target.GetType().Name} [❤️{target.Health}⬇]", ConsoleColor.Red);
+                    base.Attack(target);
                 }
             }
         }
