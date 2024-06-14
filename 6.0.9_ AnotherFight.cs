@@ -10,7 +10,10 @@ namespace millionDollarsCourses
     //кто-то при получении урона немного себя лечит. Будут новые поля у наследников. У кого-то может быть мана и это только его особенность.
 
     //todo:
-    //      
+    //      demons into the list - not just demon count
+    //      duelist can kill the demons
+    //      name generator for demons that are random
+
 
     internal class Program
     {
@@ -33,8 +36,8 @@ namespace millionDollarsCourses
                 {
                     new Knight(),
                     new Thief(),
-                    new Dualist(),
-                    new Summoner(),
+                    new Duelist(),
+                    new DemonLord(),
                     new BloodHunter()
                 };
 
@@ -155,19 +158,20 @@ namespace millionDollarsCourses
 
         abstract class Fighter
         {
-            protected int _damage;
+            public int Damage { get; protected set; }
+
             public int Health { get; protected set; }
 
             public Fighter()
             {
                 Health = 30;
-                _damage = 2;
+                Damage = 2;
             }
 
             public Fighter(int health, int damage)
             {
                 Health = health;
-                _damage = damage;
+                Damage = damage;
             }
 
             public int RollTheDice()
@@ -180,18 +184,18 @@ namespace millionDollarsCourses
             {
                 Custom.WriteLineInColor($"{GetType().Name}", ConsoleColor.Blue);
                 Console.WriteLine($"HP: {Health}\n" +
-                    $"Damage: {_damage}");
+                    $"Damage: {Damage}");
             }
 
             public virtual void Attack(Fighter target)
             {
-                Console.Write($"[❤️{Health}] {GetType().Name} ⚔︎{_damage} attacks ");
+                Console.Write($"[❤️{Health}] {GetType().Name} ⚔︎{Damage} attacks ");
                 target.TakeDamage(this);
             }
 
             public virtual void TakeDamage(Fighter opponent)
             {
-                Health -= opponent._damage;
+                Health -= opponent.Damage;
                 Custom.WriteLineInColor($"{GetType().Name} [❤️{Health}⬇]", ConsoleColor.Red);
             }
 
@@ -259,12 +263,12 @@ namespace millionDollarsCourses
 
                 if (RollTheDice() <= _crit)
                 {
-                    defaultDamage = _damage;
-                    _damage = _critDamageModifier * _damage;
+                    defaultDamage = Damage;
+                    Damage = _critDamageModifier * Damage;
                     Console.Write($"[❤️{Health}] {GetType().Name} ");
-                    Custom.WriteInColor($"🏹{_damage} critically strikes ", ConsoleColor.DarkRed);
+                    Custom.WriteInColor($"🏹{Damage} critically strikes ", ConsoleColor.DarkRed);
                     target.TakeDamage(this);
-                    _damage = defaultDamage;
+                    Damage = defaultDamage;
                 }
                 else
                 {
@@ -274,12 +278,12 @@ namespace millionDollarsCourses
         }
 
 
-        class Dualist : Fighter
+        class Duelist : Fighter
         {
             private int _parryFrequency;
             private int _attackedCount;
 
-            public Dualist() : base(22, 2)
+            public Duelist() : base(22, 2)
             {
                 _parryFrequency = 3;
             }
@@ -307,22 +311,80 @@ namespace millionDollarsCourses
             }
         }
 
-        class Summoner : Fighter
+        class DemonLord : Fighter
         {
-            private int _demonDamage;
-            private int _demonHealth;
+            private Demon _demon = new Demon();
 
-            public Summoner() : base(20, 1)
+            private int _mana;
+            private int _manaCostToSummon;
+            private int _manaPerChanelling;
+            private int _demonsCount;
+
+            public DemonLord() : base(18, 0)
             {
-                _demonDamage = 2;
-                _demonHealth = 15;
+                _mana = 2;
+                _manaCostToSummon = 5;
+                _manaPerChanelling = 3;
+                _demonsCount = 0;
             }
 
             public override void DisplayStats()
             {
                 base.DisplayStats();
-                Console.WriteLine($"Demon Health: {_demonHealth}");
-                Console.WriteLine($"Demon Damage: {_demonDamage}");
+                Console.WriteLine($"Mana cost to summon the demon: {_manaCostToSummon} (Demon's HP: {_demon.Health}, damage {_demon.Damage})");
+                Console.WriteLine($"Mana per chanelling: {_manaPerChanelling}");
+            }
+
+            public override void Attack(Fighter target)
+            {
+                //if (!_demon.IsAlive)
+                //{
+                //    _demonsCount--;
+                //}    
+
+                if (_mana >= _manaCostToSummon)
+                {
+                    _mana -= _manaCostToSummon;
+                    _demonsCount++;
+                    Console.WriteLine($"[🔥{_mana}⬇] {GetType().Name} summoning a demon {_demon.Name} from the hell itself (-{_manaCostToSummon})");
+                }
+                else
+                {
+                    _mana += _manaPerChanelling;
+                    Console.WriteLine($"[🔥{_mana}↑] {GetType().Name} channeling the forces of hell (+{_manaPerChanelling})");
+                }
+
+                for (int i = 0; i < _demonsCount; i++)
+                {
+                    _demon.Attack(target);
+                }
+            }
+        }
+
+        class Demon : Fighter
+        {
+            public string Name { get; private set; }
+            Random random = new Random();
+
+
+            public Demon() : base(1, 2)
+            {
+                Name = SelectRandomName();
+            }
+
+            public override void Attack(Fighter target)
+            {
+                Console.Write($"[❤️{Health}] {GetType().Name} {Name} ⚔︎{Damage} attacks ");
+                target.TakeDamage(this);
+            }
+
+            private string SelectRandomName()
+            {
+                int index;
+
+                string[] names = { "Bob", "Greg", "John", "Mike", "Steve", "Tom", "Bill", "Dave", "Jim", "Larry" };
+                index = random.Next(names.Length);
+                return names[index];
             }
         }
 
@@ -345,16 +407,16 @@ namespace millionDollarsCourses
 
             public override void Attack(Fighter target)
             {
-                if (Health + _damage * (_vamp / 100) <= maxHealth)
+                if (Health + Damage * (_vamp / 100) <= maxHealth)
                 {
                     int targetCurrentHealth = target.Health;
 
-                    Console.Write($"[❤️{Health}] {GetType().Name} ⚔︎{_damage} attacks ");
+                    Console.Write($"[❤️{Health}] {GetType().Name} ⚔︎{Damage} attacks ");
                     target.TakeDamage(this);
 
                     if (target.Health < targetCurrentHealth)
                     {
-                        Health += _damage * (_vamp / 100);
+                        Health += Damage * (_vamp / 100);
                         Custom.WriteLineInColor($"[❤️{Health}↑] {GetType().Name} tastes the blood. It tasted delicious (for him)", ConsoleColor.Green);
                     }
                 }
