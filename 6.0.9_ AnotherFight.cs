@@ -10,14 +10,7 @@ namespace millionDollarsCourses
     //кто-то при получении урона немного себя лечит. Будут новые поля у наследников. У кого-то может быть мана и это только его особенность.
 
     //todo:
-    //      random in determineinitiative are not random
-    //      actually apply who is going first
-    //      make constructor out of attack and take damage for text
-    //      (exm:
-    //      attack method outputs
-    //      [[hp]thief attacks for 2]
-    //      and take damage outputs
-    //      [[hp]knight])
+    //      
 
     internal class Program
     {
@@ -115,19 +108,30 @@ namespace millionDollarsCourses
 
             public void DetermineInitiative()
             {
+                Fighter tempFighter = null;
+                int fighter1DiceValue;
+                int fighter2DiceValue;
+
                 Custom.WriteLineInColor("Determing who is going first:\n", ConsoleColor.DarkGray);
 
-                int fighter1DiceValue = _fighter1.RollTheDice();
+                fighter1DiceValue = _fighter1.RollTheDice();
                 Console.WriteLine($"{_fighter1.GetType().Name} rolling the dice... {fighter1DiceValue}");
                 Custom.PressAnythingToContinue(ConsoleColor.DarkYellow, false, 0, 26, "press anything to continue\n", false);
-                int fighter2DiceValue = _fighter2.RollTheDice();
+                fighter2DiceValue = _fighter2.RollTheDice();
                 Console.WriteLine($"{_fighter2.GetType().Name} rolling the dice... {fighter2DiceValue}");
                 Custom.PressAnythingToContinue(ConsoleColor.DarkYellow, false, 0, 26, "press anything to continue\n", false);
 
                 if (fighter1DiceValue > fighter2DiceValue)
+                {
                     Custom.WriteLineInColor($"\n{_fighter1.GetType().Name} going first 🚩", ConsoleColor.Blue);
+                }
                 else
+                {
                     Custom.WriteLineInColor($"\n{_fighter2.GetType().Name} going first 🚩", ConsoleColor.Blue);
+                    tempFighter = _fighter1;
+                    _fighter1 = _fighter2;
+                    _fighter2 = tempFighter;
+                }
 
                 Custom.PressAnythingToContinue();
             }
@@ -141,9 +145,9 @@ namespace millionDollarsCourses
             public void DisplayWinner()
             {
                 if (_fighter1.IsAlive())
-                    Custom.WriteLineInColor($"\n{_fighter1.GetType().Name} is Victorious! 😎👌🔥\n", ConsoleColor.Green);
+                    Custom.WriteLineInColor($"\n{_fighter1.GetType().Name} is Victorious! 😎👌🔥\n", ConsoleColor.Cyan);
                 else if (_fighter2.IsAlive())
-                    Custom.WriteLineInColor($"\n{_fighter2.GetType().Name} is Victorious 😎👌🔥!\n", ConsoleColor.Green);
+                    Custom.WriteLineInColor($"\n{_fighter2.GetType().Name} is Victorious 😎👌🔥!\n", ConsoleColor.Cyan);
                 else
                     Custom.WriteLineInColor($"\nIt's just two corpses. Bummer\n", ConsoleColor.Red);
             }
@@ -152,7 +156,6 @@ namespace millionDollarsCourses
         abstract class Fighter
         {
             protected int _damage;
-            private Random _random = new Random();
             public int Health { get; protected set; }
 
             public Fighter()
@@ -169,6 +172,7 @@ namespace millionDollarsCourses
 
             public int RollTheDice()
             {
+                Random _random = new Random();
                 return _random.Next(1, 101);
             }
 
@@ -181,8 +185,8 @@ namespace millionDollarsCourses
 
             public virtual void Attack(Fighter target)
             {
-                target.TakeDamage(this);
                 Console.Write($"[❤️{Health}] {GetType().Name} ⚔︎{_damage} attacks ");
+                target.TakeDamage(this);
             }
 
             public virtual void TakeDamage(Fighter opponent)
@@ -205,7 +209,7 @@ namespace millionDollarsCourses
 
             public Knight() : base(40, 1)
             {
-                _blockFrequency = 2; //every [*] attack is blocked
+                _blockFrequency = 2;
                 _attackedCount = 0;
             }
 
@@ -235,10 +239,12 @@ namespace millionDollarsCourses
         class Thief : Fighter
         {
             private int _crit;
+            private int _critDamageModifier;
 
-            public Thief() : base(25, 2)
+            public Thief() : base(26, 2)
             {
-                _crit = 25;
+                _crit = 36;
+                _critDamageModifier = 2;
             }
 
             public override void DisplayStats()
@@ -249,12 +255,16 @@ namespace millionDollarsCourses
 
             public override void Attack(Fighter target)
             {
-                
+                int defaultDamage;
 
                 if (RollTheDice() <= _crit)
                 {
+                    defaultDamage = _damage;
+                    _damage = _critDamageModifier * _damage;
+                    Console.Write($"[❤️{Health}] {GetType().Name} ");
+                    Custom.WriteInColor($"🏹{_damage} critically strikes ", ConsoleColor.DarkRed);
                     target.TakeDamage(this);
-                    Custom.WriteLineInColor($"[❤️{Health}] {GetType().Name} 🏹{_damage * 2} critically strikes ", ConsoleColor.DarkRed);
+                    _damage = defaultDamage;
                 }
                 else
                 {
@@ -266,51 +276,92 @@ namespace millionDollarsCourses
 
         class Dualist : Fighter
         {
-            private int _parry;
+            private int _parryFrequency;
+            private int _attackedCount;
 
-            public Dualist() : base()
+            public Dualist() : base(22, 2)
             {
-                _parry = 4; //every fourth attack is parried
+                _parryFrequency = 3;
             }
             public override void DisplayStats()
             {
                 base.DisplayStats();
-                Console.WriteLine($"Parry: Every {_parry} strike");
+                Console.WriteLine($"Parries every {_parryFrequency}rd strike");
+            }
+
+            public override void TakeDamage(Fighter opponent)
+            {
+                _attackedCount++;
+
+                if (_attackedCount == _parryFrequency)
+                {
+                    _attackedCount = 0;
+                    Custom.WriteLineInColor($"but [❤️{Health}] {GetType().Name} ↩ parries the attack!", ConsoleColor.Blue);
+                    Attack(opponent);
+                }
+                else
+                {
+                    base.TakeDamage(opponent);
+
+                }
             }
         }
 
         class Summoner : Fighter
         {
-            private int _petDamage;
-            private int _petHealth;
+            private int _demonDamage;
+            private int _demonHealth;
 
             public Summoner() : base(20, 1)
             {
-                _petDamage = 2;
-                _petHealth = 15;
+                _demonDamage = 2;
+                _demonHealth = 15;
             }
 
             public override void DisplayStats()
             {
                 base.DisplayStats();
-                Console.WriteLine($"Pet Health: {_petHealth}");
-                Console.WriteLine($"Pet Damage: {_petDamage}");
+                Console.WriteLine($"Demon Health: {_demonHealth}");
+                Console.WriteLine($"Demon Damage: {_demonDamage}");
             }
         }
 
         class BloodHunter : Fighter
         {
             private int _vamp;
+            int maxHealth;
 
             public BloodHunter() : base(20, 1)
             {
-                _vamp = 100;
+                _vamp = 200;
+                maxHealth = Health;
             }
 
             public override void DisplayStats()
             {
                 base.DisplayStats();
                 Console.WriteLine($"Vamp: {_vamp}%");
+            }
+
+            public override void Attack(Fighter target)
+            {
+                if (Health + _damage * (_vamp / 100) <= maxHealth)
+                {
+                    int targetCurrentHealth = target.Health;
+
+                    Console.Write($"[❤️{Health}] {GetType().Name} ⚔︎{_damage} attacks ");
+                    target.TakeDamage(this);
+
+                    if (target.Health < targetCurrentHealth)
+                    {
+                        Health += _damage * (_vamp / 100);
+                        Custom.WriteLineInColor($"[❤️{Health}↑] {GetType().Name} tastes the blood. It tasted delicious (for him)", ConsoleColor.Green);
+                    }
+                }
+                else
+                {
+                    base.Attack(target);
+                }
             }
         }
     }
