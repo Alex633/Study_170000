@@ -32,7 +32,7 @@ namespace millionDollarsCourses
             private int _round = 0;
             private Fighter _fighter1;
             private Fighter _fighter2;
-            private List<Fighter> _fighters = new List<Fighter>
+            private readonly List<Fighter> _fighters = new List<Fighter>
                 {
                     new Knight(),
                     new Thief(),
@@ -41,14 +41,11 @@ namespace millionDollarsCourses
                     new BloodHunter()
                 };
 
-            public BattleSystem()
-            {
-
-            }
+            public BattleSystem() { }
 
             public void Fight()
             {
-                Custom.WriteLineInColor("Battle\n", ConsoleColor.DarkGray);
+                Text.WriteLineInColor("Battle\n", ConsoleColor.DarkGray);
 
                 while (_fighter1.IsAlive() && _fighter2.IsAlive())
                 {
@@ -60,7 +57,7 @@ namespace millionDollarsCourses
                         _fighter2.Attack(_fighter1);
 
 
-                    Custom.PressAnythingToContinue(ConsoleColor.DarkYellow, false, 0, 26, "press anything to continue\n", false);
+                    Misc.PressAnythingToContinue(ConsoleColor.DarkYellow, false, 0, 26, "press anything to continue\n", false);
                 }
             }
 
@@ -71,12 +68,12 @@ namespace millionDollarsCourses
                 bool isUniqueFighter = false;
 
                 DisplayFighters();
-                fighterNumOne = Custom.GetUserNumberInRange("Select a fighter: ", _fighters.Count);
+                fighterNumOne = Misc.GetUserNumberInRange("Select a Fighter: ", _fighters.Count);
                 _fighter1 = _fighters[fighterNumOne - 1];
 
                 while (!isUniqueFighter)
                 {
-                    fighterNumTwo = Custom.GetUserNumberInRange($"Select opponent for {_fighter1.GetType().Name}: ", _fighters.Count);
+                    fighterNumTwo = Misc.GetUserNumberInRange($"Select an Opponent for {_fighter1.GetType().Name}: ", _fighters.Count);
 
                     if (fighterNumTwo != fighterNumOne)
                     {
@@ -85,22 +82,22 @@ namespace millionDollarsCourses
                     }
                     else
                     {
-                        Custom.WriteLineInColor($"{_fighter1.GetType().Name} can't fight himself, can't he?");
-                        Custom.PressAnythingToContinue();
+                        Text.WriteLineInColor($"{_fighter1.GetType().Name} can't fight himself, can he?");
+                        Misc.PressAnythingToContinue();
                         DisplayFighters();
                     }
                 }
 
-                Custom.WriteLineInColor($"\n{_fighter1.GetType().Name} vs {_fighter2.GetType().Name}", ConsoleColor.Blue);
+                Text.WriteLineInColor($"\n{_fighter1.ClassName} vs {_fighter2.ClassName}", ConsoleColor.Blue);
 
-                Custom.PressAnythingToContinue();
+                Misc.PressAnythingToContinue();
             }
 
             public void DisplayFighters()
             {
-                Custom.WriteLineInColor("Fighter Selection\n", ConsoleColor.DarkGray);
-
                 int count = 1;
+
+                Text.WriteLineInColor("Fighter Selection\n", ConsoleColor.DarkGray);
 
                 foreach (Fighter fighter in _fighters)
                 {
@@ -113,30 +110,30 @@ namespace millionDollarsCourses
 
             public void DetermineInitiative()
             {
-                Fighter tempFighter = null;
+                Fighter tempFighter;
                 int fighter1DiceValue;
                 int fighter2DiceValue;
                 bool initiativeDetermined = false;
 
-                Custom.WriteLineInColor("Determing who is going first\n", ConsoleColor.DarkGray);
+                Text.WriteLineInColor("Determing who goes first\n", ConsoleColor.DarkGray);
 
                 while (!initiativeDetermined)
                 {
                     fighter1DiceValue = _fighter1.RollTheDice();
                     Console.WriteLine($"{_fighter1.GetType().Name} rolling the dice... {fighter1DiceValue}");
-                    Custom.PressAnythingToContinue(ConsoleColor.DarkYellow, false, 0, 26, "press anything to continue\n", false);
+                    Misc.PressAnythingToContinue(ConsoleColor.DarkYellow, false, 0, 26, "press anything to continue\n", false);
                     fighter2DiceValue = _fighter2.RollTheDice();
                     Console.WriteLine($"{_fighter2.GetType().Name} rolling the dice... {fighter2DiceValue}");
-                    Custom.PressAnythingToContinue(ConsoleColor.DarkYellow, false, 0, 26, "press anything to continue\n", false);
+                    Misc.PressAnythingToContinue(ConsoleColor.DarkYellow, false, 0, 26, "press anything to continue\n", false);
 
                     if (fighter1DiceValue > fighter2DiceValue)
                     {
-                        Custom.WriteLineInColor($"\n{_fighter1.GetType().Name} going first 🚩", ConsoleColor.Blue);
+                        Text.WriteLineInColor($"\n{_fighter1.GetType().Name} goes  first 🚩", ConsoleColor.Blue);
                         initiativeDetermined = true;
                     }
                     else if (fighter1DiceValue < fighter2DiceValue)
                     {
-                        Custom.WriteLineInColor($"\n{_fighter2.GetType().Name} going first 🚩", ConsoleColor.Blue);
+                        Text.WriteLineInColor($"\n{_fighter2.GetType().Name} goes  first 🚩", ConsoleColor.Blue);
                         tempFighter = _fighter1;
                         _fighter1 = _fighter2;
                         _fighter2 = tempFighter;
@@ -144,12 +141,12 @@ namespace millionDollarsCourses
                     }
                     else
                     {
-                        Custom.WriteLineInColor($"\nSame Values. Rerolling...", ConsoleColor.Blue);
-                        Custom.PressAnythingToContinue(ConsoleColor.DarkYellow, false, 0, 26, "press anything to continue\n", false);
+                        Text.WriteLineInColor($"\nSame Values. Rerolling...", ConsoleColor.Blue);
+                        Misc.PressAnythingToContinue(ConsoleColor.DarkYellow, false, 0, 26, "press anything to continue\n", false);
                     }
                 }
 
-                Custom.PressAnythingToContinue();
+                Misc.PressAnythingToContinue();
             }
 
             private void RoundStart()
@@ -161,19 +158,19 @@ namespace millionDollarsCourses
             public void DisplayWinner()
             {
                 if (_fighter1.IsAlive())
-                    Custom.WriteLineInColor($"\n{_fighter1.GetType().Name} is Victorious! 😎👌🔥\n", ConsoleColor.Cyan);
+                    Text.WriteLineInColor($"\n{_fighter1.GetType().Name} is Victorious! 😎👌🔥\n", ConsoleColor.Cyan);
                 else if (_fighter2.IsAlive())
-                    Custom.WriteLineInColor($"\n{_fighter2.GetType().Name} is Victorious 😎👌🔥!\n", ConsoleColor.Cyan);
+                    Text.WriteLineInColor($"\n{_fighter2.GetType().Name} is Victorious 😎👌🔥!\n", ConsoleColor.Cyan);
                 else
-                    Custom.WriteLineInColor($"\nIt's just two corpses. Bummer\n", ConsoleColor.Red);
+                    Text.WriteLineInColor($"\nIt's just two corpses. Bummer\n", ConsoleColor.Red);
             }
         }
 
         abstract class Fighter
         {
-            private static Random _random = new Random();
+            private static readonly Random _random = new Random();
+            
             public int Damage { get; protected set; }
-
             public int Health { get; protected set; }
             public string ClassName { get; protected set; }
 
@@ -191,14 +188,9 @@ namespace millionDollarsCourses
                 ClassName = GetType().Name;
             }
 
-            public int RollTheDice()
-            {
-                return _random.Next(1, 101);
-            }
-
             public virtual void DisplayStats()
             {
-                Custom.WriteLineInColor($"{ClassName}", ConsoleColor.Blue);
+                Text.WriteLineInColor($"{ClassName}", ConsoleColor.Blue);
                 Console.WriteLine($"HP: ❤️{Health}\n" +
                                   $"Damage: ⚔︎{Damage}");
             }
@@ -212,12 +204,17 @@ namespace millionDollarsCourses
             public virtual void TakeDamage(Fighter opponent)
             {
                 Health -= opponent.Damage;
-                Custom.WriteLineInColor($"{ClassName} [❤️{Health}⬇]", ConsoleColor.Red);
+                Text.WriteLineInColor($"{ClassName} [❤️{Health}⬇]", ConsoleColor.Red);
             }
 
             public bool IsAlive()
             {
                 return Health > 0;
+            }
+
+            public int RollTheDice()
+            {
+                return _random.Next(1, 101);
             }
         }
 
@@ -245,20 +242,25 @@ namespace millionDollarsCourses
 
                 if (_attackedCount == _blockFrequency)
                 {
-                    _attackedCount = 0;
-                    Custom.WriteLineInColor($"but {ClassName} ⛊ blocks all the damage! Wow...", ConsoleColor.Blue);
+                    DamageBlock();
                 }
                 else
                 {
                     base.TakeDamage(opponent);
                 }
             }
+
+            private void DamageBlock()
+            {
+                _attackedCount = 0;
+                Text.WriteLineInColor($"but {ClassName} ⛊ blocks all the damage! Wow...", ConsoleColor.Blue);
+            }
         }
 
         class Thief : Fighter
         {
-            private int _critChancePercent;
-            private int _critDamageModifier;
+            private readonly int _critChancePercent;
+            private readonly int _critDamageModifier;
 
             public Thief() : base(26, 2)
             {
@@ -274,24 +276,21 @@ namespace millionDollarsCourses
 
             public override void Attack(Fighter target)
             {
-                int defaultDamage;
-
                 if (RollTheDice() <= _critChancePercent)
-                {
-                    defaultDamage = Damage;
-                    Damage *= _critDamageModifier;
-                    Console.Write($"[❤️{Health}] {ClassName} ");
-                    Custom.WriteInColor($"🏹{Damage} critically strikes ", ConsoleColor.DarkRed);
-                    target.TakeDamage(this);
-                    Damage = defaultDamage;
-                }
+                    CriticallyStrike(target, Damage);
                 else
-                {
                     base.Attack(target);
-                }
+            }
+
+            private void CriticallyStrike(Fighter target, int defaultDamage)
+            {
+                Damage *= _critDamageModifier;
+                Console.Write($"[❤️{Health}] {ClassName} ");
+                Text.WriteInColor($"🏹{Damage} critically fires ", ConsoleColor.DarkRed);
+                target.TakeDamage(this);
+                Damage = defaultDamage;
             }
         }
-
 
         class Duelist : Fighter
         {
@@ -313,16 +312,16 @@ namespace millionDollarsCourses
                 _attackedCount++;
 
                 if (_attackedCount == _parryFrequency)
-                {
-                    _attackedCount = 0;
-                    Custom.WriteLineInColor($"but {ClassName} ↩ parries the attack!", ConsoleColor.Blue);
-                    Attack(opponent);
-                }
+                    ParryAttack(opponent);
                 else
-                {
                     base.TakeDamage(opponent);
+            }
 
-                }
+            private void ParryAttack(Fighter opponent)
+            {
+                _attackedCount = 0;
+                Text.WriteLineInColor($"but {ClassName} ↩ parries the attack!", ConsoleColor.Blue);
+                Attack(opponent);
             }
         }
 
@@ -331,10 +330,9 @@ namespace millionDollarsCourses
             private int _startingMana;
             private int _manaCostToSummon;
             private int _manaPerChanelling;
-            private List<Demon> _demons = new List<Demon>();
-            private Demon _demonModel = new Demon();
+            private readonly List<Demon> _demons = new List<Demon>();
+            private readonly Demon _demonModel = new Demon();
             private Demon _newBornDemon;
-
 
             public DemonLord() : base(18, 0)
             {
@@ -347,25 +345,36 @@ namespace millionDollarsCourses
             {
                 base.DisplayStats();
                 Console.WriteLine($"Starting mana: 🔥{_startingMana}. Mana per chanelling: 🔥{_manaPerChanelling}");
-                Console.WriteLine($"Mana cost to summon the demon: 🔥{_manaCostToSummon} (Demon's HP: ❤️{_demonModel.Health}, damage: ⚔︎{_demonModel.Damage}). Other fighters can't attack demons directly");
+                Console.WriteLine($"Mana cost to summon a demon: 🔥{_manaCostToSummon} (Demon's HP: ❤️{_demonModel.Health}, damage: ⚔︎{_demonModel.Damage}). Other fighters can't attack demons directly");
             }
 
             public override void Attack(Fighter target)
             {
 
                 if (_startingMana >= _manaCostToSummon)
-                {
-                    _newBornDemon = new Demon();
-                    _startingMana -= _manaCostToSummon;
-                    _demons.Add(_newBornDemon);
-                    Console.WriteLine($"[🔥{_startingMana}⬇] {GetType().Name} summoning a demon {_newBornDemon.PersonalName} from the hell itself (-🔥{_manaCostToSummon})");
-                }
+                    SummonDemon();
                 else
-                {
-                    _startingMana += _manaPerChanelling;
-                    Console.WriteLine($"[🔥{_startingMana}↑] {GetType().Name} channeling the forces of hell (+🔥{_manaPerChanelling})");
-                }
+                    Chanelling();
 
+                DemonAttack(target);
+            }
+
+            private void Chanelling()
+            {
+                _startingMana += _manaPerChanelling;
+                Console.WriteLine($"[🔥{_startingMana}↑] {GetType().Name} channeling the forces of hell (+🔥{_manaPerChanelling})");
+            }
+
+            private void SummonDemon()
+            {
+                _newBornDemon = new Demon();
+                _startingMana -= _manaCostToSummon;
+                _demons.Add(_newBornDemon);
+                Console.WriteLine($"[🔥{_startingMana}⬇] {GetType().Name} summoning a demon {_newBornDemon.PersonalName} from the hell itself (-🔥{_manaCostToSummon})");
+            }
+
+            private void DemonAttack(Fighter target)
+            {
                 foreach (Demon demon in _demons)
                 {
                     if (demon.IsAlive())
@@ -380,6 +389,7 @@ namespace millionDollarsCourses
                                                                                 "Nick", "Paul", "Phil", "Rob", "Sam", "Ted", "Will", "Zach", "Brandon", "Derek", "Eric", "Frank", "George", "Kevin",
                                                                                 "Pete", "Ryan", "Tommy", "Vincent", "Walt" });
             private static Random _random = new Random();
+            
             public string PersonalName { get; private set; }
 
             public Demon() : base(1, 2)
@@ -402,7 +412,7 @@ namespace millionDollarsCourses
             {
                 base.TakeDamage(opponent);
                 if (!IsAlive())
-                    Custom.WriteLineInColor($"{PersonalName} the {ClassName} is dead, man. {PersonalName} is dead...", ConsoleColor.Red);
+                    Text.WriteLineInColor($"{PersonalName} the {ClassName} is dead, man. {PersonalName} is dead...", ConsoleColor.Red);
             }
         }
 
@@ -431,34 +441,67 @@ namespace millionDollarsCourses
                     Vampirism();
             }
 
-            public virtual void Vampirism()
+            private void Vampirism()
             {
                 int healthToRestore;
 
                 healthToRestore = Damage * (_vampirismPercentage / 100);
                 Health += healthToRestore;
-                Custom.WriteLineInColor($"[❤️{Health}↑] {ClassName} tastes the blood (+❤️{healthToRestore}). It tasted delicious (for him)", ConsoleColor.Green);
-
-                Custom.SwapValues(1, 2);
+                Text.WriteLineInColor($"[❤️{Health}↑] {ClassName} tastes the blood (+❤️{healthToRestore}). It tasted delicious (for him)", ConsoleColor.Green);
             }
         }
     }
 
-    class Custom
+    class Misc
     {
-        public static void SwapValues(int a, int b)
+        public static void PressAnythingToContinue(ConsoleColor color = ConsoleColor.DarkYellow, bool customPos = false, int xPos = 0, int YPos = 0, string text = "press anything to continue", bool consoleClear = true)
         {
-            int temp;
-            temp = a;
-            a = b;
-            b = temp;
+            if (customPos)
+                Console.SetCursorPosition(xPos, YPos);
+
+            Console.ForegroundColor = color;
+            Console.WriteLine(text);
+            Console.ResetColor();
+            Console.ReadKey(true);
+
+            if (consoleClear)
+                Console.Clear();
         }
 
+        public static int GetUserNumberInRange(string startMessage = "Select Number: ", int maxInput = 100)
+        {
+            int userInput = 0;
+            bool isValidInput = false;
+
+            Console.Write(startMessage);
+
+            while (!isValidInput)
+            {
+                if (int.TryParse(Console.ReadLine(), out userInput))
+                {
+                    if (userInput > 0 && userInput <= maxInput)
+                        isValidInput = true;
+                    else
+                        Text.WriteInColor($"\nPlease enter a number between 1 and {maxInput}: ", ConsoleColor.Red);
+
+                }
+                else
+                {
+                    Text.WriteInColor("\nInvalid input. Please enter a number instead: ", ConsoleColor.Red);
+                }
+            }
+
+            return userInput;
+        }
+    }
+
+    class Text
+    {
         public static void WriteLineInColor(string text, ConsoleColor color = ConsoleColor.DarkRed, bool customPos = false, int xPos = 0, int YPos = 0)
         {
             Console.ForegroundColor = color;
 
-            if (customPos) 
+            if (customPos)
                 WriteLineAtPosition(xPos, YPos, text);
             else
                 Console.WriteLine(text);
@@ -478,20 +521,6 @@ namespace millionDollarsCourses
             Console.ResetColor();
         }
 
-        public static void PressAnythingToContinue(ConsoleColor color = ConsoleColor.DarkYellow, bool customPos = false, int xPos = 0, int YPos = 0, string text = "press anything to continue", bool consoleClear = true)
-        {
-            if (customPos)
-                Console.SetCursorPosition(xPos, YPos);
-
-            Console.ForegroundColor = color;
-            Console.WriteLine(text);
-            Console.ResetColor();
-            Console.ReadKey(true);
-
-            if (consoleClear)
-                Console.Clear();
-        }
-
         public static void WriteLineAtPosition(int xPos, int yPos, string text)
         {
             Console.SetCursorPosition(xPos, yPos);
@@ -502,32 +531,6 @@ namespace millionDollarsCourses
         {
             Console.SetCursorPosition(xPos, yPos);
             Console.Write(text);
-        }
-
-        public static int GetUserNumberInRange(string startMessage = "Select Number: ", int maxInput = 100)
-        {
-            int userInput = 0;
-            bool isValidInput = false;
-
-            Console.Write(startMessage);
-
-            while (!isValidInput)
-            {
-                if (int.TryParse(Console.ReadLine(), out userInput))
-                {
-                    if (userInput > 0 && userInput <= maxInput)
-                        isValidInput = true;
-                    else
-                        Custom.WriteInColor($"\nPlease enter a number between 1 and {maxInput}: ", ConsoleColor.Red);
-
-                }
-                else
-                {
-                    Custom.WriteInColor("\nInvalid input. Please enter a number instead: ", ConsoleColor.Red);
-                }
-            }
-
-            return userInput;
         }
     }
 }
