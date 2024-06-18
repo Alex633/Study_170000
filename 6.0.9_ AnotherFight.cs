@@ -454,9 +454,9 @@ namespace millionDollarsCourses
 
     class Misc
     {
-        public static void PressAnythingToContinue(ConsoleColor color = ConsoleColor.DarkYellow, bool customPos = false, int xPos = 0, int YPos = 0, string text = "press anything to continue", bool consoleClear = true)
+        public static void PressAnythingToContinue(ConsoleColor color = ConsoleColor.DarkYellow, bool isCustomPos = false, int xPos = 0, int YPos = 0, string text = "press anything to continue", bool isConsoleClear = true)
         {
-            if (customPos)
+            if (isCustomPos)
                 Console.SetCursorPosition(xPos, YPos);
 
             Console.ForegroundColor = color;
@@ -464,7 +464,7 @@ namespace millionDollarsCourses
             Console.ResetColor();
             Console.ReadKey(true);
 
-            if (consoleClear)
+            if (isConsoleClear)
                 Console.Clear();
         }
 
@@ -497,11 +497,11 @@ namespace millionDollarsCourses
 
     class Text
     {
-        public static void WriteLineInColor(string text, ConsoleColor color = ConsoleColor.DarkRed, bool customPos = false, int xPos = 0, int YPos = 0)
+        public static void WriteLineInColor(string text, ConsoleColor color = ConsoleColor.DarkRed, bool isCustomPos = false, int xPos = 0, int YPos = 0)
         {
             Console.ForegroundColor = color;
 
-            if (customPos)
+            if (isCustomPos)
                 WriteLineAtPosition(xPos, YPos, text);
             else
                 Console.WriteLine(text);
@@ -509,11 +509,11 @@ namespace millionDollarsCourses
             Console.ResetColor();
         }
 
-        public static void WriteInColor(string text, ConsoleColor color = ConsoleColor.DarkRed, bool customPos = false, int xPos = 0, int YPos = 0)
+        public static void WriteInColor(string text, ConsoleColor color = ConsoleColor.DarkRed, bool isCustomPos = false, int xPos = 0, int YPos = 0)
         {
             Console.ForegroundColor = color;
 
-            if (customPos)
+            if (isCustomPos)
                 WriteLineAtPosition(xPos, YPos, text);
             else
                 Console.Write(text);
