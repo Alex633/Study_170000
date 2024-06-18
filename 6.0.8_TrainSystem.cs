@@ -12,9 +12,7 @@ namespace millionDollarsCourses
     //В верхней части программы должна выводиться полная информация о текущем рейсе или его отсутствии. 
 
     //todo: 
-    //      make train naming after entering "creating a route"
-    //      display hud info at the bottom
-    //      - 
+    //      create method inside train control system display hud (at the bottom of the console Soldiers: 5 waiting A-B, 29 waiting B-C; Route(s): A-B; Trains: Sokol(25)
 
     internal class Program
     {
@@ -26,10 +24,121 @@ namespace millionDollarsCourses
 
         class TrainControlSystem
         {
-            private readonly List<Station> _stations = new List<Station>();
             private bool _isWorking = true;
-            private Train _train;
-            private Route _route;
+            private Train _train = new Train("Joe");
+            private Route _route = new Route();
+            private Dictionary<int, string> _commands;
+
+            public TrainControlSystem()
+            {
+                InitializeCommands();
+            }
+
+            public void Start()
+            {
+                Console.WriteLine("Welcome to Combine Train Control System, soldier\n");
+
+                while (_isWorking)
+                {
+                    DisplayCommands();
+                    HandleInput();
+                    //CreateTrain();
+                }
+
+                Exit();
+            }
+
+            private void HandleInput()
+            {
+                int userInput;
+
+                userInput = Misc.GetUserNumberInRange("\nAwaiting command: ", 2);
+
+                switch (userInput)
+                {
+                    default:
+                        DisplayError();
+                        break;
+                    case 1:
+                        //look at the cameras - 33 soldiers waiting for train to move from black mesa to city 17
+                        break;
+                    case 2:
+                        _route.Create();
+                        break;
+                    case 3:
+                        //create a train
+                        break;
+                    case 4:
+                        //Transport soldiers
+                        break;
+                    case 5:
+                        _isWorking = false;
+                        break;
+                }
+            }
+
+            private void InitializeCommands()
+            {
+                _commands = new Dictionary<int, string>
+                {
+                    { 1, "Look at the cameras" },
+                    { 2, "Create route" },
+                    { 3, "Create train" },
+                    { 4, "Transport soldiers" },
+                    { 5, "Exit" }
+                };
+            }
+
+            private void DisplayCommands()
+            {
+                Console.WriteLine("Commands:");
+
+                foreach (var command in _commands)
+                {
+                    Console.WriteLine($"{command.Key}. {command.Value}");
+                }
+            }
+
+            private void CreateTrain()
+            {
+                Console.WriteLine("Train name:");
+                _train = new Train(Console.ReadLine());
+            }
+
+
+            private void DisplayError()
+            {
+                Text.WriteInColor("\nUnknown Command. Try again:", ConsoleColor.Red);
+                Misc.PressAnythingToContinue();
+            }
+
+            private void GetPassengerTickets()
+            {
+
+            }
+
+            private void SellTickets()
+            {
+
+            }
+            private void Exit()
+            {
+                Console.Clear();
+                Console.WriteLine("\nGlory to the Combine");
+            }
+        }
+
+        class Route
+        {
+            private readonly List<Station> _stations = new List<Station>();
+
+            public Station DepartureStation { get; private set; }
+            public Station DestinationStation { get; private set; }
+
+            public Route()
+            {
+                GetAvailableStations();
+            }
 
             enum StationName
             {
@@ -41,82 +150,7 @@ namespace millionDollarsCourses
                 ApertureScience
             }
 
-            public TrainControlSystem()
-            {
-                GetAvailableStations();
-            }
-
-            public void Start()
-            {
-                Console.WriteLine("Welcome to Combine Train Control System, soldier\n");
-
-                while (_isWorking)
-                {
-                    DisplayCommands();
-                    CreateTrain();
-                    HandleInput();
-                }
-
-                Console.WriteLine("\nGlory to the Combine");
-            }
-
-            public void HandleInput()
-            {
-                string userInput;
-
-                userInput = Console.ReadLine();
-
-                switch (userInput)
-                {
-                    default:
-                        DisplayError();
-                        break;
-                    case "1":
-                        CreateRoute();
-                        break;
-                    case "2":
-                        _isWorking = false;
-                        break;
-                }
-            }
-
-            public void DisplayCommands()
-            {
-                Console.WriteLine("Commands");
-                Console.WriteLine($"1. Create a new route\n" +
-                    $"2. Exit");
-            }
-
-            public void CreateRoute()
-            {
-                Console.Clear();
-                _route = new Route();
-                _route.SelectStationType("DEPARTURE", _stations);
-                _route.SelectStationType("DESTINATION", _stations, true);
-                Console.WriteLine($"Departure:{_route.DepartureStation.Name} Station\n" +
-                    $"Destination: {_route.DestinationStation.Name} Station\n");
-                Custom.PressAnythingToContinue();
-            }
-
-            public void CreateTrain()
-            {
-                Console.WriteLine("Train name:");
-                _train = new Train(Console.ReadLine());
-            }
-
-
-            public void DisplayError()
-            {
-                Custom.WriteInColor("\nUnknown Command. Try again:", ConsoleColor.Red);
-                Custom.PressAnythingToContinue();
-            }
-
-            public void GetPassengerTickets()
-            {
-
-            }
-
-            public void GetAvailableStations()
+            private void GetAvailableStations()
             {
                 foreach (StationName stationName in Enum.GetValues(typeof(StationName)))
                 {
@@ -124,60 +158,39 @@ namespace millionDollarsCourses
                 }
             }
 
-            public void DisplayStations()
+            public void Create()
             {
-                int count = 0;
+                bool isCorrectDestination = false;
+
+                Console.Clear();
+                Text.WriteLineInColor("Creating Route\n", ConsoleColor.DarkGray);
+                DisplayAllStations();
+                DepartureStation = _stations[Misc.GetUserNumberInRange("\nSelect DEPARTURE station: ", _stations.Count)];
+
+                while (!isCorrectDestination)
+                {
+                    DestinationStation = _stations[Misc.GetUserNumberInRange("Select DESTINATION station: ", _stations.Count)];
+
+                    if (DestinationStation != DepartureStation)
+                        isCorrectDestination = true;
+                    else
+                        Text.WriteLineInColor("\nThe destination station and departure station cannot be the same. Choose a valid route, soldier");
+                }
+
+                Text.WriteLineInColor($"\nRoute [{DepartureStation.Name} - {DestinationStation.Name}] created", ConsoleColor.Blue);
+                Misc.PressAnythingToContinue();
+            }
+
+            private void DisplayAllStations()
+            {
+                int count = 1;
+
+                Console.WriteLine("Stations: ");
+
                 foreach (Station station in _stations)
                 {
-                    Console.Write(++count + " ");
-                    station.ShowInfo();
-                }
-            }
-
-            public void SellTickets()
-            {
-
-            }
-        }
-
-        class Route
-        {
-            public Station DepartureStation;
-            public Station DestinationStation;
-
-            public Route() { }
-
-            public void SelectStationType(string stationType, List<Station> stations, bool isDestination = false)
-            {
-                bool isValidStation = false;
-                int userInput;
-                Station station;
-
-                while (!isValidStation)
-                {
-                    Console.Clear();
-                    string message = $"{stationType} station:\n";
-                    userInput = Custom.GetUserNumberInRange(message, stations.Count);
-                    station = stations[userInput];
-
-                    if (isDestination)
-                    {
-                        if (station == DepartureStation)
-                        {
-                            Custom.WriteInColor("\nDestination and departure stations cannot be the same. Try again", ConsoleColor.Red);
-                            Custom.PressAnythingToContinue();
-                        }
-                        else
-                        {
-                            isValidStation = true;
-                        }
-                    }
-                    else
-                    {
-                        isValidStation = true;
-                    }
-
-                    Console.Clear();
+                    Console.Write($"{count}. {station.Name}\n");
+                    count++;
                 }
             }
         }
@@ -247,74 +260,38 @@ namespace millionDollarsCourses
 
         class Station
         {
-            public readonly string Name;
+            public string Name { get; private set; }
 
             public Station(string name)
             {
                 Name = name;
             }
-
-            public void ShowInfo()
-            {
-                Console.WriteLine($"station : {Name}");
-            }
         }
     }
 
-    class Custom
+
+    class Misc
     {
-        public static void WriteInColor(string text, ConsoleColor color = ConsoleColor.DarkRed, bool customPos = false, int xPos = 0, int YPos = 0)
+        public static void PressAnythingToContinue(ConsoleColor color = ConsoleColor.DarkYellow, bool isCustomPos = false, int xPos = 0, int YPos = 0, string text = "press anything to continue", bool isConsoleClear = true)
         {
-            if (customPos)
+            if (isCustomPos)
                 Console.SetCursorPosition(xPos, YPos);
 
             Console.ForegroundColor = color;
             Console.WriteLine(text);
             Console.ResetColor();
+            Console.ReadKey(true);
+
+            if (isConsoleClear)
+                Console.Clear();
         }
 
-        public static void PressAnythingToContinue(ConsoleColor color = ConsoleColor.DarkYellow, bool customPos = false, int xPos = 0, int YPos = 0, string text = "press anything to continue")
-        {
-            if (customPos)
-                Console.SetCursorPosition(xPos, YPos);
-
-            Console.ForegroundColor = color;
-            Console.WriteLine(text);
-            Console.ResetColor();
-            Console.ReadKey();
-            Console.Clear();
-        }
-
-        public static void WriteFilled(string text, ConsoleColor color = ConsoleColor.DarkYellow, bool customPos = false, int xPos = 0, int yPos = 0)
-        {
-            int borderLength = text.Length + 2;
-            string filler = new string('═', borderLength);
-            string topBorder = "╔" + filler + "╗";
-            string line = $"║ {text} ║";
-            string bottomBorder = "╚" + filler + "╝";
-
-            Console.ForegroundColor = ConsoleColor.Black;
-            Console.BackgroundColor = color;
-
-            WriteAtPosition(xPos, yPos, topBorder);
-            WriteAtPosition(xPos, yPos + 1, line);
-            WriteAtPosition(xPos, yPos + 2, bottomBorder);
-
-            Console.ResetColor();
-        }
-
-        public static void WriteAtPosition(int xPos, int yPos, string text)
-        {
-            Console.SetCursorPosition(xPos, yPos);
-            Console.WriteLine(text);
-        }
-
-        public static int GetUserNumberInRange(string startMessage = "The station number", int maxInput = 100)
+        public static int GetUserNumberInRange(string startMessage = "Select Number: ", int maxInput = 100)
         {
             int userInput = 0;
             bool isValidInput = false;
 
-            Console.WriteLine(startMessage);
+            Console.Write(startMessage);
 
             while (!isValidInput)
             {
@@ -323,16 +300,55 @@ namespace millionDollarsCourses
                     if (userInput > 0 && userInput <= maxInput)
                         isValidInput = true;
                     else
-                        Custom.WriteInColor($"\nPlease enter a number between 1 and {maxInput}:", ConsoleColor.Red);
+                        Text.WriteInColor($"\nPlease enter a number between 1 and {maxInput}: ", ConsoleColor.Red);
 
                 }
                 else
                 {
-                    Custom.WriteInColor("\nInvalid input. Please enter a number:", ConsoleColor.Red);
+                    Text.WriteInColor("\nInvalid input. Please enter a number instead: ", ConsoleColor.Red);
                 }
             }
 
-            return userInput - 1;
+            return userInput;
+        }
+    }
+
+    class Text
+    {
+        public static void WriteLineInColor(string text, ConsoleColor color = ConsoleColor.DarkRed, bool isCustomPos = false, int xPos = 0, int YPos = 0)
+        {
+            Console.ForegroundColor = color;
+
+            if (isCustomPos)
+                WriteLineAtPosition(xPos, YPos, text);
+            else
+                Console.WriteLine(text);
+
+            Console.ResetColor();
+        }
+
+        public static void WriteInColor(string text, ConsoleColor color = ConsoleColor.DarkRed, bool isCustomPos = false, int xPos = 0, int YPos = 0)
+        {
+            Console.ForegroundColor = color;
+
+            if (isCustomPos)
+                WriteLineAtPosition(xPos, YPos, text);
+            else
+                Console.Write(text);
+
+            Console.ResetColor();
+        }
+
+        public static void WriteLineAtPosition(int xPos, int yPos, string text)
+        {
+            Console.SetCursorPosition(xPos, yPos);
+            Console.WriteLine(text);
+        }
+
+        public static void WriteAtPosition(int xPos, int yPos, string text)
+        {
+            Console.SetCursorPosition(xPos, yPos);
+            Console.Write(text);
         }
     }
 }
