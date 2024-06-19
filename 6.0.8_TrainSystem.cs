@@ -12,6 +12,7 @@ namespace millionDollarsCourses
     //В верхней части программы должна выводиться полная информация о текущем рейсе или его отсутствии. 
 
     //todo: 
+    //      create train method
     //      create method inside train control system display hud (at the bottom of the console Soldiers: 5 waiting A-B, 29 waiting B-C; Route(s): A-B; Trains: Sokol(25)
 
     internal class Program
@@ -27,6 +28,8 @@ namespace millionDollarsCourses
             private bool _isWorking = true;
             private Train _train = new Train("Joe");
             private Route _route = new Route();
+            private Queue<Passenger> _soldiers = new Queue<Passenger>();
+
             private Dictionary<int, string> _commands;
 
             public TrainControlSystem()
@@ -52,7 +55,7 @@ namespace millionDollarsCourses
             {
                 int userInput;
 
-                userInput = Misc.GetUserNumberInRange("\nAwaiting command: ", 2);
+                userInput = Misc.GetUserNumberInRange("\nAwaiting command: ", _commands.Count);
 
                 switch (userInput)
                 {
@@ -60,7 +63,7 @@ namespace millionDollarsCourses
                         DisplayError();
                         break;
                     case 1:
-                        //look at the cameras - 33 soldiers waiting for train to move from black mesa to city 17
+                        CheckCameras();
                         break;
                     case 2:
                         _route.Create();
@@ -112,15 +115,31 @@ namespace millionDollarsCourses
                 Misc.PressAnythingToContinue();
             }
 
-            private void GetPassengerTickets()
+            private void CheckCameras()
             {
+                Route neededRoute = new Route();
 
+                Console.Clear();
+                Console.WriteLine("You are looking at the cameras...");
+                Misc.PressAnythingToContinue();
+                neededRoute.Determine();
+                Text.WriteLineInCustomColors($"{CountPassengers()}", ConsoleColor.Blue, " combine soldiers waiting for the train to move from ", ConsoleColor.White, $"{neededRoute.DepartureStation.Name}", ConsoleColor.Blue, " station to ", ConsoleColor.White, $"{neededRoute.DestinationStation.Name}", ConsoleColor.Blue, " station", ConsoleColor.White);
+                Misc.PressAnythingToContinue();
             }
 
-            private void SellTickets()
+            private int CountPassengers()
             {
+                int soldiersAmmount;
+                Random random = new Random();
 
+                soldiersAmmount = random.Next(501);
+
+                for (int i = 0; i < soldiersAmmount; i++)
+                    _soldiers.Enqueue(new Passenger());
+
+                return _soldiers.Count;
             }
+
             private void Exit()
             {
                 Console.Clear();
@@ -131,6 +150,7 @@ namespace millionDollarsCourses
         class Route
         {
             private readonly List<Station> _stations = new List<Station>();
+            Random random = new Random();
 
             public Station DepartureStation { get; private set; }
             public Station DestinationStation { get; private set; }
@@ -165,11 +185,11 @@ namespace millionDollarsCourses
                 Console.Clear();
                 Text.WriteLineInColor("Creating Route\n", ConsoleColor.DarkGray);
                 DisplayAllStations();
-                DepartureStation = _stations[Misc.GetUserNumberInRange("\nSelect DEPARTURE station: ", _stations.Count)];
+                DepartureStation = _stations[Misc.GetUserNumberInRange("\nSelect DEPARTURE station: ", _stations.Count) - 1];
 
                 while (!isCorrectDestination)
                 {
-                    DestinationStation = _stations[Misc.GetUserNumberInRange("Select DESTINATION station: ", _stations.Count)];
+                    DestinationStation = _stations[Misc.GetUserNumberInRange("Select DESTINATION station: ", _stations.Count) - 1];
 
                     if (DestinationStation != DepartureStation)
                         isCorrectDestination = true;
@@ -180,6 +200,22 @@ namespace millionDollarsCourses
                 Text.WriteLineInColor($"\nRoute [{DepartureStation.Name} - {DestinationStation.Name}] created", ConsoleColor.Blue);
                 Misc.PressAnythingToContinue();
             }
+
+            public void Determine()
+            {
+                int departureStationNum;
+                int destinationStationNum;
+
+                departureStationNum = random.Next(_stations.Count);
+                DepartureStation = _stations[departureStationNum];
+                destinationStationNum = random.Next(_stations.Count);
+
+                while (destinationStationNum == departureStationNum)
+                    destinationStationNum = random.Next(_stations.Count);
+
+                DestinationStation = _stations[destinationStationNum];
+            }
+
 
             private void DisplayAllStations()
             {
@@ -248,9 +284,9 @@ namespace millionDollarsCourses
 
         class Passenger
         {
-            private readonly string _name;
-            private readonly int _seat;
-            private readonly int _wagon;
+            //private readonly string _name;
+            //private readonly int _seat;
+            //private readonly int _wagon;
 
             public void Board()
             {
@@ -315,6 +351,43 @@ namespace millionDollarsCourses
 
     class Text
     {
+        public static void WriteLineInCustomColors(string text1, ConsoleColor color1 = ConsoleColor.White, string text2 = "", ConsoleColor color2 = ConsoleColor.White, string text3 = "", ConsoleColor color3 = ConsoleColor.White, string text4 = "", ConsoleColor color4 = ConsoleColor.White, string text5 = "", ConsoleColor color5 = ConsoleColor.White, string text6 = "", ConsoleColor color6 = ConsoleColor.White, bool isCustomPos = false, int xPos = 0, int YPos = 0)
+        {
+
+            if (isCustomPos)
+            {
+                Console.ForegroundColor = color1;
+                WriteAtPosition(xPos, YPos, text1);
+                Console.ForegroundColor = color2;
+                Console.Write(text2);
+                Console.ForegroundColor = color3;
+                Console.Write(text3);
+                Console.ForegroundColor = color4;
+                Console.Write(text4);
+                Console.ForegroundColor = color5;
+                Console.Write(text5);
+                Console.ForegroundColor = color6;
+                Console.WriteLine(text6);
+            }
+            else
+            {
+                Console.ForegroundColor = color1;
+                Console.Write(text1);
+                Console.ForegroundColor = color2;
+                Console.Write(text2);
+                Console.ForegroundColor = color3;
+                Console.Write(text3);
+                Console.ForegroundColor = color4;
+                Console.Write(text4);
+                Console.ForegroundColor = color5;
+                Console.Write(text5);
+                Console.ForegroundColor = color6;
+                Console.WriteLine(text6);
+            }
+
+            Console.ResetColor();
+        }
+
         public static void WriteLineInColor(string text, ConsoleColor color = ConsoleColor.DarkRed, bool isCustomPos = false, int xPos = 0, int YPos = 0)
         {
             Console.ForegroundColor = color;
