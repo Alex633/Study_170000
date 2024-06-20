@@ -26,9 +26,12 @@ namespace millionDollarsCourses
         class TrainControlSystem
         {
             private bool _isWorking = true;
-            private Train _train = new Train("Joe");
+            private Train _train = new Train();
             private Route _route = new Route();
             private Queue<Passenger> _soldiers = new Queue<Passenger>();
+            private Wagon[] _smallWagons;
+            private Wagon[] _mediumWagons;
+            private Wagon[] _largeWagons;
 
             private Dictionary<int, string> _commands;
 
@@ -66,10 +69,10 @@ namespace millionDollarsCourses
                         CheckCameras();
                         break;
                     case 2:
-                        _route.Create();
+                        _route.DeterminePoints();
                         break;
                     case 3:
-                        //create a train
+                        _train.Construct();
                         break;
                     case 4:
                         //Transport soldiers
@@ -86,7 +89,7 @@ namespace millionDollarsCourses
                 {
                     { 1, "Look at the cameras" },
                     { 2, "Create route" },
-                    { 3, "Create train" },
+                    { 3, "Construct train" },
                     { 4, "Transport soldiers" },
                     { 5, "Exit" }
                 };
@@ -102,13 +105,6 @@ namespace millionDollarsCourses
                 }
             }
 
-            private void CreateTrain()
-            {
-                Console.WriteLine("Train name:");
-                _train = new Train(Console.ReadLine());
-            }
-
-
             private void DisplayError()
             {
                 Text.WriteInColor("\nUnknown Command. Try again:", ConsoleColor.Red);
@@ -122,7 +118,7 @@ namespace millionDollarsCourses
                 Console.Clear();
                 Console.WriteLine("You are looking at the cameras...");
                 Misc.PressAnythingToContinue(ConsoleColor.DarkYellow, false, 0, 0, "press anything to continue", false);
-                neededRoute.Determine();
+                neededRoute.DetermineRequest();
                 Text.WriteLineInCustomColors($"\n{CountPassengers()}", ConsoleColor.Blue, " combine soldiers waiting for the train to move from ", ConsoleColor.White, $"{neededRoute.DepartureStation.Name}", ConsoleColor.Blue, " station to ", ConsoleColor.White, $"{neededRoute.DestinationStation.Name}", ConsoleColor.Blue, " station", ConsoleColor.White);
                 Misc.PressAnythingToContinue();
             }
@@ -178,7 +174,7 @@ namespace millionDollarsCourses
                 }
             }
 
-            public void Create()
+            public void DeterminePoints()
             {
                 bool isCorrectDestination = false;
 
@@ -201,7 +197,7 @@ namespace millionDollarsCourses
                 Misc.PressAnythingToContinue();
             }
 
-            public void Determine()
+            public void DetermineRequest()
             {
                 int departureStationNum;
                 int destinationStationNum;
@@ -235,24 +231,26 @@ namespace millionDollarsCourses
         {
             private List<Wagon> _wagons = new List<Wagon>();
 
-            public Train(string name)
+            public int Number { get; private set; }
+
+            public Train()
             {
-                Name = name;
+                Number += 1;
             }
-
-            public string Name { get; private set; }
-
 
             private void StartJourney()
             {
             }
 
-            private void Construct()
+            public void Construct()
             {
                 int wagonCount = 1;
 
+                Text.WriteLineInColor("Train construction", ConsoleColor.DarkGray);
+
                 Console.WriteLine($"Creating wagon number {wagonCount}. Number of seats::");
-                _wagons.Add(new Wagon(wagonCount, 1));
+                _wagons.Add(new Wagon(wagonCount, Wagon.Сapacities.Small));
+                _wagons[0].DisplayInfo();
             }
 
             private void ShowCurrentInfo()
@@ -271,14 +269,59 @@ namespace millionDollarsCourses
 
         class Wagon
         {
-            private readonly int _num;
-            private readonly int _maxSeats;
-            private List<Passenger> _passengers = new List<Passenger>();
+            private int _smallSizeSeats = 10;
+            private int _mediumSizeSeats = 50;
+            private int _largeSizeSeats = 100;
 
-            public Wagon(int num, int seats)
+            public string CapacityName {  get; private set; }
+            public int MaxSeats { get; private set; }
+            public int Number { get; private set; }
+            public enum Сapacities
             {
-                _num = num;
-                _maxSeats = seats;
+                Small,
+                Medium,
+                Large
+            }
+
+            public Wagon(int number, Сapacities size)
+            {
+                Number = number;
+                MaxSeats = GetMaxSeats(size);
+                CapacityName = GetCapacityType(size);
+            }
+            private int GetMaxSeats(Сapacities size)
+            {
+                switch (size)
+                {
+                    case Сapacities.Small:
+                        return _smallSizeSeats;
+                    case Сapacities.Medium:
+                        return _mediumSizeSeats;
+                    case Сapacities.Large:
+                        return _largeSizeSeats;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(size), $"Unsupported wagon size: {size}");
+                }
+            }
+
+            private string GetCapacityType(Сapacities size)
+            {
+                switch (size)
+                {
+                    case Сapacities.Small:
+                        return Сapacities.Small.ToString();
+                    case Сapacities.Medium:
+                        return Сapacities.Medium.ToString();
+                    case Сapacities.Large:
+                        return Сapacities.Large.ToString();
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(size), $"Unsupported wagon size: {size}");
+                }
+            }
+
+            public void DisplayInfo()
+            {
+                Text.WriteLineInCustomColors($"Wagon ", ConsoleColor.White, $"#{Number}", ConsoleColor.Blue, $". Size: ", ConsoleColor.White, $"{this}{MaxSeats}", ConsoleColor.Blue);
             }
         }
 
