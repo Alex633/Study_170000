@@ -248,7 +248,8 @@ namespace millionDollarsCourses
 
                 Text.WriteLineInColor("Train construction", ConsoleColor.DarkGray);
 
-                Console.WriteLine($"Creating wagon number {wagonCount}. Number of seats::");
+                Console.WriteLine($"Select wagon size; ");
+traincontrolsystem.displayallwagons()
                 _wagons.Add(new Wagon(wagonCount, Wagon.Сapacities.Small));
                 _wagons[0].DisplayInfo();
             }
@@ -269,59 +270,32 @@ namespace millionDollarsCourses
 
         class Wagon
         {
-            private int _smallSizeSeats = 10;
-            private int _mediumSizeSeats = 50;
-            private int _largeSizeSeats = 100;
-
-            public string CapacityName {  get; private set; }
-            public int MaxSeats { get; private set; }
-            public int Number { get; private set; }
-            public enum Сapacities
+            public int MaxSeats { get; private set; }            
+            public enum Size
             {
                 Small,
                 Medium,
                 Large
             }
 
-            public Wagon(int number, Сapacities size)
-            {
-                Number = number;
-                MaxSeats = GetMaxSeats(size);
-                CapacityName = GetCapacityType(size);
-            }
-            private int GetMaxSeats(Сapacities size)
-            {
-                switch (size)
-                {
-                    case Сapacities.Small:
-                        return _smallSizeSeats;
-                    case Сapacities.Medium:
-                        return _mediumSizeSeats;
-                    case Сapacities.Large:
-                        return _largeSizeSeats;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(size), $"Unsupported wagon size: {size}");
-                }
+            public Wagon(int maxSeats)
+            {                
+                MaxSeats = maxSeats              
             }
 
-            private string GetCapacityType(Сapacities size)
-            {
-                switch (size)
-                {
-                    case Сapacities.Small:
-                        return Сapacities.Small.ToString();
-                    case Сapacities.Medium:
-                        return Сapacities.Medium.ToString();
-                    case Сapacities.Large:
-                        return Сapacities.Large.ToString();
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(size), $"Unsupported wagon size: {size}");
-                }
-            }
+public string DetermineSize()
+{
+if (MaxSeats <= 10 && MaxSeats >= 1)
+return Size.Small.ToString();
+else if (MaxSeats <= 50 && MaxSeats >= 11)
+return Size.Medium.ToString();
+else if (MaxSeats <= 100 && MaxSeats >= 51)
+return Size.Large.ToString(); 
+}
 
             public void DisplayInfo()
             {
-                Text.WriteLineInCustomColors($"Wagon ", ConsoleColor.White, $"#{Number}", ConsoleColor.Blue, $". Size: ", ConsoleColor.White, $"{this}{MaxSeats}", ConsoleColor.Blue);
+                Text.WriteLineInCustomColors($"Wagon ", ConsoleColor.White, $"#{Number}", ConsoleColor.Blue, $". Size: ", ConsoleColor.White, $"{DetermineSize()}({MaxSeats})", ConsoleColor.Blue);
             }
         }
 
