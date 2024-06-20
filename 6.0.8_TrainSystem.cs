@@ -12,7 +12,7 @@ namespace millionDollarsCourses
     //В верхней части программы должна выводиться полная информация о текущем рейсе или его отсутствии. 
 
     //todo: 
-    //      create train method
+    //      create train methods
     //      create method inside train control system display hud (at the bottom of the console Soldiers: 5 waiting A-B, 29 waiting B-C; Route(s): A-B; Trains: Sokol(25)
 
     internal class Program
@@ -121,9 +121,9 @@ namespace millionDollarsCourses
 
                 Console.Clear();
                 Console.WriteLine("You are looking at the cameras...");
-                Misc.PressAnythingToContinue();
+                Misc.PressAnythingToContinue(ConsoleColor.DarkYellow, false, 0, 0, "press anything to continue", false);
                 neededRoute.Determine();
-                Text.WriteLineInCustomColors($"{CountPassengers()}", ConsoleColor.Blue, " combine soldiers waiting for the train to move from ", ConsoleColor.White, $"{neededRoute.DepartureStation.Name}", ConsoleColor.Blue, " station to ", ConsoleColor.White, $"{neededRoute.DestinationStation.Name}", ConsoleColor.Blue, " station", ConsoleColor.White);
+                Text.WriteLineInCustomColors($"\n{CountPassengers()}", ConsoleColor.Blue, " combine soldiers waiting for the train to move from ", ConsoleColor.White, $"{neededRoute.DepartureStation.Name}", ConsoleColor.Blue, " station to ", ConsoleColor.White, $"{neededRoute.DestinationStation.Name}", ConsoleColor.Blue, " station", ConsoleColor.White);
                 Misc.PressAnythingToContinue();
             }
 
