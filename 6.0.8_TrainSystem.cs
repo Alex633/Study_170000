@@ -12,7 +12,7 @@ namespace millionDollarsCourses
     //В верхней части программы должна выводиться полная информация о текущем рейсе или его отсутствии. 
 
     //todo: 
-    //      create train methods
+    //      create train hud (alternative train.showinfo) - same with everyhing else
     //      create method inside train control system display hud (at the bottom of the console Soldiers: 5 waiting A-B, 29 waiting B-C; Route(s): A-B; Trains: Sokol(25)
 
     internal class Program
@@ -229,13 +229,17 @@ namespace millionDollarsCourses
 
         class Train
         {
-            private List<Wagon> _wagons = new List<Wagon>();
+            private Stack<Wagon> _wagons = new Stack<Wagon>();
+            private Wagon _smallWagonBlueprint = new Wagon(10);
+            private Wagon _mediumWagonBlueprint = new Wagon(50);
+            private Wagon _largeWagonBlueprint = new Wagon(100);
 
-            public int Number { get; private set; }
+            public int Seats { get; private set; }
+            public int WagonCount { get; private set; }
 
             public Train()
             {
-                Number += 1;
+                WagonCount = 0;
             }
 
             private void StartJourney()
@@ -244,34 +248,69 @@ namespace millionDollarsCourses
 
             public void Construct()
             {
-                int wagonCount = 1;
+                bool isConstracting = true;
 
-                Text.WriteLineInColor("Train construction", ConsoleColor.DarkGray);
+                Console.Clear();
 
-                Console.WriteLine($"Select wagon size; ");
-traincontrolsystem.displayallwagons()
-                _wagons.Add(new Wagon(wagonCount, Wagon.Сapacities.Small));
-                _wagons[0].DisplayInfo();
+                while (isConstracting)
+                {
+                    Text.WriteLineInColor("Train construction\n", ConsoleColor.DarkGray);
+                    ShowInfo();
+                    Console.WriteLine();
+                    DisplayAvailableWagonSizes();
+                    AddWagon(SelectWagonSize(Misc.GetUserNumberInRange($"Select wagon #{WagonCount + 1} size: ", 3)));
+
+                    isConstracting = Misc.GetBoolUserInput("Add more wagons?");
+                }
+
+                Text.WriteLineInColor($"Train Construction Complete", ConsoleColor.Cyan);
+                Misc.PressAnythingToContinue();
             }
 
-            private void ShowCurrentInfo()
+            private void DisplayAvailableWagonSizes()
             {
+                Console.WriteLine($"Wagon sizes:\n" +
+                    $"1. {_smallWagonBlueprint.SizeName} ({_smallWagonBlueprint.Seats} seats)\n" +
+                    $"2. {_mediumWagonBlueprint.SizeName} ({_mediumWagonBlueprint.Seats} seats)\n" +
+                    $"3. {_largeWagonBlueprint.SizeName} ({_largeWagonBlueprint.Seats} seats)\n");
+
             }
 
-            private void AddWagon()
+            private void ShowInfo()
             {
-
+                Text.WriteLineInCustomColors("Train info:\n" +
+                    $"The train has {WagonCount} wagon(s) | ", ConsoleColor.White, $"{Seats} seats", ConsoleColor.Blue);
             }
 
-            private void RemoveWagon()
-            { }
+            private void AddWagon(Wagon wagonBlueprint)
+            {
+                _wagons.Push(wagonBlueprint);
+                Seats += wagonBlueprint.Seats;
+                WagonCount++;
+                Text.WriteLineInColor($"\n{wagonBlueprint.SizeName} wagon ({wagonBlueprint.Seats}) added\n", ConsoleColor.Cyan);
+            }
 
+            private Wagon SelectWagonSize(int userInput)
+            {
+                switch (userInput)
+                {
+                    case 1:
+                        return _smallWagonBlueprint;
+                    case 2:
+                        return _mediumWagonBlueprint;
+                    case 3:
+                        return _largeWagonBlueprint;
+                    default:
+                        return null;
+                }
+            }
         }
 
         class Wagon
         {
-            public int MaxSeats { get; private set; }            
-            public enum Size
+            public int Seats { get; private set; }
+            public string SizeName { get; private set; }
+            private enum Capacity
             {
                 Small,
                 Medium,
@@ -279,23 +318,31 @@ traincontrolsystem.displayallwagons()
             }
 
             public Wagon(int maxSeats)
-            {                
-                MaxSeats = maxSeats              
+            {
+                Seats = maxSeats;
+                SizeName = DetermineSize();
+                if (Seats <= 0)
+                    Seats = 1;
             }
 
-public string DetermineSize()
-{
-if (MaxSeats <= 10 && MaxSeats >= 1)
-return Size.Small.ToString();
-else if (MaxSeats <= 50 && MaxSeats >= 11)
-return Size.Medium.ToString();
-else if (MaxSeats <= 100 && MaxSeats >= 51)
-return Size.Large.ToString(); 
-}
+            public string DetermineSize()
+            {
+                int minSmall = 1;
+                int maxSmall = 10;
+                int minMedium = 11;
+                int maxMedium = 50;
+
+                if (Seats <= maxSmall && Seats >= minSmall)
+                    return Capacity.Small.ToString();
+                else if (Seats <= maxMedium && Seats >= minMedium)
+                    return Capacity.Medium.ToString();
+                else
+                    return Capacity.Large.ToString();
+            }
 
             public void DisplayInfo()
             {
-                Text.WriteLineInCustomColors($"Wagon ", ConsoleColor.White, $"#{Number}", ConsoleColor.Blue, $". Size: ", ConsoleColor.White, $"{DetermineSize()}({MaxSeats})", ConsoleColor.Blue);
+                Text.WriteLineInCustomColors($"Wagon ", ConsoleColor.White, $"#", ConsoleColor.Blue, $". Size: ", ConsoleColor.White, $"{DetermineSize()}({Seats})", ConsoleColor.Blue);
             }
         }
 
@@ -364,6 +411,35 @@ return Size.Large.ToString();
 
             return userInput;
         }
+
+        public static bool GetBoolUserInput(string message)
+        {
+            bool isCorrectInput = false;
+            ConsoleKeyInfo userInput;
+
+            while (!isCorrectInput)
+            {
+                Console.WriteLine(message + " (y or n)");
+                userInput = Console.ReadKey(true);
+
+                switch (userInput.KeyChar)
+                {
+                    case 'y':
+                    case 'Y':
+                        Console.Clear();
+                        return true;
+                    case 'n':
+                    case 'N':
+                        Console.Clear();
+                        return false;
+                    default:
+                        Text.WriteLineInColor("Error. Incorrect input");
+                        break;
+                }
+            }
+
+            return false;
+        }
     }
 
     class Text
@@ -405,7 +481,7 @@ return Size.Large.ToString();
             Console.ResetColor();
         }
 
-        public static void WriteLineInColor(string text, ConsoleColor color = ConsoleColor.DarkRed, bool isCustomPos = false, int xPos = 0, int YPos = 0)
+        public static void WriteLineInColor(string text, ConsoleColor color = ConsoleColor.Red, bool isCustomPos = false, int xPos = 0, int YPos = 0)
         {
             Console.ForegroundColor = color;
 
@@ -417,7 +493,7 @@ return Size.Large.ToString();
             Console.ResetColor();
         }
 
-        public static void WriteInColor(string text, ConsoleColor color = ConsoleColor.DarkRed, bool isCustomPos = false, int xPos = 0, int YPos = 0)
+        public static void WriteInColor(string text, ConsoleColor color = ConsoleColor.Red, bool isCustomPos = false, int xPos = 0, int YPos = 0)
         {
             Console.ForegroundColor = color;
 
