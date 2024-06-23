@@ -12,8 +12,11 @@ namespace millionDollarsCourses
     //В верхней части программы должна выводиться полная информация о текущем рейсе или его отсутствии. 
 
     //todo: 
+    //      check if route is correct then send (maybe get set is not correct?)
+    //      check if everything else is correct then send (_soldiers.Count >= CountPassengers() && )
+    //      reset values if correct all
+    //      construct method and train with blueprints are weard
     //      create train hud (alternative train.showinfo) - same with everyhing else
-    //      create method inside train control system display hud (at the bottom of the console Soldiers: 5 waiting A-B, 29 waiting B-C; Route(s): A-B; Trains: Sokol(25)
 
     internal class Program
     {
@@ -28,9 +31,26 @@ namespace millionDollarsCourses
             private bool _isWorking = true;
             private Train _train = new Train();
             private Route _route = new Route();
+            private Route _neededRoute = new Route();
             private Queue<Passenger> _soldiers = new Queue<Passenger>();
-
             private Dictionary<int, string> _commands;
+            private const string _watchCamerasCommand = "Look at the cameras";
+            private const string _createRouteCommand = "Create route";
+            private const string _constructTrainCommand = "Construct train";
+            private const string _transportSoldiersCommand = "Transport soldiers";
+            private const string _exitCommand = "Exit";
+
+            public bool IsCreatedRouteNeeded
+            {
+                get
+                {
+                    if (_route.IsFilled && _neededRoute.IsFilled && _route.DepartureStation == _neededRoute.DepartureStation && _route.DestinationStation == _neededRoute.DestinationStation)
+                        return true;
+                    else
+                        return false;
+                }
+                private set { }
+            }
 
             public TrainControlSystem()
             {
@@ -39,16 +59,31 @@ namespace millionDollarsCourses
 
             public void Start()
             {
-                Console.WriteLine("Welcome to Combine Train Control System, soldier\n");
+                TextUtility.WriteLineInCustomColors(
+                    ("Welcome to Combine Train Control System, ", ConsoleColor.White),
+                    ("soldier\n", ConsoleColor.Red)
+                    );
 
                 while (_isWorking)
                 {
+                    ShowHud();
                     DisplayCommands();
                     HandleInput();
-                    //CreateTrain();
                 }
 
                 Exit();
+            }
+
+            private void InitializeCommands()
+            {
+                _commands = new Dictionary<int, string>
+                {
+                    { 1, _watchCamerasCommand },
+                    { 2, _createRouteCommand },
+                    { 3, _constructTrainCommand },
+                    { 4, _transportSoldiersCommand },
+                    { 5, _exitCommand }
+                };
             }
 
             private void HandleInput()
@@ -64,34 +99,23 @@ namespace millionDollarsCourses
                         default:
                             DisplayError();
                             break;
-                        case "Look at the cameras":
+                        case _watchCamerasCommand:
                             CheckCameras();
                             break;
-                        case "Create route":
+                        case _createRouteCommand:
                             _route.EnterPoints();
                             break;
-                        case "Construct train":
+                        case _constructTrainCommand:
                             _train.Construct();
                             break;
-                        case "Transport soldiers":
+                        case _transportSoldiersCommand:
+                            Transport();
                             break;
-                        case "Exit":
+                        case _exitCommand:
                             _isWorking = false;
                             break;
                     }
                 }
-            }
-
-            private void InitializeCommands()
-            {
-                _commands = new Dictionary<int, string>
-                {
-                    { 1, "Look at the cameras" },
-                    { 2, "Create route" },
-                    { 3, "Construct train" },
-                    { 4, "Transport soldiers" },
-                    { 5, "Exit" }
-                };
             }
 
             private void DisplayCommands()
@@ -106,34 +130,65 @@ namespace millionDollarsCourses
 
             private void DisplayError()
             {
-                Text.WriteInColor("\nUnknown Command. Try again:", ConsoleColor.Red);
+                TextUtility.WriteInColor("\nUnknown Command. Try again:", ConsoleColor.Red);
                 Utility.PressAnythingToContinue();
             }
 
             private void CheckCameras()
             {
-                Route neededRoute = new Route();
-
                 Console.Clear();
                 Console.WriteLine("You are looking at the cameras...");
                 Utility.PressAnythingToContinue(ConsoleColor.DarkYellow, false, 0, 0, "press anything to continue", false);
-                neededRoute.DetermineRequest();
-                Text.WriteLineInCustomColors($"\n{CountPassengers()}", ConsoleColor.Blue, " combine soldiers waiting for the train to move from ", ConsoleColor.White, $"{neededRoute.DepartureStation.Name}", ConsoleColor.Blue, " station to ", ConsoleColor.White, $"{neededRoute.DestinationStation.Name}", ConsoleColor.Blue, " station", ConsoleColor.White);
+                _neededRoute.DetermineNeed();
+                TextUtility.WriteLineInCustomColors(
+                    ($"\n{CountPassengers()}", ConsoleColor.Blue),
+                    (" combine soldiers waiting for the train to move from ", ConsoleColor.White),
+                    ($"{_neededRoute.DepartureStation.Name}", ConsoleColor.Blue),
+                    (" station to ", ConsoleColor.White),
+                    ($"{_neededRoute.DestinationStation.Name}", ConsoleColor.Blue),
+                    (" station", ConsoleColor.White));
                 Utility.PressAnythingToContinue();
             }
 
             private int CountPassengers()
             {
                 int soldiersAmmount;
-                Random random = new Random();
                 _soldiers.Clear();
 
-                soldiersAmmount = random.Next(501);
+                soldiersAmmount = Utility.GenerateRandomNumber(501);
 
                 for (int i = 0; i < soldiersAmmount; i++)
                     _soldiers.Enqueue(new Passenger());
 
                 return _soldiers.Count;
+            }
+
+            private void ShowHud()
+            {
+                ShowPassengersHud();
+                _route.ShowInfo();
+                _train.ShowInfo();
+            }
+
+            private void ShowPassengersHud()
+            {
+                int hudXPos = 0;
+                int hudYPos = 27;
+
+                if (_soldiers.Count > 0)
+                    TextUtility.WriteInColor($"Passengers: {_soldiers.Count} soldiers waiting for [{_neededRoute.DepartureStation.Name} - {_neededRoute.DestinationStation.Name}] train", ConsoleColor.DarkGreen, true, hudXPos, hudYPos);
+                else
+                    TextUtility.WriteInColor($"Passengers: empty", ConsoleColor.DarkGray, true, hudXPos, hudYPos);
+            }
+
+            private void Transport()
+            {
+                if (IsCreatedRouteNeeded)
+                {
+                    Console.WriteLine("cool");
+                }
+
+                Utility.PressAnythingToContinue();
             }
 
             private void Exit()
@@ -146,14 +201,15 @@ namespace millionDollarsCourses
         class Route
         {
             private readonly List<Station> _stations = new List<Station>();
-            Random random = new Random(); //!!
 
+            public bool IsFilled { get; private set; }
             public Station DepartureStation { get; private set; }
             public Station DestinationStation { get; private set; }
 
             public Route()
             {
                 GetAvailableStations();
+                IsFilled = false;
             }
 
             enum StationName
@@ -179,8 +235,8 @@ namespace millionDollarsCourses
                 bool isCorrectDestination = false;
 
                 Console.Clear();
-                Text.WriteLineInColor("Creating Route\n", ConsoleColor.DarkGray);
-                DisplayAllStations();
+                TextUtility.WriteLineInColor("Creating Route\n", ConsoleColor.DarkGray);
+                ShowAllStations();
                 DepartureStation = _stations[Utility.GetUserNumberInRange("\nSelect DEPARTURE station: ", _stations.Count) - 1];
 
                 while (!isCorrectDestination)
@@ -190,30 +246,31 @@ namespace millionDollarsCourses
                     if (DestinationStation != DepartureStation)
                         isCorrectDestination = true;
                     else
-                        Text.WriteLineInColor("\nThe destination station and departure station cannot be the same. Choose a valid route, soldier");
+                        TextUtility.WriteLineInColor("\nThe destination station and departure station cannot be the same. Choose a valid route, soldier");
                 }
 
-                Text.WriteLineInColor($"\nRoute [{DepartureStation.Name} - {DestinationStation.Name}] created", ConsoleColor.Blue);
+                TextUtility.WriteLineInColor($"\nRoute [{DepartureStation.Name} - {DestinationStation.Name}] created", ConsoleColor.Blue);
+                IsFilled = true;
                 Utility.PressAnythingToContinue();
             }
 
-            public void DetermineRequest()
+            public void DetermineNeed()
             {
                 int departureStationNum;
                 int destinationStationNum;
 
-                departureStationNum = random.Next(_stations.Count);
+                departureStationNum = Utility.GenerateRandomNumber(_stations.Count);
                 DepartureStation = _stations[departureStationNum];
-                destinationStationNum = random.Next(_stations.Count);
+                destinationStationNum = Utility.GenerateRandomNumber(_stations.Count);
 
                 while (destinationStationNum == departureStationNum)
-                    destinationStationNum = random.Next(_stations.Count);
+                    destinationStationNum = Utility.GenerateRandomNumber(_stations.Count);
 
                 DestinationStation = _stations[destinationStationNum];
             }
 
 
-            private void DisplayAllStations()
+            private void ShowAllStations()
             {
                 int count = 1;
 
@@ -225,66 +282,88 @@ namespace millionDollarsCourses
                     count++;
                 }
             }
+
+            public void ShowInfo()
+            {
+                int hudXPos = 0;
+                int hudYPos = 28;
+
+                if (IsFilled)
+                    TextUtility.WriteInColor($"Route: {DepartureStation.Name} - {DestinationStation.Name}", ConsoleColor.DarkGreen, true, hudXPos, hudYPos);
+                else
+                    TextUtility.WriteInColor($"Route: empty", ConsoleColor.DarkGray, true, hudXPos, hudYPos);
+            }
         }
 
         class Train
         {
             private Stack<Wagon> _wagons = new Stack<Wagon>();
-            private Wagon _smallWagonBlueprint;
-            private Wagon _mediumWagonBlueprint;
-            private Wagon _largeWagonBlueprint;
+            private readonly Wagon _smallWagonBlueprint;
+            private readonly Wagon _mediumWagonBlueprint;
+            private readonly Wagon _largeWagonBlueprint;
 
+            public bool IsConstructed { get; private set; }
             public int Seats { get; private set; }
             public int WagonsCount { get; private set; }
 
             public Train()
             {
+                IsConstructed = false;
                 WagonsCount = 0;
-                _smallWagonBlueprint = new Wagon(10);
-                _mediumWagonBlueprint = new Wagon(50);
-                _largeWagonBlueprint = new Wagon(100);
+                _smallWagonBlueprint = new Wagon(Wagon.Capacity.Small);
+                _mediumWagonBlueprint = new Wagon(Wagon.Capacity.Medium);
+                _largeWagonBlueprint = new Wagon(Wagon.Capacity.Large);
             }
 
-            private void StartJourney()
+            private void Send()
             {
+                IsConstructed = false;
+                WagonsCount = 0;
+                Seats = 0;
+                _wagons.Clear();
             }
 
             public void Construct()
             {
-                bool isConstracting = true;
+                bool isBuilding = true;
+                int blueprints = 3;
 
                 Console.Clear();
 
-                while (isConstracting)
+                while (isBuilding)
                 {
-                    Text.WriteLineInColor("Train construction\n", ConsoleColor.DarkGray);
+                    TextUtility.WriteLineInColor("Train construction\n", ConsoleColor.DarkGray);
                     ShowInfo();
                     Console.WriteLine();
                     DisplayAvailableWagonCapacities();
-                    AddWagon(SelectWagonSize(Utility.GetUserNumberInRange($"Select wagon #{WagonsCount + 1} capacity: ", 3))); //magic number
-
-                    isConstracting = Utility.GetBoolUserInput("Add more wagons?");
+                    AddWagon(SelectWagonSize(Utility.GetUserNumberInRange($"Select wagon #{WagonsCount + 1} capacity: ", blueprints)));
+                    ShowInfo();
+                    isBuilding = Utility.GetBoolUserInput("Add more wagons?");
                 }
 
-                Text.WriteLineInColor($"Train Construction Complete", ConsoleColor.Cyan);
+                ShowInfo();
+                IsConstructed = true;
+                TextUtility.WriteLineInColor($"Train Construction Complete", ConsoleColor.Cyan);
                 Utility.PressAnythingToContinue();
             }
 
             private void DisplayAvailableWagonCapacities()
             {
-                Console.WriteLine($"Wagon sizes:\n" +
-                    $"1. {_smallWagonBlueprint.CapacityName} ({_smallWagonBlueprint.Seats} seats)\n" +
-                    $"2. {_mediumWagonBlueprint.CapacityName} ({_mediumWagonBlueprint.Seats} seats)\n" +
-                    $"3. {_largeWagonBlueprint.CapacityName} ({_largeWagonBlueprint.Seats} seats)\n");
+                Console.WriteLine($"Wagon capacities:\n" +
+                    $"1. {_smallWagonBlueprint.CapacityTitle} ({_smallWagonBlueprint.Seats} seats)\n" +
+                    $"2. {_mediumWagonBlueprint.CapacityTitle} ({_mediumWagonBlueprint.Seats} seats)\n" +
+                    $"3. {_largeWagonBlueprint.CapacityTitle} ({_largeWagonBlueprint.Seats} seats)\n");
             }
 
-            private void ShowInfo(bool isHud = true)
+            public void ShowInfo()
             {
-                if (isHud)
-                {
-                    Text.WriteLineInCustomColors("Train info:\n" +
-                        $"The train has {WagonsCount} wagon(s) | ", ConsoleColor.White, $"{Seats} seats", ConsoleColor.Blue);
-                }
+                int hudXPos = 0;
+                int hudYPos = 29;
+
+                if (IsConstructed)
+                    TextUtility.WriteInColor($"Train: {WagonsCount} wagon(s) | {Seats} seat(s)", ConsoleColor.DarkGreen, true, hudXPos, hudYPos);
+                else
+                    TextUtility.WriteInColor($"Train: empty", ConsoleColor.DarkGray, true, hudXPos, hudYPos);
             }
 
             private void AddWagon(Wagon wagonBlueprint)
@@ -292,7 +371,7 @@ namespace millionDollarsCourses
                 _wagons.Push(wagonBlueprint);
                 Seats += wagonBlueprint.Seats;
                 WagonsCount++;
-                Text.WriteLineInColor($"\n{wagonBlueprint.CapacityName} wagon ({wagonBlueprint.Seats}) added\n", ConsoleColor.Cyan);
+                TextUtility.WriteLineInColor($"{wagonBlueprint.CapacityTitle} wagon ({wagonBlueprint.Seats}) added\n", ConsoleColor.Cyan);
             }
 
             private Wagon SelectWagonSize(int userInput)
@@ -306,53 +385,48 @@ namespace millionDollarsCourses
                     case 3:
                         return _largeWagonBlueprint;
                     default:
-                        return null;
+                        throw new ArgumentException("Invalid capacity");
                 }
             }
         }
 
         class Wagon
         {
-            public int Seats { get; private set; }
-            public string CapacityName { get; private set; }
+            public readonly int Seats;
 
-            private enum Capacity
+            public string CapacityTitle { get; private set; }
+
+            public enum Capacity
             {
                 Small,
                 Medium,
                 Large
             }
 
-            public Wagon(int maxSeats)
+            public Wagon(Capacity capacity)
             {
-                Seats = maxSeats;
-                CapacityName = DetermineCapacity();
-                if (Seats <= 0)
-                    Seats = 1;
-            }
-
-            public string DetermineCapacity()
-            {
-                int minSmall = 1;
-                int maxSmall = 10;
-                int minMedium = 11;
-                int maxMedium = 50;
-
-                if (Seats <= maxSmall && Seats >= minSmall)
-                    return Capacity.Small.ToString();
-                else if (Seats <= maxMedium && Seats >= minMedium)
-                    return Capacity.Medium.ToString();
-                else
-                    return Capacity.Large.ToString();
+                switch (capacity)
+                {
+                    case Capacity.Small:
+                        Seats = 10;
+                        CapacityTitle = Capacity.Small.ToString();
+                        break;
+                    case Capacity.Medium:
+                        Seats = 50;
+                        CapacityTitle = Capacity.Medium.ToString();
+                        break;
+                    case Capacity.Large:
+                        Seats = 100;
+                        CapacityTitle = Capacity.Large.ToString();
+                        break;
+                    default:
+                        throw new ArgumentException("Invalid capacity");
+                }
             }
         }
 
         class Passenger
         {
-            //private readonly string _name;
-            //private readonly int _seat;
-            //private readonly int _wagon;
-
             public void Board()
             {
 
@@ -386,6 +460,12 @@ namespace millionDollarsCourses
             if (isConsoleClear)
                 Console.Clear();
         }
+        public static int GenerateRandomNumber(int maxValue, int minValue = 1)
+        {
+            Random random = new Random();
+
+            return random.Next(minValue, maxValue);
+        }
 
         public static int GetUserNumberInRange(string startMessage = "Select Number: ", int maxInput = 100)
         {
@@ -401,26 +481,26 @@ namespace millionDollarsCourses
                     if (userInput > 0 && userInput <= maxInput)
                         isValidInput = true;
                     else
-                        Text.WriteInColor($"\nPlease enter a number between 1 and {maxInput}: ", ConsoleColor.Red);
+                        TextUtility.WriteInColor($"\nPlease enter a number between 1 and {maxInput}: ", ConsoleColor.Red);
 
                 }
                 else
                 {
-                    Text.WriteInColor("\nInvalid input. Please enter a number instead: ", ConsoleColor.Red);
+                    TextUtility.WriteInColor("\nInvalid input. Please enter a number instead: ", ConsoleColor.Red);
                 }
             }
 
             return userInput;
         }
 
-        public static bool GetBoolUserInput(string message)
+        public static bool GetBoolUserInput(string message, ConsoleColor color = ConsoleColor.DarkYellow)
         {
             bool isCorrectInput = false;
             ConsoleKeyInfo userInput;
 
             while (!isCorrectInput)
             {
-                Console.WriteLine(message + " (y or n)");
+                TextUtility.WriteLineInColor(message + " (y or n)", ConsoleColor.DarkYellow);
                 userInput = Console.ReadKey(true);
 
                 switch (userInput.KeyChar)
@@ -434,7 +514,7 @@ namespace millionDollarsCourses
                         Console.Clear();
                         return false;
                     default:
-                        Text.WriteLineInColor("Error. Incorrect input");
+                        TextUtility.WriteLineInColor("Error. Incorrect input");
                         break;
                 }
             }
@@ -443,42 +523,19 @@ namespace millionDollarsCourses
         }
     }
 
-    class Text
+    class TextUtility
     {
-        public static void WriteLineInCustomColors(string text1, ConsoleColor color1 = ConsoleColor.White, string text2 = "", ConsoleColor color2 = ConsoleColor.White, string text3 = "", ConsoleColor color3 = ConsoleColor.White,
-            string text4 = "", ConsoleColor color4 = ConsoleColor.White, string text5 = "", ConsoleColor color5 = ConsoleColor.White, string text6 = "", ConsoleColor color6 = ConsoleColor.White, bool isCustomPos = false,
-            int xPos = 0, int YPos = 0)
+        public static void WriteLineInCustomColors(params (string text, ConsoleColor color)[] coloredText)
         {
+            int count = 0;
 
-            if (isCustomPos)
+            foreach (var (text, color) in coloredText)
             {
-                Console.ForegroundColor = color1;
-                WriteAtPosition(xPos, YPos, text1);
-                Console.ForegroundColor = color2;
-                Console.Write(text2);
-                Console.ForegroundColor = color3;
-                Console.Write(text3);
-                Console.ForegroundColor = color4;
-                Console.Write(text4);
-                Console.ForegroundColor = color5;
-                Console.Write(text5);
-                Console.ForegroundColor = color6;
-                Console.WriteLine(text6);
-            }
-            else
-            {
-                Console.ForegroundColor = color1;
-                Console.Write(text1);
-                Console.ForegroundColor = color2;
-                Console.Write(text2);
-                Console.ForegroundColor = color3;
-                Console.Write(text3);
-                Console.ForegroundColor = color4;
-                Console.Write(text4);
-                Console.ForegroundColor = color5;
-                Console.Write(text5);
-                Console.ForegroundColor = color6;
-                Console.WriteLine(text6);
+                WriteInColor(text, color);
+                count++;
+
+                if (count == coloredText.Length)
+                    Console.WriteLine();
             }
 
             Console.ResetColor();
@@ -510,14 +567,22 @@ namespace millionDollarsCourses
 
         public static void WriteLineAtPosition(int xPosition, int yPosition, string text)
         {
+            int currentXPostition = Console.CursorLeft;
+            int currentYPostition = Console.CursorTop;
+
             Console.SetCursorPosition(xPosition, yPosition);
             Console.WriteLine(text);
+            Console.SetCursorPosition(currentXPostition, currentYPostition);
         }
 
         public static void WriteAtPosition(int xPosition, int yPosition, string text)
         {
+            int currentXPostition = Console.CursorLeft;
+            int currentYPostition = Console.CursorTop;
+
             Console.SetCursorPosition(xPosition, yPosition);
             Console.Write(text);
+            Console.SetCursorPosition(currentXPostition, currentYPostition);
         }
     }
 }
