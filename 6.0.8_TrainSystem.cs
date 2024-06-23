@@ -12,6 +12,10 @@ namespace millionDollarsCourses
     //В верхней части программы должна выводиться полная информация о текущем рейсе или его отсутствии. 
 
     //todo: 
+    //      display needed route while in creating route
+    //      and while creating train
+    //      train hud diesnt work while constracting trein
+    //      search //????????????????????????????????????????????????????????????
     //      check if route is correct then send (maybe get set is not correct?)
     //      check if everything else is correct then send (_soldiers.Count >= CountPassengers() && )
     //      reset values if correct all
@@ -298,9 +302,10 @@ namespace millionDollarsCourses
         class Train
         {
             private Stack<Wagon> _wagons = new Stack<Wagon>();
-            private readonly Wagon _smallWagonBlueprint;
-            private readonly Wagon _mediumWagonBlueprint;
-            private readonly Wagon _largeWagonBlueprint;
+            //private readonly Wagon _smallWagonBlueprint;
+            //private readonly Wagon _mediumWagonBlueprint;
+            //private readonly Wagon _largeWagonBlueprint;
+            private List<Wagon> _wagonsBlueprints = new List<Wagon>();
 
             public bool IsConstructed { get; private set; }
             public int Seats { get; private set; }
@@ -310,9 +315,10 @@ namespace millionDollarsCourses
             {
                 IsConstructed = false;
                 WagonsCount = 0;
-                _smallWagonBlueprint = new Wagon(Wagon.Capacity.Small);
-                _mediumWagonBlueprint = new Wagon(Wagon.Capacity.Medium);
-                _largeWagonBlueprint = new Wagon(Wagon.Capacity.Large);
+                _wagonsBlueprints.Add(new Wagon(Wagon.Capacity.Small));
+                _wagonsBlueprints.Add(new Wagon(Wagon.Capacity.Medium));
+                _wagonsBlueprints.Add(new Wagon(Wagon.Capacity.Large));
+
             }
 
             private void Send()
@@ -326,7 +332,6 @@ namespace millionDollarsCourses
             public void Construct()
             {
                 bool isBuilding = true;
-                int blueprints = 3;
 
                 Console.Clear();
 
@@ -336,7 +341,7 @@ namespace millionDollarsCourses
                     ShowInfo();
                     Console.WriteLine();
                     DisplayAvailableWagonCapacities();
-                    AddWagon(SelectWagonSize(Utility.GetUserNumberInRange($"Select wagon #{WagonsCount + 1} capacity: ", blueprints)));
+                    AddWagon(SelectWagonSize(Utility.GetUserNumberInRange($"\nSelect wagon #{WagonsCount + 1} capacity: ", _wagonsBlueprints.Count)));
                     ShowInfo();
                     isBuilding = Utility.GetBoolUserInput("Add more wagons?");
                 }
@@ -349,10 +354,15 @@ namespace millionDollarsCourses
 
             private void DisplayAvailableWagonCapacities()
             {
-                Console.WriteLine($"Wagon capacities:\n" +
-                    $"1. {_smallWagonBlueprint.CapacityTitle} ({_smallWagonBlueprint.Seats} seats)\n" +
-                    $"2. {_mediumWagonBlueprint.CapacityTitle} ({_mediumWagonBlueprint.Seats} seats)\n" +
-                    $"3. {_largeWagonBlueprint.CapacityTitle} ({_largeWagonBlueprint.Seats} seats)\n");
+                int count = 0;
+
+                Console.WriteLine($"Wagon capacities:");
+
+                foreach (Wagon blueprint in _wagonsBlueprints)
+                {
+                    count++;
+                    Console.WriteLine($"{count}. {blueprint.CapacityTitle} ({blueprint.Seats} seats)");
+                }
             }
 
             public void ShowInfo()
@@ -374,16 +384,16 @@ namespace millionDollarsCourses
                 TextUtility.WriteLineInColor($"{wagonBlueprint.CapacityTitle} wagon ({wagonBlueprint.Seats}) added\n", ConsoleColor.Cyan);
             }
 
-            private Wagon SelectWagonSize(int userInput)
+            private Wagon SelectWagonSize(int userInput) //????????????????????????????????????????????????????????????
             {
                 switch (userInput)
                 {
                     case 1:
-                        return _smallWagonBlueprint;
+                        return _wagonsBlueprints[0];
                     case 2:
-                        return _mediumWagonBlueprint;
+                        return _wagonsBlueprints[1];
                     case 3:
-                        return _largeWagonBlueprint;
+                        return _wagonsBlueprints[2];
                     default:
                         throw new ArgumentException("Invalid capacity");
                 }
