@@ -26,16 +26,18 @@ namespace millionDollarsCourses
         {
             private Train _train = new Train();
             private Route _route = new Route();
-            private Queue<Passenger> _soldiersWaiting = new Queue<Passenger>();
-            private Dictionary<int, string> _commands;
-            private TrainControlHud TrainControlSystemHud = new TrainControlHud();
             private Route _neededRoute = new Route();
+            private int _soldiersWaiting = 0;
+            private Dictionary<int, string> _commands;
+            private readonly TrainControlHud TrainControlSystemHud = new TrainControlHud();
             private bool _isWorking = true;
             private const string _watchCamerasCommand = "Look at the cameras";
             private const string _createRouteCommand = "Create route";
             private const string _constructTrainCommand = "Construct train";
             private const string _transportSoldiersCommand = "Transport soldiers";
             private const string _exitCommand = "Exit";
+
+            private bool CamerasChecked { get { return _soldiersWaiting > 0; } }
 
             public TrainControlSystem()
             {
@@ -55,8 +57,6 @@ namespace millionDollarsCourses
                     DisplayCommands();
                     HandleInput();
                 }
-
-                Exit();
             }
 
             private void InitializeCommands()
@@ -81,9 +81,6 @@ namespace millionDollarsCourses
                 {
                     switch (command)
                     {
-                        default:
-                            DisplayError();
-                            break;
                         case _watchCamerasCommand:
                             CheckCameras();
                             break;
@@ -94,10 +91,10 @@ namespace millionDollarsCourses
                             _train.Construct(_soldiersWaiting, _neededRoute, _route, _train);
                             break;
                         case _transportSoldiersCommand:
-                            Transport();
+                            TryToTransport();
                             break;
                         case _exitCommand:
-                            _isWorking = false;
+                            Exit();
                             break;
                     }
                 }
@@ -113,23 +110,15 @@ namespace millionDollarsCourses
                 }
             }
 
-            private void DisplayError()
-            {
-                TextUtility.WriteInColor("\nUnknown Command. Try again:", ConsoleColor.Red);
-                Utility.PressAnythingToContinue();
-            }
-
             private void CheckCameras()
             {
-                int soldiersWaiting;
-
                 Console.Clear();
-                Console.WriteLine("You are looking at the cameras...");
+                _soldiersWaiting = CountPassengers();
                 Utility.PressAnythingToContinue(ConsoleColor.DarkYellow, false, 0, 0, "press anything to continue", false);
                 _neededRoute.DetermineNeed();
-                soldiersWaiting = CountPassengers();
                 TextUtility.WriteLineInCustomColors(
-                    ($"\n{soldiersWaiting}", ConsoleColor.Blue),
+                    ("\nIt's ", ConsoleColor.White),
+                    ($"{_soldiersWaiting}", ConsoleColor.Blue),
                     (" combine soldiers waiting for the train to move from ", ConsoleColor.White),
                     ($"{_neededRoute.DepartureStation.Name}", ConsoleColor.Blue),
                     (" station to ", ConsoleColor.White),
@@ -140,50 +129,113 @@ namespace millionDollarsCourses
 
             private int CountPassengers()
             {
-                int soldiersAmmount;
-                _soldiersWaiting.Clear();
-
-                soldiersAmmount = Utility.GenerateRandomNumber(501);
-
-                for (int i = 0; i < soldiersAmmount; i++)
-                    _soldiersWaiting.Enqueue(new Passenger());
-
-                return _soldiersWaiting.Count;
+                Console.WriteLine("The soldiers are waiting. You counting the soldiers. 1... 2...");
+                return Utility.GenerateRandomNumber(501);
             }
 
-            private void Transport()
+            private void TryToTransport()
             {
-                if (_route.IsMatching(_neededRoute) && _train.IsBigEnough(_soldiersWaiting.Count))
+                if (!_route.IsFilled && !CamerasChecked && !_train.IsConstructed)
                 {
-                    Console.WriteLine("cool");
+                    FireSoldierFromExistence();
+                }
+                else
+                {
+                    if (!_route.IsFilled || !CamerasChecked || !_train.IsConstructed)
+                        DisplayErrors();
+                    else if (!_route.IsMatching(_neededRoute) || !_train.IsBigEnough(_soldiersWaiting))
+                        DisplayErrors();
+                    else
+                        Transport();
                 }
 
                 Utility.PressAnythingToContinue();
             }
 
-            private void Exit()
+            private void DisplayErrors()
+            {
+                Console.WriteLine();
+
+                if (!_route.IsFilled)
+                {
+                    TextUtility.WriteLineInColor("You didn't create any route");
+                }
+
+                if (!_train.IsConstructed)
+                {
+                    TextUtility.WriteLineInColor("We don't see any created trains");
+                }
+
+                if (!CamerasChecked)
+                {
+                    TextUtility.WriteLineInColor("You don't even know which route to choose and how many soldiers are waiting. What are you doing?");
+                }
+                else
+                {
+                    if (_route.IsFilled)
+                    {
+                        if (!_route.IsMatching(_neededRoute))
+                            TextUtility.WriteLineInColor("The route you created is incorrect");
+                    }
+
+                    if (_train.IsConstructed)
+                    {
+                        if (!_train.IsBigEnough(_soldiersWaiting))
+                            TextUtility.WriteLineInColor("Your train doesn't have enough seats");
+                    }
+                }
+
+                TextUtility.WriteLineInColor("Do better\n");
+            }
+
+            private void Transport()
             {
                 Console.Clear();
-                Console.WriteLine("\nGlory to the Combine");
+                Console.WriteLine($"The train is leaving {_route.DepartureStation.Name} station");
+                _train.Send();
+                _soldiersWaiting = 0;
+                _route = new Route();
+                _neededRoute = new Route();
+                Utility.PressAnythingToContinue();
+                TextUtility.WriteLineInColor($"Now return to your job, soldier", ConsoleColor.DarkRed);
+                Utility.PressAnythingToContinue();
+                TextUtility.WriteLineInColor($"Your comrades are waiting", ConsoleColor.DarkRed);
+            }
+
+            private void FireSoldierFromExistence()
+            {
+                TextUtility.WriteLineInColor("\nYou don't have any information, train and route");
+                Utility.PressAnythingToContinue();
+                TextUtility.WriteLineInColor("You are not fit for this job");
+                Utility.PressAnythingToContinue();
+                TextUtility.WriteLineInColor("We are going to be waiting for you in our office");
+                Exit();
+            }
+
+            private void Exit()
+            {
+                _isWorking = false;
+                Console.Clear();
+                Console.WriteLine("Glory to the Combine");
             }
         }
 
         class TrainControlHud
         {
-            public void DisplayFull(Queue<Passenger> passengers, Route neededRoute, Route route, Train train)
+            public void DisplayFull(int passengers, Route neededRoute, Route route, Train train)
             {
                 DisplayPassengersData(passengers, neededRoute);
                 route.DisplayInfo();
                 train.DisplayInfo();
             }
 
-            private void DisplayPassengersData(Queue<Passenger> passengers, Route neededRoute)
+            private void DisplayPassengersData(int passengers, Route neededRoute)
             {
                 int hudXPosition = 0;
                 int hudYPosition = 27;
 
-                if (passengers.Count > 0)
-                    TextUtility.WriteInColor($"Passengers: {passengers.Count} soldiers waiting for [{neededRoute.DepartureStation.Name} - {neededRoute.DestinationStation.Name}] train", ConsoleColor.DarkGreen, true, hudXPosition, hudYPosition);
+                if (passengers > 0)
+                    TextUtility.WriteInColor($"Passengers: {passengers} soldiers waiting for [{neededRoute.DepartureStation.Name} - {neededRoute.DestinationStation.Name}] train", ConsoleColor.DarkGreen, true, hudXPosition, hudYPosition);
                 else
                     TextUtility.WriteInColor($"Passengers: unknown", ConsoleColor.DarkGray, true, hudXPosition, hudYPosition);
             }
@@ -191,7 +243,7 @@ namespace millionDollarsCourses
 
         class Route
         {
-            private TrainControlHud _controlHud = new TrainControlHud();
+            private readonly TrainControlHud _controlHud = new TrainControlHud();
             private readonly List<Station> _stations = new List<Station>();
 
             public Station DepartureStation { get; private set; }
@@ -229,7 +281,7 @@ namespace millionDollarsCourses
                     _stations.Add(new Station(stationName.ToString()));
             }
 
-            public void EnterPoints(Queue<Passenger> passengers, Route neededRoute, Route route, Train train)
+            public void EnterPoints(int passengers, Route neededRoute, Route route, Train train)
             {
                 bool isCorrectDestination = false;
 
@@ -304,12 +356,13 @@ namespace millionDollarsCourses
 
         class Train
         {
-            private TrainControlHud _controlHud = new TrainControlHud();
+            private readonly TrainControlHud _controlHud = new TrainControlHud();
             private Stack<Wagon> _wagons = new Stack<Wagon>();
-            private List<Wagon> _wagonsBlueprints = new List<Wagon>();
+            private readonly List<Wagon> _wagonsBlueprints = new List<Wagon>();
 
             public int Seats { get; private set; }
             public int WagonsCount { get; private set; }
+            public bool IsConstructed { get { return Seats > 0; } private set { } }
 
             public Train()
             {
@@ -324,14 +377,14 @@ namespace millionDollarsCourses
                 return Seats >= passengers;
             }
 
-            private void Send()
+            public void Send()
             {
                 WagonsCount = 0;
                 Seats = 0;
                 _wagons.Clear();
             }
 
-            public void Construct(Queue<Passenger> passengers, Route neededRoute, Route route, Train train)
+            public void Construct(int passengers, Route neededRoute, Route route, Train train)
             {
                 bool isBuilding = true;
                 int userInput;
@@ -370,7 +423,7 @@ namespace millionDollarsCourses
                     count++;
                 }
 
-                Console.WriteLine($"{count}. Exit");
+                Console.WriteLine($"{count}. Back");
             }
 
             public void DisplayInfo()
@@ -444,14 +497,6 @@ namespace millionDollarsCourses
                     default:
                         throw new ArgumentException("Invalid capacity");
                 }
-            }
-        }
-
-        class Passenger
-        {
-            public void Board()
-            {
-
             }
         }
 
