@@ -25,7 +25,7 @@ namespace millionDollarsCourses
         private const int EvaluatePassengersAmountAndRouteCommand = 1;
         private const int CreateRouteCommand = 2;
         private const int ConstructTrainCommand = 3;
-        private const int TransportSoldiersCommand = 4;
+        private const int TransportPassengersCommand = 4;
         private const int ExitCommand = 5;
         private readonly TrainControlHud TrainControlSystemHud = new TrainControlHud();
         private Train _train = new Train();
@@ -69,7 +69,7 @@ namespace millionDollarsCourses
                 case ConstructTrainCommand:
                     _train.Construct(_soldiersWaiting, _neededRoute, _route, _train);
                     break;
-                case TransportSoldiersCommand:
+                case TransportPassengersCommand:
                     TryToTransportPassengers();
                     break;
                 case ExitCommand:
@@ -84,7 +84,7 @@ namespace millionDollarsCourses
             Console.WriteLine($"{EvaluatePassengersAmountAndRouteCommand}. Look at the cameras");
             Console.WriteLine($"{CreateRouteCommand}. Create route");
             Console.WriteLine($"{ConstructTrainCommand}. Construct train");
-            Console.WriteLine($"{TransportSoldiersCommand}. Transport soldiers");
+            Console.WriteLine($"{TransportPassengersCommand}. Transport soldiers");
             Console.WriteLine($"{ExitCommand}. Exit");
         }
 
@@ -150,17 +150,11 @@ namespace millionDollarsCourses
             }
             else
             {
-                if (_route.IsFilled)
-                {
-                    if (_route.IsMatching(_neededRoute) == false)
-                        Utility.WriteLineInColor("The route you created is incorrect");
-                }
+                if (_route.IsFilled && _route.IsMatching(_neededRoute) == false)
+                    Utility.WriteLineInColor("The route you created is incorrect");
 
-                if (_train.IsConstructed)
-                {
-                    if (_train.IsBigEnough(_soldiersWaiting) == false)
-                        Utility.WriteLineInColor("Your train doesn't have enough seats");
-                }
+                if (_train.IsConstructed && _train.IsBigEnough(_soldiersWaiting) == false)
+                    Utility.WriteLineInColor("Your train doesn't have enough seats");
             }
 
             Utility.WriteLineInColor("Do better\n");
@@ -246,7 +240,9 @@ namespace millionDollarsCourses
         {
             get
             {
-                return DepartureStation != null && DestinationStation != null;
+                if (this != null)
+                    return DepartureStation != null && DestinationStation != null;
+                else return false;
             }
             private set
             {
@@ -349,7 +345,16 @@ namespace millionDollarsCourses
 
         public int Seats { get; private set; }
         public int WagonsCount { get; private set; }
-        public bool IsConstructed { get { return Seats > 0; } private set { } }
+        public bool IsConstructed
+        {
+            get
+            {
+                if (this != null)
+                    return Seats > 0;
+                else return false;
+            }
+            private set { }
+        }
 
         public bool IsBigEnough(int passengers)
         {
