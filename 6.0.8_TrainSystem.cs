@@ -18,23 +18,22 @@ namespace millionDollarsCourses
             TrainControlSystem trainControlSystem = new TrainControlSystem();
             trainControlSystem.Start();
         }
-
     }
 
     class TrainControlSystem
     {
-        private Train _train = new Train();
-        private Route _route = new Route();
-        private Route _neededRoute = new Route();
-        private int _soldiersWaiting = 0;
-        private Dictionary<int, string> _commands;
         private readonly TrainControlHud TrainControlSystemHud = new TrainControlHud();
-        private bool _isWorking = true;
         private const string _watchCamerasCommand = "Look at the cameras";
         private const string _createRouteCommand = "Create route";
         private const string _constructTrainCommand = "Construct train";
         private const string _transportSoldiersCommand = "Transport soldiers";
         private const string _exitCommand = "Exit";    
+        private Train _train = new Train();
+        private Route _route = new Route();
+        private Route _neededRoute = new Route();
+        private int _soldiersWaiting = 0;
+        private Dictionary<int, string> _commands;
+        private bool _isWorking = true;
 
         public TrainControlSystem()
         {
@@ -356,8 +355,8 @@ namespace millionDollarsCourses
     class Train
     {
         private readonly TrainControlHud _controlHud = new TrainControlHud();
-        private Stack<Wagon> _wagons = new Stack<Wagon>();
         private readonly List<Wagon> _wagonsBlueprints = new List<Wagon>();
+        private Stack<Wagon> _wagons = new Stack<Wagon>();
         
         public Train()
         {
