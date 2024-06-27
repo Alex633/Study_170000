@@ -34,14 +34,14 @@ namespace millionDollarsCourses
         private const string _createRouteCommand = "Create route";
         private const string _constructTrainCommand = "Construct train";
         private const string _transportSoldiersCommand = "Transport soldiers";
-        private const string _exitCommand = "Exit";
-
-        private bool CamerasChecked { get { return _soldiersWaiting > 0; } }
+        private const string _exitCommand = "Exit";    
 
         public TrainControlSystem()
         {
             InitializeCommands();
         }
+
+        private bool CamerasChecked { get { return _soldiersWaiting > 0; } }
 
         public void Start()
         {
@@ -245,19 +245,6 @@ namespace millionDollarsCourses
         private readonly TrainControlHud _controlHud = new TrainControlHud();
         private readonly List<Station> _stations = new List<Station>();
 
-        public Station DepartureStation { get; private set; }
-        public Station DestinationStation { get; private set; }
-        public bool IsFilled
-        {
-            get
-            {
-                return DepartureStation != null && DestinationStation != null;
-            }
-            private set
-            {
-            }
-        }
-
         public Route()
         {
             GetAvailableStations();
@@ -272,6 +259,19 @@ namespace millionDollarsCourses
             Citadel,
             Ravenholm,
             ApertureScience
+        }
+
+        public Station DepartureStation { get; private set; }
+        public Station DestinationStation { get; private set; }
+        public bool IsFilled
+        {
+            get
+            {
+                return DepartureStation != null && DestinationStation != null;
+            }
+            private set
+            {
+            }
         }
 
         private void GetAvailableStations()
@@ -358,11 +358,7 @@ namespace millionDollarsCourses
         private readonly TrainControlHud _controlHud = new TrainControlHud();
         private Stack<Wagon> _wagons = new Stack<Wagon>();
         private readonly List<Wagon> _wagonsBlueprints = new List<Wagon>();
-
-        public int Seats { get; private set; }
-        public int WagonsCount { get; private set; }
-        public bool IsConstructed { get { return Seats > 0; } private set { } }
-
+        
         public Train()
         {
             WagonsCount = 0;
@@ -370,6 +366,10 @@ namespace millionDollarsCourses
             _wagonsBlueprints.Add(new Wagon(Wagon.Capacity.Medium));
             _wagonsBlueprints.Add(new Wagon(Wagon.Capacity.Large));
         }
+
+        public int Seats { get; private set; }
+        public int WagonsCount { get; private set; }
+        public bool IsConstructed { get { return Seats > 0; } private set { } }
 
         public bool IsBigEnough(int passengers)
         {
@@ -468,8 +468,6 @@ namespace millionDollarsCourses
     {
         public readonly int Seats;
 
-        public string CapacityTitle { get; private set; }
-
         public enum Capacity
         {
             Small,
@@ -497,16 +495,18 @@ namespace millionDollarsCourses
                     throw new ArgumentException("Invalid capacity");
             }
         }
+
+        public string CapacityTitle { get; private set; }
     }
 
     class Station
     {
-        public string Name { get; private set; }
-
         public Station(string name)
         {
             Name = name;
         }
+
+        public string Name { get; private set; }
     }
 
     class Utility
