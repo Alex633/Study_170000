@@ -31,10 +31,10 @@ namespace millionDollarsCourses
         private Train _train = new Train();
         private Route _route = new Route();
         private Route _neededRoute = new Route();
-        private int _soldiersWaiting = 0;
+        private int _passengersWaiting = 0;
         private bool _isWorking = true;
 
-        private bool IsPassengersAmountAndRouteEvaluated { get { return _soldiersWaiting > 0; } }
+        private bool IsPassengersAmountAndRouteEvaluated { get { return _passengersWaiting > 0; } }
 
         public void Start()
         {
@@ -45,7 +45,7 @@ namespace millionDollarsCourses
 
             while (_isWorking)
             {
-                _trainControlHud.DisplayFull(_soldiersWaiting, _neededRoute, _route, _train);
+                _trainControlHud.DisplayFull(_passengersWaiting, _neededRoute, _route, _train);
                 DisplayCommands();
                 HandleInput();
             }
@@ -64,10 +64,10 @@ namespace millionDollarsCourses
                     EvaluatePassengersAmountAndRoute();
                     break;
                 case CreateRouteCommand:
-                    _route.EnterPoints(_soldiersWaiting, _neededRoute, _train);
+                    _route.EnterPoints(_passengersWaiting, _neededRoute, _train);
                     break;
                 case ConstructTrainCommand:
-                    _train.Construct(_soldiersWaiting, _neededRoute, _route);
+                    _train.Construct(_passengersWaiting, _neededRoute, _route);
                     break;
                 case TransportPassengersCommand:
                     TryToTransportPassengers();
@@ -91,12 +91,12 @@ namespace millionDollarsCourses
         private void EvaluatePassengersAmountAndRoute()
         {
             Console.Clear();
-            _soldiersWaiting = CountPassengers();
+            _passengersWaiting = CountPassengers();
             Utility.PressAnythingToContinue(ConsoleColor.DarkYellow, false, 0, 0, "press anything to continue", false);
             _neededRoute.DetermineNeed();
             Utility.WriteLineInCustomColors(
                 ("\nIt's ", ConsoleColor.White),
-                ($"{_soldiersWaiting}", ConsoleColor.Blue),
+                ($"{_passengersWaiting}", ConsoleColor.Blue),
                 (" combine soldiers waiting for the train to move from ", ConsoleColor.White),
                 ($"{_neededRoute.DepartureStation.Name}", ConsoleColor.Blue),
                 (" station to ", ConsoleColor.White),
@@ -121,7 +121,7 @@ namespace millionDollarsCourses
             {
                 if (_route.IsFilled == false || IsPassengersAmountAndRouteEvaluated == false || _train.IsConstructed == false)
                     DisplayErrors();
-                else if (_route.IsMatching(_neededRoute) == false || _train.IsBigEnough(_soldiersWaiting) == false)
+                else if (_route.IsMatching(_neededRoute) == false || _train.IsBigEnough(_passengersWaiting) == false)
                     DisplayErrors();
                 else
                     TransportPassengers();
@@ -153,7 +153,7 @@ namespace millionDollarsCourses
                 if (_route.IsFilled && _route.IsMatching(_neededRoute) == false)
                     Utility.WriteLineInColor("The route you created is incorrect");
 
-                if (_train.IsConstructed && _train.IsBigEnough(_soldiersWaiting) == false)
+                if (_train.IsConstructed && _train.IsBigEnough(_passengersWaiting) == false)
                     Utility.WriteLineInColor("Your train doesn't have enough seats");
             }
 
@@ -165,7 +165,7 @@ namespace millionDollarsCourses
             Console.Clear();
             Console.WriteLine($"The train is leaving {_route.DepartureStation.Name} station");
             _train.Send();
-            _soldiersWaiting = 0;
+            _passengersWaiting = 0;
             _route = new Route();
             _neededRoute = new Route();
             Utility.PressAnythingToContinue();
