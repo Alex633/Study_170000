@@ -27,7 +27,7 @@ namespace millionDollarsCourses
         private const int ConstructTrainCommand = 3;
         private const int TransportPassengersCommand = 4;
         private const int ExitCommand = 5;
-        private readonly TrainControlHud TrainControlSystemHud = new TrainControlHud();
+        private readonly TrainControlHud _trainControlHud = new TrainControlHud();
         private Train _train = new Train();
         private Route _route = new Route();
         private Route _neededRoute = new Route();
@@ -45,7 +45,7 @@ namespace millionDollarsCourses
 
             while (_isWorking)
             {
-                TrainControlSystemHud.DisplayFull(_soldiersWaiting, _neededRoute, _route, _train);
+                _trainControlHud.DisplayFull(_soldiersWaiting, _neededRoute, _route, _train);
                 DisplayCommands();
                 HandleInput();
             }
@@ -64,10 +64,10 @@ namespace millionDollarsCourses
                     EvaluatePassengersAmountAndRoute();
                     break;
                 case CreateRouteCommand:
-                    _route.EnterPoints(_soldiersWaiting, _neededRoute, _route, _train);
+                    _route.EnterPoints(_soldiersWaiting, _neededRoute, _train);
                     break;
                 case ConstructTrainCommand:
-                    _train.Construct(_soldiersWaiting, _neededRoute, _route, _train);
+                    _train.Construct(_soldiersWaiting, _neededRoute, _route);
                     break;
                 case TransportPassengersCommand:
                     TryToTransportPassengers();
@@ -249,18 +249,12 @@ namespace millionDollarsCourses
             }
         }
 
-        private void GetAvailableStations()
-        {
-            foreach (StationName stationName in Enum.GetValues(typeof(StationName)))
-                _stations.Add(new Station(stationName.ToString()));
-        }
-
-        public void EnterPoints(int passengers, Route neededRoute, Route route, Train train)
+        public void EnterPoints(int passengers, Route neededRoute, Train train)
         {
             bool isCorrectDestination = false;
 
             Console.Clear();
-            _controlHud.DisplayFull(passengers, neededRoute, route, train);
+            _controlHud.DisplayFull(passengers, neededRoute, this, train);
             Utility.WriteLineInColor("Creating Route\n", ConsoleColor.DarkGray);
             DisplayAllStations();
             DepartureStation = _stations[Utility.GetUserNumberInRange("\nSelect DEPARTURE station: ", _stations.Count) - 1];
@@ -276,7 +270,7 @@ namespace millionDollarsCourses
             }
 
             Utility.WriteLineInColor($"\nRoute [{DepartureStation.Name} - {DestinationStation.Name}] created", ConsoleColor.Blue);
-            _controlHud.DisplayFull(passengers, neededRoute, route, train);
+            _controlHud.DisplayFull(passengers, neededRoute, this, train);
             Utility.PressAnythingToContinue();
         }
 
@@ -325,6 +319,12 @@ namespace millionDollarsCourses
             else
                 Utility.WriteInColor($"Route: empty", ConsoleColor.DarkGray, true, hudXPosition, hudYPosition);
         }
+
+        private void GetAvailableStations()
+        {
+            foreach (StationName stationName in Enum.GetValues(typeof(StationName)))
+                _stations.Add(new Station(stationName.ToString()));
+        }
     }
 
     class Train
@@ -336,11 +336,21 @@ namespace millionDollarsCourses
         private const int Commands = 4;
         private readonly TrainControlHud _controlHud = new TrainControlHud();
         private Stack<Wagon> _wagons = new Stack<Wagon>();
-        private Factory _factory = new Factory();
+
+        private const int SmallWagonCapacity = 10;
+        private const int MediumWagonCapacity = 50;
+        private const int LargeWagonCapacity = 100;
 
         public Train()
         {
             WagonsCount = 0;
+        }
+
+        public enum WagonCapacity
+        {
+            Small,
+            Medium,
+            Large
         }
 
         public int Seats { get; private set; }
@@ -368,7 +378,7 @@ namespace millionDollarsCourses
             _wagons.Clear();
         }
 
-        public void Construct(int passengers, Route neededRoute, Route route, Train train)
+        public void Construct(int passengers, Route neededRoute, Route route)
         {
             bool isBuilding = true;
             int userInput;
@@ -377,17 +387,17 @@ namespace millionDollarsCourses
 
             while (isBuilding)
             {
-                _controlHud.DisplayFull(passengers, neededRoute, route, train);
+                _controlHud.DisplayFull(passengers, neededRoute, route, this);
                 Utility.WriteLineInColor("Train construction", ConsoleColor.DarkGray);
                 Console.WriteLine();
                 DisplayCommands();
                 userInput = Utility.GetUserNumberInRange($"\nSelect wagon #{WagonsCount + 1} capacity: ", Commands);
                 isBuilding = HandleInput(userInput);
-                _controlHud.DisplayFull(passengers, neededRoute, route, train);
+                _controlHud.DisplayFull(passengers, neededRoute, route, this);
 
                 if (isBuilding == false)
                 {
-                    _controlHud.DisplayFull(passengers, neededRoute, route, train);
+                    _controlHud.DisplayFull(passengers, neededRoute, route, this);
 
                     if (IsConstructed)
                         Utility.WriteLineInColor($"\nTrain Construction Complete", ConsoleColor.Cyan);
@@ -397,15 +407,6 @@ namespace millionDollarsCourses
 
                 Utility.PressAnythingToContinue();
             }
-        }
-
-        private void DisplayCommands()
-        {
-            Console.WriteLine($"Commands:");
-            Console.WriteLine($"{AddSmallWagon}. Add {_factory.GetWagonCapacityInfo(_factory.GetWagon(Factory.WagonCapacity.Small))}");
-            Console.WriteLine($"{AddMediumWagon}. Add {_factory.GetWagonCapacityInfo(_factory.GetWagon(Factory.WagonCapacity.Medium))}");
-            Console.WriteLine($"{AddLargeWagon}. Add {_factory.GetWagonCapacityInfo(_factory.GetWagon(Factory.WagonCapacity.Large))}");
-            Console.WriteLine($"{Back}. Back");
         }
 
         public void DisplayInfo()
@@ -419,59 +420,24 @@ namespace millionDollarsCourses
                 Utility.WriteInColor($"Train: empty", ConsoleColor.DarkGray, true, hudXPosition, hudYPosistion);
         }
 
+        private void DisplayCommands()
+        {
+            Console.WriteLine($"Commands:");
+            Console.WriteLine($"{AddSmallWagon}. Add {GetWagonCapacityInfo(GetWagon(WagonCapacity.Small))}");
+            Console.WriteLine($"{AddMediumWagon}. Add {GetWagonCapacityInfo(GetWagon(WagonCapacity.Medium))}");
+            Console.WriteLine($"{AddLargeWagon}. Add {GetWagonCapacityInfo(GetWagon(WagonCapacity.Large))}");
+            Console.WriteLine($"{Back}. Back");
+        }
+
         private void AddWagon(Wagon wagon)
         {
             _wagons.Push(wagon);
             Seats += wagon.Seats;
             WagonsCount++;
-            Utility.WriteLineInColor($"\n{_factory.GetWagonCapacityInfo(wagon)} wagon added\n", ConsoleColor.Cyan);
+            Utility.WriteLineInColor($"\n{GetWagonCapacityInfo(wagon)} wagon added\n", ConsoleColor.Cyan);
         }
 
-        private bool HandleInput(int userInput)
-        {
-            switch (userInput)
-            {
-                case AddSmallWagon:
-                    AddWagon(_factory.GetWagon(Factory.WagonCapacity.Small));
-                    return true;
-                case AddMediumWagon:
-                    AddWagon(_factory.GetWagon(Factory.WagonCapacity.Medium));
-                    return true;
-                case AddLargeWagon:
-                    AddWagon(_factory.GetWagon(Factory.WagonCapacity.Large));
-                    return true;
-                case Back:
-                    return false;
-                default:
-                    return true;
-            }
-        }
-    }
-
-    class Wagon
-    {
-        public readonly int Seats;
-
-        public Wagon(int seats)
-        {
-            Seats = seats;
-        }
-    }
-
-    class Factory
-    {
-        private const int SmallWagonCapacity = 10;
-        private const int MediumWagonCapacity = 50;
-        private const int LargeWagonCapacity = 100;
-
-        public enum WagonCapacity
-        {
-            Small,
-            Medium,
-            Large
-        }
-
-        public Wagon GetWagon(WagonCapacity wagonCapacity)
+        private Wagon GetWagon(WagonCapacity wagonCapacity)
         {
             switch (wagonCapacity)
             {
@@ -484,6 +450,11 @@ namespace millionDollarsCourses
                 default:
                     throw new ArgumentException("Invalid wagon capacity");
             }
+        }
+
+        private string GetWagonCapacityInfo(Wagon wagon)
+        {
+            return $"{GetWagonCapacityTitle(wagon)} wagon ({wagon.Seats})";
         }
 
         private string GetWagonCapacityTitle(Wagon wagon)
@@ -501,9 +472,34 @@ namespace millionDollarsCourses
             }
         }
 
-        public string GetWagonCapacityInfo(Wagon wagon)
+        private bool HandleInput(int userInput)
         {
-            return $"{GetWagonCapacityTitle(wagon)} wagon ({wagon.Seats})";
+            switch (userInput)
+            {
+                case AddSmallWagon:
+                    AddWagon(GetWagon(WagonCapacity.Small));
+                    return true;
+                case AddMediumWagon:
+                    AddWagon(GetWagon(WagonCapacity.Medium));
+                    return true;
+                case AddLargeWagon:
+                    AddWagon(GetWagon(WagonCapacity.Large));
+                    return true;
+                case Back:
+                    return false;
+                default:
+                    return true;
+            }
+        }
+    }
+
+    class Wagon
+    {
+        public readonly int Seats;
+
+        public Wagon(int seats)
+        {
+            Seats = seats;
         }
     }
 
