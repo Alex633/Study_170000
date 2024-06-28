@@ -43,7 +43,7 @@ namespace millionDollarsCourses
 
         public void Fight()
         {
-            Text.WriteLineInColor("Battle\n", ConsoleColor.DarkGray);
+            Utility.WriteLineInColor("Battle\n", ConsoleColor.DarkGray);
 
             while (_fighter1.IsAlive && _fighter2.IsAlive)
             {
@@ -54,7 +54,7 @@ namespace millionDollarsCourses
                 else
                     _fighter2.Attack(_fighter1);
 
-                Utils.PressAnythingToContinue(ConsoleColor.DarkYellow, false, 0, 26, "press anything to continue\n", false);
+                Utility.PressAnythingToContinue(ConsoleColor.DarkYellow, false, 0, 26, "press anything to continue\n", false);
             }
         }
 
@@ -65,12 +65,12 @@ namespace millionDollarsCourses
             bool isUniqueFighter = false;
 
             DisplayFighters();
-            fighterNumOne = Utils.GetUserNumberInRange("Select a Fighter: ", _fighters.Count);
+            fighterNumOne = Utility.GetUserNumberInRange("Select a Fighter: ", _fighters.Count);
             _fighter1 = _fighters[fighterNumOne - 1];
 
             while (isUniqueFighter == false)
             {
-                fighterNumTwo = Utils.GetUserNumberInRange($"Select an Opponent for {_fighter1.GetType().Name}: ", _fighters.Count);
+                fighterNumTwo = Utility.GetUserNumberInRange($"Select an Opponent for {_fighter1.GetType().Name}: ", _fighters.Count);
 
                 if (fighterNumTwo != fighterNumOne)
                 {
@@ -79,22 +79,22 @@ namespace millionDollarsCourses
                 }
                 else
                 {
-                    Text.WriteLineInColor($"{_fighter1.GetType().Name} can't fight himself, can he?");
-                    Utils.PressAnythingToContinue();
+                    Utility.WriteLineInColor($"{_fighter1.GetType().Name} can't fight himself, can he?");
+                    Utility.PressAnythingToContinue();
                     DisplayFighters();
                 }
             }
 
-            Text.WriteLineInColor($"\n{_fighter1.ClassName} vs {_fighter2.ClassName}", ConsoleColor.Blue);
+            Utility.WriteLineInColor($"\n{_fighter1.ClassName} vs {_fighter2.ClassName}", ConsoleColor.Blue);
 
-            Utils.PressAnythingToContinue();
+            Utility.PressAnythingToContinue();
         }
 
         private void DisplayFighters()
         {
             int count = 1;
 
-            Text.WriteLineInColor("Fighter Selection\n", ConsoleColor.DarkGray);
+            Utility.WriteLineInColor("Fighter Selection\n", ConsoleColor.DarkGray);
 
             foreach (Fighter fighter in _fighters)
             {
@@ -112,25 +112,25 @@ namespace millionDollarsCourses
             int fighter2DiceValue;
             bool initiativeDetermined = false;
 
-            Text.WriteLineInColor("Determining who goes first\n", ConsoleColor.DarkGray);
+            Utility.WriteLineInColor("Determining who goes first\n", ConsoleColor.DarkGray);
 
             while (initiativeDetermined == false)
             {
-                fighter1DiceValue = Utils.GenerateRandomNumber(101);
+                fighter1DiceValue = Utility.GenerateRandomNumber(101);
                 Console.WriteLine($"{_fighter1.GetType().Name} rolling the dice... {fighter1DiceValue}");
-                Utils.PressAnythingToContinue(ConsoleColor.DarkYellow, false, 0, 26, "press anything to continue\n", false);
-                fighter2DiceValue = Utils.GenerateRandomNumber(101);
+                Utility.PressAnythingToContinue(ConsoleColor.DarkYellow, false, 0, 26, "press anything to continue\n", false);
+                fighter2DiceValue = Utility.GenerateRandomNumber(101);
                 Console.WriteLine($"{_fighter2.GetType().Name} rolling the dice... {fighter2DiceValue}");
-                Utils.PressAnythingToContinue(ConsoleColor.DarkYellow, false, 0, 26, "press anything to continue\n", false);
+                Utility.PressAnythingToContinue(ConsoleColor.DarkYellow, false, 0, 26, "press anything to continue\n", false);
 
                 if (fighter1DiceValue > fighter2DiceValue)
                 {
-                    Text.WriteLineInColor($"\n{_fighter1.GetType().Name} goes first 🚩", ConsoleColor.Blue);
+                    Utility.WriteLineInColor($"\n{_fighter1.GetType().Name} goes first 🚩", ConsoleColor.Blue);
                     initiativeDetermined = true;
                 }
                 else if (fighter1DiceValue < fighter2DiceValue)
                 {
-                    Text.WriteLineInColor($"\n{_fighter2.GetType().Name} goes first 🚩", ConsoleColor.Blue);
+                    Utility.WriteLineInColor($"\n{_fighter2.GetType().Name} goes first 🚩", ConsoleColor.Blue);
                     tempFighter = _fighter1;
                     _fighter1 = _fighter2;
                     _fighter2 = tempFighter;
@@ -138,12 +138,12 @@ namespace millionDollarsCourses
                 }
                 else
                 {
-                    Text.WriteLineInColor($"\nSame Values. Rerolling...", ConsoleColor.Blue);
-                    Utils.PressAnythingToContinue(ConsoleColor.DarkYellow, false, 0, 26, "press anything to continue\n", false);
+                    Utility.WriteLineInColor($"\nSame Values. Rerolling...", ConsoleColor.Blue);
+                    Utility.PressAnythingToContinue(ConsoleColor.DarkYellow, false, 0, 26, "press anything to continue\n", false);
                 }
             }
 
-            Utils.PressAnythingToContinue();
+            Utility.PressAnythingToContinue();
         }
 
         private void StartRound()
@@ -155,16 +155,23 @@ namespace millionDollarsCourses
         public void DisplayWinner()
         {
             if (_fighter1.IsAlive)
-                Text.WriteLineInColor($"\n{_fighter1.GetType().Name} is Victorious! 😎👌🔥\n", ConsoleColor.Cyan);
+                Utility.WriteLineInColor($"\n{_fighter1.GetType().Name} is Victorious! 😎👌🔥\n", ConsoleColor.Cyan);
             else if (_fighter2.IsAlive)
-                Text.WriteLineInColor($"\n{_fighter2.GetType().Name} is Victorious 😎👌🔥!\n", ConsoleColor.Cyan);
+                Utility.WriteLineInColor($"\n{_fighter2.GetType().Name} is Victorious 😎👌🔥!\n", ConsoleColor.Cyan);
             else
-                Text.WriteLineInColor($"\nIt's just two corpses. Bummer\n", ConsoleColor.Red);
+                Utility.WriteLineInColor($"\nIt's just two corpses. Bummer\n", ConsoleColor.Red);
         }
     }
 
     abstract class Fighter
     {
+        public Fighter(int health, int damage)
+        {
+            Health = health;
+            Damage = damage;
+            ClassName = GetType().Name;
+        }
+
         public bool IsAlive
         {
             get { return Health > 0; }
@@ -175,16 +182,9 @@ namespace millionDollarsCourses
         public int Health { get; protected set; }
         public string ClassName { get; protected set; }
 
-        public Fighter(int health, int damage)
-        {
-            Health = health;
-            Damage = damage;
-            ClassName = GetType().Name;
-        }
-
         public virtual void DisplayStats()
         {
-            Text.WriteLineInColor($"{ClassName}", ConsoleColor.Blue);
+            Utility.WriteLineInColor($"{ClassName}", ConsoleColor.Blue);
             Console.WriteLine($"HP: ❤️{Health}\n" +
                               $"Damage: ⚔︎{Damage}");
         }
@@ -192,13 +192,13 @@ namespace millionDollarsCourses
         public virtual void Attack(Fighter target)
         {
             Console.Write($"[❤️{Health}] {ClassName} ⚔︎{Damage} attacks ");
-            target.TakeDamage(this);
+            target.TakeDamage(Damage);
         }
 
-        public virtual void TakeDamage(Fighter opponent)
+        public virtual void TakeDamage(int damage)
         {
-            Health -= opponent.Damage;
-            Text.WriteLineInColor($"{ClassName} [❤️{Health}⬇]", ConsoleColor.Red);
+            Health -= damage;
+            Utility.WriteLineInColor($"{ClassName} [❤️{Health}⬇]", ConsoleColor.Red);
         }
     }
 
@@ -219,36 +219,34 @@ namespace millionDollarsCourses
             Console.WriteLine($"Blocks every {_blockFrequency}nd strike");
         }
 
-        public override void TakeDamage(Fighter opponent)
+        public override void TakeDamage(int damage)
         {
             _attackedCount++;
 
             if (_attackedCount == _blockFrequency)
-            {
                 BlockDamage();
-            }
             else
-            {
-                base.TakeDamage(opponent);
-            }
+                base.TakeDamage(damage);
         }
 
         private void BlockDamage()
         {
             _attackedCount = 0;
-            Text.WriteLineInColor($"but {ClassName} ⛊ blocks all the damage! Wow...", ConsoleColor.Blue);
+            Utility.WriteLineInColor($"but {ClassName} ⛊ blocks all the damage! Wow...", ConsoleColor.Blue);
         }
     }
 
     class Thief : Fighter
     {
         private readonly int _critChancePercent;
+        private readonly int _critDamage;
         private readonly int _critDamageModifier;
 
         public Thief() : base(26, 2)
         {
             _critChancePercent = 36;
             _critDamageModifier = 2;
+            _critDamage = _critDamageModifier * Damage;
         }
 
         public override void DisplayStats()
@@ -259,25 +257,26 @@ namespace millionDollarsCourses
 
         public override void Attack(Fighter target)
         {
-            if (Utils.GenerateRandomNumber(101) <= _critChancePercent)
-                CriticallyStrike(target, Damage);
+            if (Utility.GenerateRandomNumber(101) <= _critChancePercent)
+                StrikeCritically(target);
             else
                 base.Attack(target);
         }
 
-        private void CriticallyStrike(Fighter target, int defaultDamage)
+        private void StrikeCritically(Fighter target)
         {
-            Damage *= _critDamageModifier;
             Console.Write($"[❤️{Health}] {ClassName} ");
-            Text.WriteInColor($"🏹{Damage} critically fires ", ConsoleColor.DarkRed);
-            target.TakeDamage(this);
-            Damage = defaultDamage;
+            Utility.WriteInColor($"🏹{_critDamage} critically fires ", ConsoleColor.DarkRed);
+            target.TakeDamage(_critDamage);
         }
     }
+
+
     class Duelist : Fighter
     {
         private int _parryFrequency;
         private int _attackedCount;
+        private bool _isParriedState = false;
 
         public Duelist() : base(22, 2)
         {
@@ -289,21 +288,36 @@ namespace millionDollarsCourses
             Console.WriteLine($"Parries every {_parryFrequency}rd strike");
         }
 
-        public override void TakeDamage(Fighter opponent)
+        public override void Attack(Fighter target)
+        {
+            if (_isParriedState)
+                StrikeBack(target);
+            
+            base.Attack(target);
+        }
+
+        public override void TakeDamage(int damage)
         {
             _attackedCount++;
 
-            if (_attackedCount == _parryFrequency)
-                ParryAttack(opponent);
+            if (_attackedCount != _parryFrequency)
+                base.TakeDamage(damage);
             else
-                base.TakeDamage(opponent);
+                ParryAttack();
         }
 
-        private void ParryAttack(Fighter opponent)
+        private void ParryAttack()
         {
+            Utility.WriteLineInColor($"but {ClassName} ↩ parries the attack!", ConsoleColor.Blue);
+            _isParriedState = true;
             _attackedCount = 0;
-            Text.WriteLineInColor($"but {ClassName} ↩ parries the attack!", ConsoleColor.Blue);
-            Attack(opponent);
+        }
+
+        private void StrikeBack(Fighter target)
+        {
+            Console.Write($"[❤️{Health}] {ClassName} ⚔︎{Damage} strikes back after successful parry - ");
+            target.TakeDamage(Damage);
+            _isParriedState = false;
         }
     }
 
@@ -327,7 +341,7 @@ namespace millionDollarsCourses
         {
             base.DisplayStats();
             Console.WriteLine($"Starting mana: 🔥{_startingMana}. Mana per chanelling: 🔥{_manaPerChanelling}");
-            Console.WriteLine($"Mana cost to summon a demon: 🔥{_manaCostToSummon} (Demon's HP: ❤️{_demonModel.Health}, damage: ⚔︎{_demonModel.Damage}). Other fighters can't attack demons directly");
+            Console.WriteLine($"Mana cost to summon a demon: 🔥{_manaCostToSummon} (Demon's HP: ❤️{_demonModel.Health}, damage: ⚔︎{_demonModel.Damage}). Other fighters can't attack demons");
         }
 
         public override void Attack(Fighter target)
@@ -381,19 +395,12 @@ namespace millionDollarsCourses
         public override void Attack(Fighter target)
         {
             Console.Write($"[❤️{Health}] {PersonalName} the {GetType().Name} ⚔︎{Damage} attacks ");
-            target.TakeDamage(this);
+            target.TakeDamage(Damage);
         }
 
         private string SelectHelishName()
         {
-            return _helishNames[Utils.GenerateRandomNumber(_helishNames.Count)];
-        }
-
-        public override void TakeDamage(Fighter opponent)
-        {
-            base.TakeDamage(opponent);
-            if (IsAlive == false)
-                Text.WriteLineInColor($"{PersonalName} the {ClassName} is dead, man. {PersonalName} is dead...", ConsoleColor.Red);
+            return _helishNames[Utility.GenerateRandomNumber(_helishNames.Count)];
         }
     }
 
@@ -428,11 +435,11 @@ namespace millionDollarsCourses
 
             healthToRestore = Damage * (_vampirismPercentage / 100);
             Health += healthToRestore;
-            Text.WriteLineInColor($"[❤️{Health}↑] {ClassName} tastes the blood (+❤️{healthToRestore}). It tasted delicious (for him)", ConsoleColor.Green);
+            Utility.WriteLineInColor($"[❤️{Health}↑] {ClassName} tastes the blood (+❤️{healthToRestore}). It tasted delicious (for him)", ConsoleColor.Green);
         }
     }
 
-    class Utils
+    class Utility
     {
         private static Random _random = new Random();
 
@@ -470,20 +477,17 @@ namespace millionDollarsCourses
                     if (userInput > 0 && userInput <= maxInput)
                         isValidInput = true;
                     else
-                        Text.WriteInColor($"\nPlease enter a number between 1 and {maxInput}: ", ConsoleColor.Red);
+                        Utility.WriteInColor($"\nPlease enter a number between 1 and {maxInput}: ", ConsoleColor.Red);
                 }
                 else
                 {
-                    Text.WriteInColor("\nInvalid input. Please enter a number instead: ", ConsoleColor.Red);
+                    Utility.WriteInColor("\nInvalid input. Please enter a number instead: ", ConsoleColor.Red);
                 }
             }
 
             return userInput;
         }
-    }
 
-    class Text
-    {
         public static void WriteLineInColor(string text, ConsoleColor color = ConsoleColor.DarkRed, bool isCustomPosition = false, int xPosition = 0, int yPosition = 0)
         {
             Console.ForegroundColor = color;
