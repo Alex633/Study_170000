@@ -12,7 +12,12 @@ namespace _170000Courses
         {
             string word = "word";
             int number = 1;
+            byte tinyNumber = 2;
+            short negativeMediumNumber = -32000;
+            long largeNumber = 1000000;
+            ulong positiveLargeNumber = 500000;
             double decimalNumber = 0.1;
+            float decimalNumberTwo = 0.6f;
             char symbol = "#"
             bool isToggled = true;
         }
