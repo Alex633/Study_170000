@@ -8,13 +8,13 @@ namespace _170000Courses
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             string word = "word";
             int number = 1;
-            double subnumber = 0.1;
+            double decimalNumber = 0.1;
             char symbol = "#"
-            bool truth = true;
+            bool isToggled = true;
         }
     }
 }
