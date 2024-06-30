@@ -12,12 +12,12 @@ namespace _170000Courses
         {
             string name;
             int age;
+            
             Console.WriteLine("Just tell me your name");
             name = Console.ReadLine();
             Console.WriteLine($"{name}? I mean... Are you sure? Whatever.\nYour age now");
             age = Convert.ToInt32(Console.ReadLine());
             Console.WriteLine($"{name} that is {age} years old. Well thats embarassing.\nI'm gonna leave now");
-
         }
     }
 }
