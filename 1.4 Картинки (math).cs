@@ -11,13 +11,14 @@ namespace _170000Courses
         static void Main(string[] args)
         {
             int rowLength = 3;
-            int imageNumber = 52;
-            int rowNumber;
-            int imageLeft;
+            int amountOfImages = 52;
+            int amountOfRows;
+            int imagesLeft;
 
-            rowNumber = imageNumber / rowLength;
-            imageLeft = imageNumber % rowLength;
-            Console.WriteLine($"Number of rows is {rowNumber}\n{imageLeft} image(s) remaining");
+            amountOfRows = amountOfImages / rowLength;
+            imagesLeft = amountOfImages % rowLength;
+            Console.WriteLine($"Amount of rows: {amountOfRows}\n" +
+                $"Image(s) remaining: {imagesLeft}");
         }
     }
 }
