@@ -4,7 +4,6 @@ namespace millionDollarsCourses
 {
     internal class Program
     {
-
         //Легенда: 
         //Вы Foul Tarnished и вы приходите в магазин и хотите купить за свои golden seeds - Esthus Flask upgrades.
         //В вашем кошельке есть какое-то количество golden seeds, Margit the Fell Omen  спрашивает у вас, сколько Esthus Flask upgrades вы хотите получить?
