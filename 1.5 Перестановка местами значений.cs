@@ -13,6 +13,7 @@ namespace _170000Courses
             string name;
             string family;
             string i = "0";
+            
             Console.WriteLine("Tell me your name. And your last name after that");
             name = Console.ReadLine();
             family = Console.ReadLine();
