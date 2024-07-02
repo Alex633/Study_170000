@@ -1,4 +1,90 @@
-        static void #ShowTitleScreen(string developer, string game, int startXDev = 47, int startXGame = 47)
+class Utility
+{
+    private static Random _random = new Random();
+
+    public static void PressAnythingToContinue(ConsoleColor color = ConsoleColor.DarkYellow, bool isCustomPosition = false, int xPosition = 0, int yPosition = 0, string text = "press anything to continue", bool isConsoleClear = true)
+    {
+        if (isCustomPosition)
+            Console.SetCursorPosition(xPosition, yPosition);
+
+        Console.ForegroundColor = color;
+        Console.WriteLine(text);
+        Console.ResetColor();
+        Console.ReadKey(true);
+
+        if (isConsoleClear)
+            Console.Clear();
+    }
+
+    public static int GenerateRandomNumber(int maxValue, int minValue = 1)
+    {
+
+        return _random.Next(minValue, maxValue);
+    }
+
+    public static int GetUserNumberInRange(string startMessage = "Select Number: ", int maxInput = 100)
+    {
+        int userInput = 0;
+        bool isValidInput = false;
+
+        Console.Write(startMessage);
+
+        while (isValidInput == false)
+        {
+            if (int.TryParse(Console.ReadLine(), out userInput))
+            {
+                if (userInput > 0 && userInput <= maxInput)
+                    isValidInput = true;
+                else
+                    Utility.WriteColored($"\nPlease enter a number between 1 and {maxInput}: ", ConsoleColor.Red);
+            }
+            else
+            {
+                Utility.WriteColored("\nInvalid input. Please enter a number instead: ", ConsoleColor.Red);
+            }
+        }
+
+        return userInput;
+    }
+
+    public static void WriteLineColored(string text, ConsoleColor color = ConsoleColor.DarkRed, bool isCustomPosition = false, int xPosition = 0, int yPosition = 0)
+    {
+        Console.ForegroundColor = color;
+
+        if (isCustomPosition)
+            WriteLine(xPosition, yPosition, text);
+        else
+            Console.WriteLine(text);
+
+        Console.ResetColor();
+    }
+
+    public static void WriteColored(string text, ConsoleColor color = ConsoleColor.DarkRed, bool isCustomPosition = false, int xPosition = 0, int yPosition = 0)
+    {
+        Console.ForegroundColor = color;
+
+        if (isCustomPosition)
+            Write(xPosition, yPosition, text);
+        else
+            Console.Write(text);
+
+        Console.ResetColor();
+    }
+
+    public static void WriteLine(int xPosition, int yPosition, string text)
+    {
+        Console.SetCursorPosition(xPosition, yPosition);
+        Console.WriteLine(text);
+    }
+
+    public static void Write(int xPosition, int yPos, string text)
+    {
+        Console.SetCursorPosition(xPosition, yPos);
+        Console.Write(text);
+    }
+}
+
+static void #ShowTitleScreen(string developer, string game, int startXDev = 47, int startXGame = 47)
         {
             int startY = 14;
             int timingDev = 1600;
@@ -179,46 +265,6 @@
             for (int i = 0; i < length; i++)
                 Console.Write(" ");
         } //clear
-
-        static void #ColorizeText(char character, ConsoleColor color = ConsoleColor.Gray)
-        {
-            Console.ForegroundColor = color;
-            Console.Write(character);
-            Console.ForegroundColor = ConsoleColor.White;
-        } //colorize char
-
-        static void #ColorizeText(string text, ConsoleColor color = ConsoleColor.Gray, bool isWriteLine = true)
-        {
-            if (isWriteLine)
-            {
-                Console.ForegroundColor = color;
-                Console.WriteLine(text);
-                Console.ForegroundColor = ConsoleColor.White;
-            }
-            else
-            {
-                Console.ForegroundColor = color;
-                Console.Write(text);
-                Console.ForegroundColor = ConsoleColor.White;
-            }
-        } //colorize text
-
-        static void #ColorizeBackground(char character, ConsoleColor color = ConsoleColor.Gray)
-        {
-            Console.BackgroundColor = color;
-            Console.ForegroundColor = color;
-            Console.Write(character);
-            Console.BackgroundColor = ConsoleColor.Black;
-            Console.ForegroundColor = ConsoleColor.White;
-        } //colored tile
-        static void #ColorizeBackground(string text, ConsoleColor color = ConsoleColor.Gray)
-        {
-            Console.BackgroundColor = color;
-            //Console.ForegroundColor = color;
-            Console.Write(text);
-            Console.BackgroundColor = ConsoleColor.Black;
-            //Console.ForegroundColor = ConsoleColor.White;
-        } //colored BG
 
         public static class #ConsoleHelper
         {
