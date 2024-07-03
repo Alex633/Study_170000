@@ -18,26 +18,30 @@ namespace millionDollarsCourses
     {
         static void Main()
         {
-            const int AppointmentDurationMinutes = 10;
-            const int NoWaitingTime = 0;
-            const int DefaultWaitingTime = 30;
-            const int LongWaitingTime = 120;
+            const int MinutesInHour = 60;
+            int appointmentDurationMinutes = 10;
+            int noWaitingTime = 0;
+            int defaultWaitingTimeInMinutes = 30;
+            int longWaitingTimeInMinutes = 120;
 
             Console.WriteLine("Welcome to the doctor appointment\n" +
                 "How many patients are currently in line?");
             int queueOfPatients = Convert.ToInt32(Console.ReadLine());
-            int waitingTime = AppointmentDurationMinutes * queueOfPatients;
+            int waitingTimeInMinutesTotal = appointmentDurationMinutes * queueOfPatients;
+            int waitingTimeHours = waitingTimeInMinutesTotal / MinutesInHour;
+            int waitingTimeMinutes = waitingTimeInMinutesTotal % MinutesInHour;
 
-            if (waitingTime < NoWaitingTime)
+            if (waitingTimeInMinutesTotal < noWaitingTime)
                 Console.WriteLine($"Number of people can't be negative, dummy. Or can it?");
-            else if (waitingTime == NoWaitingTime)
+            else if (waitingTimeInMinutesTotal == noWaitingTime)
                 Console.WriteLine("Looks like you are in luck, step right in");
-            else if (waitingTime < DefaultWaitingTime)
-                Console.WriteLine($"It's only {waitingTime} minutes. Not that bad, right?");
-            else if (waitingTime < LongWaitingTime)
-                Console.WriteLine($"Waiting time is {waitingTime} minutes. We apologize for the inconvenience");
+            else if (waitingTimeInMinutesTotal < defaultWaitingTimeInMinutes)
+                Console.WriteLine($"It's only {waitingTimeHours}h:{waitingTimeMinutes}m. Not that bad, right?");
+            else if (waitingTimeInMinutesTotal < longWaitingTimeInMinutes)
+                Console.WriteLine($"Waiting time is {waitingTimeHours}h:{waitingTimeMinutes}m. We apologize for the inconvenience");
             else
-                Console.WriteLine($"I hope you didn't have any plans for today. You will have to wait for {waitingTime} minutes");
+                Console.WriteLine($"I hope you didn't have any plans for today. You will have to wait for " +
+                    $"{waitingTimeHours}h:{waitingTimeMinutes}m");
         }
     }
 }
