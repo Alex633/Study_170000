@@ -18,23 +18,23 @@ namespace millionDollarsCourses
     {
         static void Main()
         {
-            const int appointmentDurationMinutes = 10;
-            const int noWaitingTime = 0;
-            const int defaultWaitingTime = 30;
-            const int longWaitingTime = 120;
+            const int AppointmentDurationMinutes = 10;
+            const int NoWaitingTime = 0;
+            const int DefaultWaitingTime = 30;
+            const int LongWaitingTime = 120;
 
             Console.WriteLine("Welcome to the doctor appointment\n" +
                 "How many patients are currently in line?");
             int queueOfPatients = Convert.ToInt32(Console.ReadLine());
-            int waitingTime = appointmentDurationMinutes * queueOfPatients;
+            int waitingTime = AppointmentDurationMinutes * queueOfPatients;
 
-            if (waitingTime < noWaitingTime)
+            if (waitingTime < NoWaitingTime)
                 Console.WriteLine($"Number of people can't be negative, dummy. Or can it?");
-            else if (waitingTime == noWaitingTime)
+            else if (waitingTime == NoWaitingTime)
                 Console.WriteLine("Looks like you are in luck, step right in");
-            else if (waitingTime < defaultWaitingTime)
+            else if (waitingTime < DefaultWaitingTime)
                 Console.WriteLine($"It's only {waitingTime} minutes. Not that bad, right?");
-            else if (waitingTime < longWaitingTime)
+            else if (waitingTime < LongWaitingTime)
                 Console.WriteLine($"Waiting time is {waitingTime} minutes. We apologize for the inconvenience");
             else
                 Console.WriteLine($"I hope you didn't have any plans for today. You will have to wait for {waitingTime} minutes");
