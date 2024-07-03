@@ -26,7 +26,7 @@ namespace millionDollarsCourses
             int waitingTime = appointmentDurationMinutes * queueOfPatients;
 
             if (waitingTime < 0)
-                Console.WriteLine($"Number of people can't be negative, dummy. Or can it?");
+                Console.WriteLine("Number of people can't be negative, dummy. Or can it?");
             else if (waitingTime == 0)
                 Console.WriteLine("Looks like you are in luck, step right in");
             else if (waitingTime < 30)
