@@ -20,19 +20,19 @@ namespace millionDollarsCourses
         {
             const int appointmentDurationMinutes = 10;
 
-            Console.WriteLine("Welcome to your doctor appointment\n" +
-                "How many patiens are currently in line?");
+            Console.WriteLine("Welcome to the doctor appointment\n" +
+                "How many patients are currently in line?");
             int queueOfPatients = Convert.ToInt32(Console.ReadLine());
             int waitingTime = appointmentDurationMinutes * queueOfPatients;
 
             if (waitingTime < 0)
-                Console.WriteLine($"Amount of people can't be negative, dummy. Or can it?");
+                Console.WriteLine($"Number of people can't be negative, dummy. Or can it?");
             else if (waitingTime == 0)
-                Console.WriteLine("Looks like you are in luck, come on in");
+                Console.WriteLine("Looks like you are in luck, step right in");
             else if (waitingTime < 30)
                 Console.WriteLine($"It's only {waitingTime} minutes. Not that bad, right?");
             else if (waitingTime < 120)
-                Console.WriteLine($"Waiting time is {waitingTime} minutes. We are so sorry");
+                Console.WriteLine($"Waiting time is {waitingTime} minutes. We apologize for the inconvenience");
             else
                 Console.WriteLine($"I hope you didn't have any plans for today. You will have to wait for {waitingTime} minutes");
         }
