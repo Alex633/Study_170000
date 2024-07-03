@@ -23,7 +23,7 @@ namespace _170000Courses
             }
             else if (people <= 2)
             {
-            Console.WriteLine($"{people}? It's not too bed. You will have to wait for {waitingTime} minutes");
+            Console.WriteLine($"{people}? It's not too bad. You will have to wait for {waitingTime} minutes");
             }
             else if (people >= 3 & people <= 5)
             {
