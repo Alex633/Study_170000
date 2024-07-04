@@ -15,36 +15,21 @@ namespace millionDollarsCourses
             int maxRandomNumber = 100;
             int randomNumber = random.Next(minRandomNumber, maxRandomNumber + 1);
             int firstNumberOfDivisibility = 3;
-            int secondNumberOfDivisible = 5;
-            int summoryForFirstSequence = 0;
-            int summoryForSecondSequence = 0;
+            int secondNumberOfDivisibility = 5;
+            int numbersSummory = 0;
 
-            Console.Write($"Numbers divisible by {firstNumberOfDivisibility} under {randomNumber}: ");
-
-            for (int i = 1; i <= randomNumber; i++)
-            {
-                if (i % firstNumberOfDivisibility == 0)
-                {
-                    Console.Write(i + " ");
-                    summoryForFirstSequence += i;
-                }
-            }
-
-            Console.WriteLine($"\nFirst Sequence Summury: {summoryForFirstSequence}");
-            Console.Write($"\n\nNumbers divisible by {secondNumberOfDivisible} under {randomNumber}: ");
+            Console.WriteLine($"Numbers divisible by {firstNumberOfDivisibility} or {secondNumberOfDivisibility} under {randomNumber}: ");
 
             for (int i = 1; i <= randomNumber; i++)
             {
-                if (i % secondNumberOfDivisible == 0)
+                if (i % firstNumberOfDivisibility == 0 || i % secondNumberOfDivisibility == 0)
                 {
                     Console.Write(i + " ");
-                    summoryForSecondSequence += i;
+                    numbersSummory += i;
                 }
             }
 
-            Console.WriteLine($"\nSecond Sequence Summury: {summoryForSecondSequence}\n\n");
-            int totalSummory = summoryForFirstSequence + summoryForSecondSequence;
-            Console.WriteLine($"Total Summury: {totalSummory}");
+            Console.WriteLine($"\n\nSummury: {numbersSummory}\n");
         }
     }
 }
