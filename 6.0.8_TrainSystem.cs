@@ -27,6 +27,7 @@ namespace millionDollarsCourses
         private const int ConstructTrainCommand = 3;
         private const int TransportPassengersCommand = 4;
         private const int ExitCommand = 5;
+        
         private readonly TrainControlHud _trainControlHud = new TrainControlHud();
         private Train _train = new Train();
         private Route _route = new Route();
@@ -334,6 +335,7 @@ namespace millionDollarsCourses
         private const int AddLargeWagon = 3;
         private const int Back = 4;
         private const int Commands = 4;
+        
         private readonly TrainControlHud _controlHud = new TrainControlHud();
         private Stack<Wagon> _wagons = new Stack<Wagon>();
 
