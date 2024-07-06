@@ -21,17 +21,20 @@ namespace millionDollarsCourses
 
             Console.Write("Input name: ");
             name = Console.ReadLine();
+
             Console.Write("Input symbol: ");
             outlineSymbol = Convert.ToChar(Console.ReadLine());
+
             int nameLength = name.Length;
             int outlineLength = nameLength + 2;
+
             Console.WriteLine();
 
             for (int i = 0; i < outlineLength; i++)
                 Console.Write(outlineSymbol);
 
             Console.Write("\n" + outlineSymbol + name + outlineSymbol + "\n");
-            Console.WriteLine(new string (outlineSymbol, outlineLength));
+            Console.WriteLine(new string(outlineSymbol, outlineLength));
             Console.WriteLine();
         }
     }
