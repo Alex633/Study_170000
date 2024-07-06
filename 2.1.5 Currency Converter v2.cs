@@ -178,7 +178,7 @@ namespace millionDollarsCourses
                     else
                     {
                         if (isGivenAmountOfBronzeFraction)
-                            Console.WriteLine("\nConvertion failed. Bronze coin can't be devided and must be greater than one.");
+                            Console.WriteLine("\nConvertion failed. Bronze coin can't be devided and must be one or greater.");
                         else if (amountOfGivenCoins <= 0)
                             Console.WriteLine("\nConvertion failed. Given amount must be greater than zero.");
                         else
