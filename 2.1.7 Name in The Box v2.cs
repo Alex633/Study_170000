@@ -18,6 +18,7 @@ namespace millionDollarsCourses
         {
             char outlineSymbol;
             string name;
+            int sidesLength = 2;
 
             Console.Write("Input name: ");
             name = Console.ReadLine();
@@ -26,7 +27,7 @@ namespace millionDollarsCourses
             outlineSymbol = Convert.ToChar(Console.ReadLine());
 
             int nameLength = name.Length;
-            int outlineLength = nameLength + 2;
+            int outlineLength = nameLength + sidesLength;
 
             Console.WriteLine();
 
