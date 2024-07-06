@@ -24,15 +24,22 @@ namespace millionDollarsCourses
             const int CommandGoldToSilver = 6;
             const int CommandExit = 7;
 
-            int userInput = 0;
             bool isSuccefulConvertion = false;
+            bool isWrongCommandInput = false;
             bool isGivenAmountOfBronzeFraction = false;
-            float amountOfGivenCoins = 0;
-            float amountOfTakenCoins;
+
             Random random = new Random();
-            float bronze = random.Next(1000);
-            float silver = random.Next(100); ;
-            float gold = random.Next(10);
+
+            int userInput = 0;
+            int maxInitialBronzeCoins = 1000;
+            int maxInitialSilverCoins = 100;
+            int maxInitialGoldCoins = 10;
+            int minAmountOfBronze = 1;
+
+            float coinsCount = 0;
+            float bronzeCoinsBalance = random.Next(maxInitialBronzeCoins);
+            float silverCoinsBalanace = random.Next(maxInitialSilverCoins); ;
+            float goldCoinsBalance = random.Next(maxInitialGoldCoins);
             float bronzeToSilverConvertRate = 0.01f;
             float bronzeToGoldConvertRate = 0.0001f;
             float silverToBronzeConvertRate = 100f;
@@ -43,9 +50,10 @@ namespace millionDollarsCourses
             while (userInput != CommandExit)
             {
                 Console.WriteLine("Balance:\n" +
-                    $"{bronze} Bronze\n" +
-                    $"{silver} Silver\n" +
-                    $"{gold} Gold\n");
+                    $"{bronzeCoinsBalance} Bronze\n" +
+                    $"{silverCoinsBalanace} Silver\n" +
+                    $"{goldCoinsBalance} Gold\n");
+
                 Console.WriteLine("Coins exchange options:\n" +
                 $"{CommandBronzeToSilver}. Bronze to Silver\n" +
                 $"{CommandBronzeToGold}. Bronze to Gold\n" +
@@ -54,6 +62,7 @@ namespace millionDollarsCourses
                 $"{CommandGoldToBronze}. Gold to Bronze\n" +
                 $"{CommandGoldToSilver}. Gold to Silver\n" +
                 $"{CommandExit}. Exit\n");
+
                 Console.Write("Input command: ");
                 userInput = Convert.ToInt32(Console.ReadLine());
 
@@ -61,16 +70,17 @@ namespace millionDollarsCourses
                 {
                     case CommandBronzeToSilver:
                         Console.Write("Amount of coins given: ");
-                        amountOfGivenCoins = Convert.ToSingle(Console.ReadLine());
-                        isGivenAmountOfBronzeFraction = amountOfGivenCoins > 0 && amountOfGivenCoins < 1;
+                        coinsCount = Convert.ToSingle(Console.ReadLine());
 
-                        if (amountOfGivenCoins <= bronze && amountOfGivenCoins >= 1)
+                        isGivenAmountOfBronzeFraction = coinsCount > 0 && coinsCount < minAmountOfBronze;
+
+                        if (coinsCount <= bronzeCoinsBalance && coinsCount >= minAmountOfBronze)
                         {
-                            bronze -= amountOfGivenCoins;
-                            amountOfTakenCoins = amountOfGivenCoins * bronzeToSilverConvertRate;
-                            silver += amountOfTakenCoins;
+                            bronzeCoinsBalance -= coinsCount;
+                            coinsCount *= bronzeToSilverConvertRate;
+                            silverCoinsBalanace += coinsCount;
                             isSuccefulConvertion = true;
-                            Console.WriteLine($"-{amountOfGivenCoins} bronze | +{amountOfTakenCoins} silver " +
+                            Console.WriteLine($"+{coinsCount} silver " +
                                 $"(Exchange Rate: {bronzeToSilverConvertRate})");
                         }
 
@@ -78,16 +88,17 @@ namespace millionDollarsCourses
 
                     case CommandBronzeToGold:
                         Console.Write("Amount of coins given: ");
-                        amountOfGivenCoins = Convert.ToSingle(Console.ReadLine());
-                        isGivenAmountOfBronzeFraction = amountOfGivenCoins > 0 && amountOfGivenCoins < 1;
+                        coinsCount = Convert.ToSingle(Console.ReadLine());
 
-                        if (amountOfGivenCoins <= bronze && amountOfGivenCoins >= 1)
+                        isGivenAmountOfBronzeFraction = coinsCount > 0 && coinsCount < minAmountOfBronze;
+
+                        if (coinsCount <= bronzeCoinsBalance && coinsCount >= minAmountOfBronze)
                         {
-                            bronze -= amountOfGivenCoins;
-                            amountOfTakenCoins = amountOfGivenCoins * bronzeToGoldConvertRate;
-                            gold += amountOfTakenCoins;
+                            bronzeCoinsBalance -= coinsCount;
+                            coinsCount *= bronzeToGoldConvertRate;
+                            goldCoinsBalance += coinsCount;
                             isSuccefulConvertion = true;
-                            Console.WriteLine($"-{amountOfGivenCoins} bronze | +{amountOfTakenCoins} gold " +
+                            Console.WriteLine($"+{coinsCount} gold " +
                                 $"(Exchange Rate: {bronzeToGoldConvertRate})");
                         }
 
@@ -95,15 +106,15 @@ namespace millionDollarsCourses
 
                     case CommandSilverToBronze:
                         Console.Write("Amount of coins given: ");
-                        amountOfGivenCoins = Convert.ToSingle(Console.ReadLine());
+                        coinsCount = Convert.ToSingle(Console.ReadLine());
 
-                        if (amountOfGivenCoins <= silver && amountOfGivenCoins > 0)
+                        if (coinsCount <= silverCoinsBalanace && coinsCount > 0)
                         {
-                            silver -= amountOfGivenCoins;
-                            amountOfTakenCoins = amountOfGivenCoins * silverToBronzeConvertRate;
-                            bronze += amountOfTakenCoins;
+                            silverCoinsBalanace -= coinsCount;
+                            coinsCount *= silverToBronzeConvertRate;
+                            bronzeCoinsBalance += coinsCount;
                             isSuccefulConvertion = true;
-                            Console.WriteLine($"-{amountOfGivenCoins} silver | +{amountOfTakenCoins} bronze " +
+                            Console.WriteLine($"+{coinsCount} bronze " +
                                 $"(Exchange Rate: {silverToBronzeConvertRate})");
                         }
 
@@ -111,15 +122,15 @@ namespace millionDollarsCourses
 
                     case CommandSilverToGold:
                         Console.Write("Amount of coins given: ");
-                        amountOfGivenCoins = Convert.ToSingle(Console.ReadLine());
+                        coinsCount = Convert.ToSingle(Console.ReadLine());
 
-                        if (amountOfGivenCoins <= silver && amountOfGivenCoins > 0)
+                        if (coinsCount <= silverCoinsBalanace && coinsCount > 0)
                         {
-                            silver -= amountOfGivenCoins;
-                            amountOfTakenCoins = amountOfGivenCoins * silverToGoldConvertRate;
-                            gold += amountOfTakenCoins;
+                            silverCoinsBalanace -= coinsCount;
+                            coinsCount *= silverToGoldConvertRate;
+                            goldCoinsBalance += coinsCount;
                             isSuccefulConvertion = true;
-                            Console.WriteLine($"-{amountOfGivenCoins} silver | +{amountOfTakenCoins} gold " +
+                            Console.WriteLine($"+{coinsCount} gold " +
                                 $"(Exchange Rate: {silverToGoldConvertRate})");
                         }
 
@@ -127,15 +138,15 @@ namespace millionDollarsCourses
 
                     case CommandGoldToBronze:
                         Console.Write("Amount of coins given: ");
-                        amountOfGivenCoins = Convert.ToSingle(Console.ReadLine());
+                        coinsCount = Convert.ToSingle(Console.ReadLine());
 
-                        if (amountOfGivenCoins <= gold && amountOfGivenCoins > 0)
+                        if (coinsCount <= goldCoinsBalance && coinsCount > 0)
                         {
-                            gold -= amountOfGivenCoins;
-                            amountOfTakenCoins = amountOfGivenCoins * goldToBronzeConvertRate;
-                            bronze += amountOfTakenCoins;
+                            goldCoinsBalance -= coinsCount;
+                            coinsCount *= goldToBronzeConvertRate;
+                            bronzeCoinsBalance += coinsCount;
                             isSuccefulConvertion = true;
-                            Console.WriteLine($"-{amountOfGivenCoins} gold | +{amountOfTakenCoins} bronze " +
+                            Console.WriteLine($"+{coinsCount} bronze " +
                                 $"(Exchange Rate: {goldToBronzeConvertRate})");
                         }
 
@@ -143,15 +154,15 @@ namespace millionDollarsCourses
 
                     case CommandGoldToSilver:
                         Console.Write("Amount of coins given: ");
-                        amountOfGivenCoins = Convert.ToSingle(Console.ReadLine());
+                        coinsCount = Convert.ToSingle(Console.ReadLine());
 
-                        if (amountOfGivenCoins <= gold && amountOfGivenCoins > 0)
+                        if (coinsCount <= goldCoinsBalance && coinsCount > 0)
                         {
-                            gold -= amountOfGivenCoins;
-                            amountOfTakenCoins = amountOfGivenCoins * goldToSilverConvertRate;
-                            silver += amountOfTakenCoins;
+                            goldCoinsBalance -= coinsCount;
+                            coinsCount *= goldToSilverConvertRate;
+                            silverCoinsBalanace += coinsCount;
                             isSuccefulConvertion = true;
-                            Console.WriteLine($"-{amountOfGivenCoins} gold | +{amountOfTakenCoins} silver " +
+                            Console.WriteLine($"+{coinsCount} silver " +
                                 $"(Exchange Rate: {goldToSilverConvertRate})");
                         }
 
@@ -162,11 +173,12 @@ namespace millionDollarsCourses
                         break;
 
                     default:
-                        Console.WriteLine("Invalid command");
+                        Console.WriteLine("\nInvalid command");
+                        isWrongCommandInput = true;
                         break;
                 }
 
-                if (userInput != CommandExit)
+                if (userInput != CommandExit && isWrongCommandInput != true)
                 {
                     if (isSuccefulConvertion)
                     {
@@ -177,16 +189,16 @@ namespace millionDollarsCourses
                     {
                         if (isGivenAmountOfBronzeFraction)
                             Console.WriteLine("\nConvertion failed. Bronze coin can't be devided and must be one or greater.");
-                        else if (amountOfGivenCoins <= 0)
+                        else if (coinsCount <= 0)
                             Console.WriteLine("\nConvertion failed. Given amount must be greater than zero.");
                         else
                             Console.WriteLine("\nConvertion failed. Not enough coins");
                     }
-
-                    Console.WriteLine("Press anything to Continue");
-                    Console.ReadKey(true);
-                    Console.Clear();
                 }
+
+                Console.WriteLine("Press anything to Continue");
+                Console.ReadKey(true);
+                Console.Clear();
             }
         }
     }
