@@ -13,6 +13,7 @@ namespace millionDollarsCourses
         {
             string password = "1235";
             string secretMessage = "very secret message";
+
             int tryCount = 3;
             string userInput = null;
 
