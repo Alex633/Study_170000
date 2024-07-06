@@ -24,7 +24,6 @@ namespace millionDollarsCourses
             const int CommandGoldToSilver = 6;
             const int CommandExit = 7;
 
-
             int userInput = 0;
             bool isSuccefulConvertion = false;
             bool isGivenAmountOfBronzeFraction = false;
@@ -47,7 +46,6 @@ namespace millionDollarsCourses
                     $"{bronze} Bronze\n" +
                     $"{silver} Silver\n" +
                     $"{gold} Gold\n");
-
                 Console.WriteLine("Coins exchange options:\n" +
                 $"{CommandBronzeToSilver}. Bronze to Silver\n" +
                 $"{CommandBronzeToGold}. Bronze to Gold\n" +
