@@ -49,7 +49,7 @@ namespace millionDollarsCourses
 
             while (_fighter1.IsAlive && _fighter2.IsAlive)
             {
-                StartRound();
+                DisplayRound();
 
                 if (_round % TurnAlternator != 0)
                     _fighter1.Attack(_fighter2);
@@ -148,7 +148,7 @@ namespace millionDollarsCourses
             }
         }
 
-        private void StartRound()
+        private void DisplayRound()
         {
             _round++;
             Console.WriteLine($"Round {_round}");
@@ -232,7 +232,6 @@ namespace millionDollarsCourses
             {
                 ClassName = CloneName
             };
-
             return clone;
         }
 
@@ -278,7 +277,6 @@ namespace millionDollarsCourses
             {
                 ClassName = CloneName
             };
-
             return clone;
         }
 
@@ -304,7 +302,6 @@ namespace millionDollarsCourses
         }
     }
 
-
     class Duelist : Fighter
     {
         private int _parryFrequency;
@@ -322,7 +319,6 @@ namespace millionDollarsCourses
             {
                 ClassName = CloneName
             };
-
             return clone;
         }
 
@@ -387,7 +383,6 @@ namespace millionDollarsCourses
             {
                 ClassName = CloneName
             };
-
             return clone;
         }
 
@@ -400,7 +395,6 @@ namespace millionDollarsCourses
 
         public override void Attack(Fighter target)
         {
-
             if (_startingMana >= _manaCostToSummon)
                 SummonDemon();
             else
@@ -478,7 +472,6 @@ namespace millionDollarsCourses
             {
                 ClassName = CloneName
             };
-
             return clone;
         }
 
