@@ -79,22 +79,12 @@ namespace millionDollarsCourses
             string legend = "Вы - ментор и у вас есть несколько умений, которые вы можете использовать против ученика.\n" +
                 "Вы должны сломить волю ученика в течении рабочего дня и только после этого будет вам покой\n";
 
-            string mentorStats = $"\nВаши характеристики:\n" +
-                $"{mentorWorkHours} рабочих часов\n" +
-                $"{mentorEnergy} энергии\n";
-
-            string studentStats = $"\nХарактеристики ученика:\n" +
-                $"{studentWillPower} силы воли\n" +
-                $"{studentTimeWaste} тратит ваших рабочих часов в ход\n\n";
-
-            string allStats = mentorStats + studentStats;
-
             string displayAbilityCommentDescription = $"\n{CommandAbilityComment} - {AbilityComment} \n" +
                 $"Найти запрещенный комментарий в коде ученика (все комментарии являются запрещенными).\n\n";
             string displayAbilityEmptyStringDescription = $"{CommandAbilityEmptyString} - {AbilityEmptyString} \n" +
                 $"Разыскать ненужную пустую строку. Тратит: {abilityEmptyStringEnergyCost} энергии.\n\n";
             string displayAbilitySecondEmptyStringDescription = $"{CommandAbilitySecondEmptyString} - {AbilitySecondEmptyString} \n" +
-               $"Обнаружить идущую подряд вторую пустую строку. Можно вызывать, только если был использован [{CommandAbilitySecondEmptyString} {AbilityEmptyString}]\n\n";
+               $"Обнаружить идущую подряд вторую пустую строку. Можно вызывать, только если был использован [{CommandAbilityEmptyString} {AbilityEmptyString}]\n\n";
             string displayAbilitySummonDescription = $"{CommandAbilitySummon} - {AbilitySummon}\n" +
                $"Призвать другого ментора, чтобы он нашел совсем другие ошибки.\n" +
                $"Восстанавливает {abilitySummonHoursRestoration} рабочих часов и {abilitySummonEnergyRestoration} энергии. " +
@@ -115,7 +105,7 @@ namespace millionDollarsCourses
             {
                 #region display game info
                 Console.ForegroundColor = ConsoleColor.DarkGray;
-                Console.WriteLine(mentorStats = $"\nВаши характеристики:");
+                Console.WriteLine($"\nВаши характеристики:");
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.Write($"{mentorWorkHours} рабочих часов");
 
@@ -181,8 +171,6 @@ namespace millionDollarsCourses
                         break;
 
                     case CommandAbilitySecondEmptyString:
-
-
                         if (isAbilityEmptyStringActive)
                         {
                             isAbilityEmptyStringActive = false;
@@ -197,6 +185,7 @@ namespace millionDollarsCourses
                             Console.WriteLine($"\nВы ищете вторую пустую строку, но не можете найти даже первую");
                         }
                         break;
+
 
                     case CommandAbilitySummon:
                         if (abilitySummonUses > 0)
@@ -214,7 +203,7 @@ namespace millionDollarsCourses
 
                             studentKnowledge++;
                             Console.WriteLine($"Вы используете {AbilitySummon}.\n" +
-                                $"Именно в тот момент, когда он думал, что задание сдано\n" +
+                                $"Именно в тот момент, когда ученик думал, что задание сдано\n" +
                                 $"Сила воли ученика сломлена на {abilitySummonMentalDamage}");
                         }
                         else
@@ -241,7 +230,7 @@ namespace millionDollarsCourses
                         break;
 
                     default:
-                        Console.WriteLine("Вы задумались всего на секунду на секунду, а ученик уже сотворил какую-то глупость\n" +
+                        Console.WriteLine("Вы задумались всего на секунду, а ученик уже сотворил какую-то глупость\n" +
                             "В недоумении вы пропускаете ход");
                         break;
                 }
@@ -276,7 +265,7 @@ namespace millionDollarsCourses
 
                     typeOfWaistingTime++;
 
-                    if (typeOfWaistingTime >= 4)
+                    if (typeOfWaistingTime > 4)
                         typeOfWaistingTime = 0;
                 }
                 #endregion
@@ -287,7 +276,7 @@ namespace millionDollarsCourses
                 if (isHopeRestored == false)
                 {
                     Console.ForegroundColor = ConsoleColor.DarkGray;
-                    Console.WriteLine(mentorStats = $"\nВаши характеристики:");
+                    Console.WriteLine($"\nВаши характеристики:");
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.Write($"{mentorWorkHours} рабочих часов");
 
@@ -308,7 +297,6 @@ namespace millionDollarsCourses
                 Console.ResetColor();
                 Console.ReadKey(true);
                 Console.Clear();
-
                 #endregion
             }
 
