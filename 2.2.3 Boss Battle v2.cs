@@ -84,7 +84,7 @@ namespace millionDollarsCourses
             string displayAbilityEmptyStringDescription = $"{CommandAbilityEmptyString} - {AbilityEmptyString} \n" +
                 $"Разыскать ненужную пустую строку. Тратит: {abilityEmptyStringEnergyCost} энергии.\n\n";
             string displayAbilitySecondEmptyStringDescription = $"{CommandAbilitySecondEmptyString} - {AbilitySecondEmptyString} \n" +
-               $"Обнаружить идущую подряд вторую пустую строку. Можно вызывать, только если был использован [{CommandAbilityEmptyString} {AbilityEmptyString}]\n\n";
+               $"Обнаружить идущую подряд вторую пустую строку. Можно вызывать, только если был использован {AbilityEmptyString}]\n\n";
             string displayAbilitySummonDescription = $"{CommandAbilitySummon} - {AbilitySummon}\n" +
                $"Призвать другого ментора, чтобы он нашел совсем другие ошибки.\n" +
                $"Восстанавливает {abilitySummonHoursRestoration} рабочих часов и {abilitySummonEnergyRestoration} энергии. " +
