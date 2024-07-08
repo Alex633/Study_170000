@@ -65,7 +65,7 @@ namespace millionDollarsCourses
 
             int abilitySecondEmptyStringMentalDamage = 18;
 
-            int abilitySummonMentalDamage = 24;
+            int abilitySummonMentalDamage = 36;
             int abilitySummonHoursRestoration = mentorMaxWorkHours;
             int abilitySummonEnergyRestoration = 3;
             int abilitySummonUses = 1;
@@ -118,6 +118,10 @@ namespace millionDollarsCourses
                 Console.WriteLine(mentorStats = $"\nВаши характеристики:");
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.Write($"{mentorWorkHours} рабочих часов");
+
+                if (isAbilityEmptyStringActive)
+                    Console.Write($" | вы только что нашли пустую строку, но что если там есть вторая...");
+
                 Console.ResetColor();
                 Console.WriteLine($" | {mentorEnergy} энергии\n");
 
@@ -181,6 +185,7 @@ namespace millionDollarsCourses
 
                         if (isAbilityEmptyStringActive)
                         {
+                            isAbilityEmptyStringActive = false;
                             studentWillPower -= abilitySecondEmptyStringMentalDamage;
                             studentKnowledge++;
                             Console.WriteLine($"Вы используете {AbilitySecondEmptyString}.\n" +
@@ -284,12 +289,16 @@ namespace millionDollarsCourses
                     Console.ForegroundColor = ConsoleColor.DarkGray;
                     Console.WriteLine(mentorStats = $"\nВаши характеристики:");
                     Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine($"{mentorWorkHours} рабочих часов");
+                    Console.Write($"{mentorWorkHours} рабочих часов");
+
+                    if (isAbilityEmptyStringActive)
+                        Console.Write($" | вы только что нашли пустую строку, но что если там есть вторая...");
+
                     Console.ResetColor();
                 }
 
                 Console.ForegroundColor = ConsoleColor.DarkGray;
-                Console.WriteLine($"\nХарактеристики ученика:");
+                Console.WriteLine($"\n\nХарактеристики ученика:");
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"{studentWillPower} силы воли");
                 Console.ResetColor();
