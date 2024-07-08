@@ -45,7 +45,7 @@ namespace millionDollarsCourses
             int typeOfWaistingTime = 0;
             string unneededCreativity = $"Ученик использует ненужную креативность и тратит {studentTimeWaste} час вашего времени";
             string unnecessaryComplication = $"Ученик усложняет все до предела и тратит {studentTimeWaste} час вашего времени";
-            string wrongVariablesNaming = $"Ученик называет bool переменную ZdesVihodIzZikla и тратит {studentTimeWaste} час вашего времени";
+            string wrongVariablesNaming = $"Ученик называет bool переменную ZdesVihodIzCikla и тратит {studentTimeWaste} час вашего времени";
             string wrongFormatting = $"Ученик объявляет все переменные в одну строчку и тратит {studentTimeWaste} час вашего времени";
             string battleWithMentor = $"Ученик делает битву ментора с учеником и тратит {studentTimeWaste} час вашего времени...\n" +
                 $"Он просит у вас прощения, но за подобные грехи не прощают. Ему по-прежнему жаль";
