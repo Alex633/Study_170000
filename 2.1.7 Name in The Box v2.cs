@@ -37,6 +37,17 @@ namespace millionDollarsCourses
             Console.Write("\n" + outlineSymbol + name + outlineSymbol + "\n");
             Console.WriteLine(new string(outlineSymbol, outlineLength));
             Console.WriteLine();
+
+            //alternative
+            string nameLine = $"{borderSymbol}{name}{borderSymbol}";
+            int nameLineLength = nameLine.Length;
+
+            for (int i = 0; i < nameLineLength; i++)
+                borderLine += borderSymbol;
+
+            Console.WriteLine();
+            string nameInBox = $"\n {borderLine} \n {nameLine} \n {borderLine} \n";
+            Console.WriteLine(nameInBox);
         }
     }
 }
