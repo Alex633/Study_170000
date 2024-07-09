@@ -37,6 +37,31 @@ namespace millionDollarsCourses
                     tryCount = 0;
                 }
             }
+
+
+            //alternative
+            tryCount = 3;
+            userInput = null;
+            Console.WriteLine($"\nOr hack again");
+
+            for (int i = tryCount - 1; i >= 0; i--)
+            {
+                Console.Write("Password: ");
+                userInput = Console.ReadLine();
+
+                if (password != userInput)
+                {
+                    if (tryCount == 0)
+                        Console.WriteLine($"Wrong Password. Self destructing...");
+                    else
+                        Console.WriteLine($"Wrong Password. Self destruction in {i} tries");
+                }
+                else
+                {
+                    Console.WriteLine(secretMessage);
+                    break;
+                }
+            }
         }
     }
 }
