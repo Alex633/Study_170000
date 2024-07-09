@@ -25,15 +25,21 @@ namespace millionDollarsCourses
         static void Main()
         {
             const string CommandAbilityComment = "1";
-            const string AbilityComment = "Ни слова по-русски";
             const string CommandAbilityEmptyString = "2";
-            const string AbilityEmptyString = "Безупречный куплет";
             const string CommandAbilitySecondEmptyString = "3";
-            const string AbilitySecondEmptyString = "Залипший энтер";
             const string CommandAbilitySummon = "4";
-            const string AbilitySummon = "Призыв коллеги";
             const string CommandSecretUltimateAbility = "5";
-            const string AbilitySecretUltimate = "Новая надежда";
+            const int CommandStudentUnneededCreativity = 0;
+            const int CommandUnnecessaryComplication = 1;
+            const int CommandWrongVariablesNaming = 2;
+            const int CommandWrongFormatting = 3;
+            const int CommandBattleWithMentor = 4;
+
+            string abilityComment = "Ни слова по-русски";
+            string abilityEmptyString = "Безупречный куплет";
+            string abilitySecondEmptyString = "Залипший энтер";
+            string abilitySecretUltimate = "Новая надежда";
+            string abilitySummon = "Призыв коллеги";
 
             #region student parameters
             Random random = new Random();
@@ -80,21 +86,21 @@ namespace millionDollarsCourses
             string legend = "Вы - ментор и у вас есть несколько умений, которые вы можете использовать против ученика.\n" +
                 "Вы должны сломить волю ученика в течении рабочего дня и только после этого будет вам покой\n";
 
-            string displayAbilityCommentDescription = $"\n{CommandAbilityComment} - {AbilityComment} \n" +
+            string abilityCommentDescription = $"\n{CommandAbilityComment} - {abilityComment} \n" +
                 $"Найти запрещенный комментарий в коде ученика (все комментарии являются запрещенными).\n\n";
-            string displayAbilityEmptyStringDescription = $"{CommandAbilityEmptyString} - {AbilityEmptyString} \n" +
+            string abilityEmptyStringDescription = $"{CommandAbilityEmptyString} - {abilityEmptyString} \n" +
                 $"Разыскать ненужную пустую строку. Тратит: {abilityEmptyStringEnergyCost} энергии.\n\n";
-            string displayAbilitySecondEmptyStringDescription = $"{CommandAbilitySecondEmptyString} - {AbilitySecondEmptyString} \n" +
-               $"Обнаружить идущую подряд вторую пустую строку. Можно вызывать, только если был использован {AbilityEmptyString}]\n\n";
-            string displayAbilitySummonDescription = $"{CommandAbilitySummon} - {AbilitySummon}\n" +
+            string abilitySecondEmptyStringDescription = $"{CommandAbilitySecondEmptyString} - {abilitySecondEmptyString} \n" +
+               $"Обнаружить идущую подряд вторую пустую строку. Можно вызывать, только если был использован {abilityEmptyString}]\n\n";
+            string abilitySummonDescription = $"{CommandAbilitySummon} - {abilitySummon}\n" +
                $"Призвать другого ментора, чтобы он нашел совсем другие ошибки.\n" +
                $"Восстанавливает {abilitySummonHoursRestoration} рабочих часов и {abilitySummonEnergyRestoration} энергии. " +
                $"Можно использовать всего {abilitySummonUses} раз (ибо количество менторов ограничего).\n";
-            string displayAbilitySecretUltimateDescription = $"\n{CommandSecretUltimateAbility} - {AbilitySecretUltimate}\n" +
+            string abilitySecretUltimateDescription = $"\n{CommandSecretUltimateAbility} - {abilitySecretUltimate}\n" +
                 $"Использовать только в случае крайней необходимости. Последствия могут быть... непредвиденными\n";
 
-            string allDefaultMentorAbilitiesDescriptions = displayAbilityCommentDescription + displayAbilityEmptyStringDescription +
-                displayAbilitySecondEmptyStringDescription + displayAbilitySummonDescription;
+            string allDefaultMentorAbilitiesDescriptions = abilityCommentDescription + abilityEmptyStringDescription +
+                abilitySecondEmptyStringDescription + abilitySummonDescription;
             #endregion
 
             string userInput;
@@ -129,7 +135,7 @@ namespace millionDollarsCourses
                 if (isAllHopeLost)
                 {
                     Console.ForegroundColor = ConsoleColor.DarkRed;
-                    Console.Write(displayAbilitySecretUltimateDescription);
+                    Console.Write(abilitySecretUltimateDescription);
                     Console.ResetColor();
                 }
                 #endregion
@@ -146,23 +152,21 @@ namespace millionDollarsCourses
                 switch (userInput)
                 {
                     case CommandAbilityComment:
-                        //здесь нет комментария
                         studentWillPower -= abilityCommentMentalDamage;
                         studentKnowledge++;
-                        Console.WriteLine($"Вы используете {AbilityComment}. \n" +
+                        Console.WriteLine($"Вы используете {abilityComment}. \n" +
                             $"И находите тщательно замаскированный комментарий на 131 строке.\n" +
                             $"Сила воли ученика сломлена на {abilityCommentMentalDamage}");
                         break;
 
                     case CommandAbilityEmptyString:
-
                         if (mentorEnergy >= abilityEmptyStringEnergyCost)
                         {
                             isAbilityEmptyStringActive = true;
                             studentWillPower -= abilityEmptyStringMentalDamage;
                             mentorEnergy -= abilityEmptyStringEnergyCost;
                             studentKnowledge++;
-                            Console.WriteLine($"Вы используете {AbilityEmptyString}.\n" +
+                            Console.WriteLine($"Вы используете {abilityEmptyString}.\n" +
                                 $"Вы разыскиваете ненужную пустую строку на {random.Next(codeLength)} строчке кода\n" +
                                 $"Сила воли ученика сломлена на {abilityEmptyStringMentalDamage}");
                         }
@@ -179,7 +183,7 @@ namespace millionDollarsCourses
                             isAbilityEmptyStringActive = false;
                             studentWillPower -= abilitySecondEmptyStringMentalDamage;
                             studentKnowledge++;
-                            Console.WriteLine($"Вы используете {AbilitySecondEmptyString}.\n" +
+                            Console.WriteLine($"Вы используете {abilitySecondEmptyString}.\n" +
                                 $"Ученик получает критический урон и старается удержаться в кресле. У него это не удается\n" +
                                 $"Сила воли ученика сломлена на {abilitySecondEmptyStringMentalDamage}");
                         }
@@ -188,7 +192,6 @@ namespace millionDollarsCourses
                             Console.WriteLine($"\nВы ищете вторую пустую строку, но не можете найти даже первую");
                         }
                         break;
-
 
                     case CommandAbilitySummon:
                         if (abilitySummonUses > 0)
@@ -205,7 +208,7 @@ namespace millionDollarsCourses
                                 mentorEnergy = mentorMaxEnergy;
 
                             studentKnowledge++;
-                            Console.WriteLine($"Вы используете {AbilitySummon}.\n" +
+                            Console.WriteLine($"Вы используете {abilitySummon}.\n" +
                                 $"Именно в тот момент, когда ученик думал, что задание сдано\n" +
                                 $"Сила воли ученика сломлена на {abilitySummonMentalDamage}");
                         }
@@ -222,7 +225,7 @@ namespace millionDollarsCourses
                             int forbiddenKnowledge = 1000000;
                             studentKnowledge += forbiddenKnowledge;
                             isHopeRestored = true;
-                            Console.WriteLine($"Вы вынуждены использовать {AbilitySecretUltimate}.\n" +
+                            Console.WriteLine($"Вы вынуждены использовать {abilitySecretUltimate}.\n" +
                                 $"Только он сможет восстановить баланс сил. Вы читаете том запретных заклинаний и призываете Рому Сакутина.\n" +
                                 $"Количество ошибок в коде ученика {AbilitySecretUltimateMentalDamage}. Сила воли ученика сломлена безвозвратно.");
                         }
@@ -249,19 +252,19 @@ namespace millionDollarsCourses
 
                     switch (currentTypeOfWastingTime)
                     {
-                        case 0:
+                        case CommandStudentUnneededCreativity:
                             Console.WriteLine(unneededCreativity);
                             break;
-                        case 1:
+                        case CommandUnnecessaryComplication:
                             Console.WriteLine(unnecessaryComplication);
                             break;
-                        case 2:
+                        case CommandWrongVariablesNaming:
                             Console.WriteLine(wrongVariablesNaming);
                             break;
-                        case 3:
+                        case CommandWrongFormatting:
                             Console.WriteLine(wrongFormatting);
                             break;
-                        case 4:
+                        case CommandBattleWithMentor:
                             Console.WriteLine(battleWithMentor);
                             break;
                     }
