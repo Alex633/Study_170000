@@ -38,16 +38,17 @@ namespace millionDollarsCourses
             #region student parameters
             Random random = new Random();
             int studentWillPower = 100;
-            int studentTimeWaste = 1;
+            int studentTimeWastePerTurn = 1;
             int codeLength = 1001;
             int studentKnowledge = -1;
 
-            int typeOfWaistingTime = 0;
-            string unneededCreativity = $"Ученик использует ненужную креативность и тратит {studentTimeWaste} час вашего времени";
-            string unnecessaryComplication = $"Ученик усложняет все до предела и тратит {studentTimeWaste} час вашего времени";
-            string wrongVariablesNaming = $"Ученик называет bool переменную ZdesVihodIzCikla и тратит {studentTimeWaste} час вашего времени";
-            string wrongFormatting = $"Ученик объявляет все переменные в одну строчку и тратит {studentTimeWaste} час вашего времени";
-            string battleWithMentor = $"Ученик делает битву ментора с учеником и тратит {studentTimeWaste} час вашего времени...\n" +
+            int currentTypeOfWastingTime = 0;
+            int maxTypesOfWastingTime = 4;
+            string unneededCreativity = $"Ученик использует ненужную креативность и тратит {studentTimeWastePerTurn} час вашего времени";
+            string unnecessaryComplication = $"Ученик усложняет все до предела и тратит {studentTimeWastePerTurn} час вашего времени";
+            string wrongVariablesNaming = $"Ученик называет bool переменную ZdesVihodIzCikla и тратит {studentTimeWastePerTurn} час вашего времени";
+            string wrongFormatting = $"Ученик объявляет все переменные в одну строчку и тратит {studentTimeWastePerTurn} час вашего времени";
+            string battleWithMentor = $"Ученик делает битву ментора с учеником и тратит {studentTimeWastePerTurn} час вашего времени...\n" +
                 $"Он просит у вас прощения, но за подобные грехи не прощают. Ему по-прежнему жаль";
             #endregion
 
@@ -70,7 +71,7 @@ namespace millionDollarsCourses
             int abilitySummonEnergyRestoration = 3;
             int abilitySummonUses = 1;
 
-            int AbilitySecretUltimateAbilityMentalDamage = 1000000;
+            int AbilitySecretUltimateMentalDamage = 1000000;
             bool isAllHopeLost;
             bool isHopeRestored = false;
             #endregion
@@ -120,10 +121,10 @@ namespace millionDollarsCourses
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.Write($"{studentWillPower} силы воли");
                 Console.ResetColor();
-                Console.WriteLine($" | Тратит {studentTimeWaste} ваших рабочих часов в ход\n");
+                Console.WriteLine($" | Тратит {studentTimeWastePerTurn} ваших рабочих часов в ход\n");
                 Console.WriteLine(new string('_', 100));
                 Console.Write(allDefaultMentorAbilitiesDescriptions);
-                isAllHopeLost = abilitySummonUses == 0 && mentorWorkHours <= studentTimeWaste && mentorEnergy <= abilityEmptyStringEnergyCost;
+                isAllHopeLost = abilitySummonUses == 0 && mentorWorkHours <= studentTimeWastePerTurn && mentorEnergy <= abilityEmptyStringEnergyCost;
 
                 if (isAllHopeLost)
                 {
@@ -148,7 +149,9 @@ namespace millionDollarsCourses
                         //здесь нет комментария
                         studentWillPower -= abilityCommentMentalDamage;
                         studentKnowledge++;
-                        Console.WriteLine($"Вы используете {AbilityComment}. Сила воли ученика сломлена на {abilityCommentMentalDamage}");
+                        Console.WriteLine($"Вы используете {AbilityComment}. \n" +
+                            $"И находите тщательно замаскированный комментарий на 148 строке.\n" +
+                            $"Сила воли ученика сломлена на {abilityCommentMentalDamage}");
                         break;
 
                     case CommandAbilityEmptyString:
@@ -177,7 +180,7 @@ namespace millionDollarsCourses
                             studentWillPower -= abilitySecondEmptyStringMentalDamage;
                             studentKnowledge++;
                             Console.WriteLine($"Вы используете {AbilitySecondEmptyString}.\n" +
-                                $"Ученик получает критический урон и старается удержаться на кресле. У него это не удается\n" +
+                                $"Ученик получает критический урон и старается удержаться в кресле. У него это не удается\n" +
                                 $"Сила воли ученика сломлена на {abilitySecondEmptyStringMentalDamage}");
                         }
                         else
@@ -208,20 +211,20 @@ namespace millionDollarsCourses
                         }
                         else
                         {
-                            Console.WriteLine($"\nВы последний ментор. На вас вся надежда. Воля ученика дОлЖнА бЫтЬ сЛоМлЕнА");
+                            Console.WriteLine($"\nВы последний ментор. Воля ученика дОлЖнА бЫтЬ сЛоМлЕнА");
                         }
                         break;
 
                     case CommandSecretUltimateAbility:
-                        if (abilitySummonUses == 0 && mentorWorkHours <= 5 && mentorEnergy <= 5)
+                        if (isAllHopeLost)
                         {
-                            studentWillPower -= AbilitySecretUltimateAbilityMentalDamage;
+                            studentWillPower -= AbilitySecretUltimateMentalDamage;
                             int forbiddenKnowledge = 1000000;
                             studentKnowledge += forbiddenKnowledge;
                             isHopeRestored = true;
                             Console.WriteLine($"Вы вынуждены использовать {AbilitySecretUltimate}.\n" +
-                                $"Только он сможет восстановить баланс силю. Вы читаете том запретных заклинаний и призываете Рому Сакутина.\n" +
-                                $"Количество ошибок в коде ученика {AbilitySecretUltimateAbilityMentalDamage}. Сила воли ученика сломлена безвозвратно.");
+                                $"Только он сможет восстановить баланс сил. Вы читаете том запретных заклинаний и призываете Рому Сакутина.\n" +
+                                $"Количество ошибок в коде ученика {AbilitySecretUltimateMentalDamage}. Сила воли ученика сломлена безвозвратно.");
                         }
                         else
                         {
@@ -242,9 +245,9 @@ namespace millionDollarsCourses
                     Console.ForegroundColor = ConsoleColor.DarkGray;
                     Console.WriteLine("\nХод ученика:");
                     Console.ResetColor();
-                    mentorWorkHours -= studentTimeWaste;
+                    mentorWorkHours -= studentTimeWastePerTurn;
 
-                    switch (typeOfWaistingTime)
+                    switch (currentTypeOfWastingTime)
                     {
                         case 0:
                             Console.WriteLine(unneededCreativity);
@@ -263,10 +266,10 @@ namespace millionDollarsCourses
                             break;
                     }
 
-                    typeOfWaistingTime++;
+                    currentTypeOfWastingTime++;
 
-                    if (typeOfWaistingTime > 4)
-                        typeOfWaistingTime = 0;
+                    if (currentTypeOfWastingTime > maxTypesOfWastingTime)
+                        currentTypeOfWastingTime = 0;
                 }
                 #endregion
 
@@ -301,9 +304,9 @@ namespace millionDollarsCourses
             }
 
             #region CheckWinner
-            int geniousStudent = 1000;
+            int geniousAmountOfKnowledge = 1000;
 
-            if (studentKnowledge >= geniousStudent)
+            if (studentKnowledge >= geniousAmountOfKnowledge)
                 Console.WriteLine("Секретная концовка\n" +
                     "Ученик познает тайны вселенной, но вынужден провести остаток дней в психиатрической больнице. Оно того стоило.\n" +
                     $"Знания ученика: свыше {studentKnowledge - 1}");
@@ -311,10 +314,10 @@ namespace millionDollarsCourses
                 Console.WriteLine($"Ультимативная победа! Знания ученика преумножены, а ментор идет отдыхать.\n" +
                     $"Знания ученика: {studentKnowledge}");
             else if (studentWillPower > 0)
-                Console.WriteLine($"Победа ученика? Рассудок ученика цел, но стал ли он сегодня умнее?\n" +
+                Console.WriteLine($"Задание сдано. Отзыв в виде комментария: принято. Рассудок ученика цел, но стал ли он сегодня умнее?\n" +
                     $"Знания ученика всего: {studentKnowledge}");
             else if (mentorWorkHours > 0)
-                Console.WriteLine("Победа ментора! Знания ученика преумножены, но какой ценой?\n" +
+                Console.WriteLine("Задание провалено. Отзыв в виде комментария: доработать. Знания ученика преумножены, но какой ценой?\n" +
                     $"Знания ученика: {studentKnowledge}");
             #endregion
         }
