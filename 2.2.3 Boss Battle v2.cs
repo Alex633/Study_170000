@@ -150,7 +150,7 @@ namespace millionDollarsCourses
                         studentWillPower -= abilityCommentMentalDamage;
                         studentKnowledge++;
                         Console.WriteLine($"Вы используете {AbilityComment}. \n" +
-                            $"И находите тщательно замаскированный комментарий на 148 строке.\n" +
+                            $"И находите тщательно замаскированный комментарий на 131 строке.\n" +
                             $"Сила воли ученика сломлена на {abilityCommentMentalDamage}");
                         break;
 
