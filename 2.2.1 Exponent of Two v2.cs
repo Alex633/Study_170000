@@ -22,14 +22,14 @@ namespace millionDollarsCourses
             #region generate random number
             int randomNumber = random.Next(maxNumber + 1);
             Console.WriteLine($"Number: {randomNumber}\n");
-            #endregion 
+            #endregion
 
-            #region exponent calculation
-            while (randomNumber > currentPowerValue)
+            #region calculate exponent
+            while (randomNumber >= currentPowerValue)
             {
                 currentPowerValue *= power;
                 exponent++;
-                Console.WriteLine($"{randomNumber} > {currentPowerValue} = {randomNumber > currentPowerValue}. Exponent: {exponent}");
+                Console.WriteLine($"{randomNumber} >= {currentPowerValue} = {randomNumber >= currentPowerValue}. Exponent: {exponent}");
             }
             #endregion 
 
