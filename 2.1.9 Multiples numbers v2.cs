@@ -57,9 +57,6 @@ namespace millionDollarsCourses
                         isFirstMultipleFound = true;
                     }
                 }
-
-                //if (isFirstMultipleFound)
-                //    break;
             }
             #endregion
 
