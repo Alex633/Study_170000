@@ -14,8 +14,8 @@ namespace millionDollarsCourses
             int minRandomValue = 1;
             int maxRandomValue = 9;
 
-            int rows = 3;
-            int columns = 5;
+            int rows = 10;
+            int columns = 10;
             int[,] matrix = new int[rows, columns];
 
             int maxMatrixValue = int.MinValue;
