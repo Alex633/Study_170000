@@ -18,6 +18,7 @@ namespace millionDollarsCourses
 
             int arrayLength = 30;
             int[] array = new int[arrayLength];
+            int lastIndex = array.Length - 1;
 
             for (int i = 0; i < array.Length; i++)
                 array[i] = random.Next(minRandomValue, maxRandomValue);
@@ -28,7 +29,7 @@ namespace millionDollarsCourses
             Console.Write(array[0] + " ");
             Console.ResetColor();
 
-            for (int i = 1; i < array.Length - 1; i++)
+            for (int i = 1; i < lastIndex; i++)
             {
                 if (array[i] > array[i - 1] && array[i] > array[i + 1])
                     Console.ForegroundColor = ConsoleColor.Green;
@@ -37,10 +38,10 @@ namespace millionDollarsCourses
                 Console.ResetColor();
             }
 
-            if (array[array.Length - 1] > array[array.Length - 2])
+            if (array[lastIndex] > array[lastIndex - 1])
                 Console.ForegroundColor = ConsoleColor.Green;
 
-            Console.Write(array[array.Length - 1] + " ");
+            Console.Write(array[lastIndex] + " ");
             Console.ResetColor();
 
             Console.WriteLine();
