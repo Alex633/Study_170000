@@ -18,7 +18,6 @@ namespace millionDollarsCourses
             const string CommandExit = "exit";
 
             int[] array = new int[0];
-            int[] tempArray;
             int arraySummory;
 
             string userInput = null;
@@ -64,7 +63,7 @@ namespace millionDollarsCourses
                         break;
 
                     default:
-                        tempArray = new int[array.Length + 1];
+                        int[] tempArray = new int[array.Length + 1];
 
                         for (int i = 0; i < array.Length; i++)
                             tempArray[i] = array[i];
