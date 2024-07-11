@@ -57,15 +57,10 @@ namespace millionDollarsCourses
                 for (int j = 0; j < matrix.GetLength(1); j++)
                 {
                     if (0 == matrix[i, j])
-                    {
                         Console.ForegroundColor = ConsoleColor.Green;
-                        Console.Write(matrix[i, j] + " ");
-                        Console.ResetColor();
-                    }
-                    else
-                    {
-                        Console.Write(matrix[i, j] + " ");
-                    }
+                        
+                    Console.Write(matrix[i, j] + " ");
+                    Console.ResetColor();
                 }
 
                 Console.WriteLine();
