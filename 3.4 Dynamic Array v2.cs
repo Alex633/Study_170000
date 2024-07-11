@@ -72,7 +72,7 @@ namespace millionDollarsCourses
                         array = tempArray;
 
                         array[array.Length - 1] = Convert.ToInt32(userInput);
-                        Console.WriteLine($"Your number {array[array.Length - 1]} has been added");
+                        Console.WriteLine($"Your number {userInput} has been added");
                         break;
                 }
                 #endregion
