@@ -15,8 +15,11 @@ namespace millionDollarsCourses
         static void Main()
         {
             Random random = new Random();
-            int[] array = new int[10];
-            int currentElement;
+            int maxRandomValue = 5;
+            
+            int arrayLength = 10;
+            int[] array = new int[arrayLength];
+            int currentRepeatingElement;
             int mostRepeatableElement;
             int repeatCount = 0;
             int maxRepeat = 0;
@@ -24,31 +27,31 @@ namespace millionDollarsCourses
             #region fill array
             for (int i = 0; i < array.Length; i++)
             {
-                array[i] = random.Next(1, 5);
+                array[i] = random.Next(maxRandomValue);
                 Console.Write(array[i] + " ");
             }
             #endregion
 
             #region find most repeatable elements and count repetition
-            currentElement = array[0];
-            mostRepeatableElement = currentElement;
+            currentRepeatingElement = array[0];
+            mostRepeatableElement = currentRepeatingElement;
 
             for (int i = 0; i < array.Length; i++)
             {
-                if (array[i] == currentElement)
+                if (array[i] == currentRepeatingElement)
                 {
                     repeatCount++;
 
                     if (maxRepeat < repeatCount)
                     {
                         maxRepeat = repeatCount;
-                        mostRepeatableElement = currentElement;
+                        mostRepeatableElement = currentRepeatingElement;
                     }
                 }
                 else
                 {
                     repeatCount = 1;
-                    currentElement = array[i];
+                    currentRepeatingElement = array[i];
                 }
             }
             #endregion
