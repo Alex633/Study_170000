@@ -23,40 +23,25 @@ namespace millionDollarsCourses
                 array[i] = random.Next(minRandomValue, maxRandomValue);
 
             if (array[0] > array[1])
-            {
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.Write(array[0] + " ");
-                Console.ResetColor();
-            }
-            else
-            {
-                Console.Write(array[0] + " ");
-            }
+
+            Console.Write(array[0] + " ");
+            Console.ResetColor();
 
             for (int i = 1; i < array.Length - 1; i++)
             {
                 if (array[i] > array[i - 1] && array[i] > array[i + 1])
-                {
                     Console.ForegroundColor = ConsoleColor.Green;
-                    Console.Write(array[i] + " ");
-                    Console.ResetColor();
-                }
-                else
-                {
-                    Console.Write(array[i] + " ");
-                }
+
+                Console.Write(array[i] + " ");
+                Console.ResetColor();
             }
 
             if (array[array.Length - 1] > array[array.Length - 2])
-            {
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.Write(array[array.Length - 1] + " ");
-                Console.ResetColor();
-            }
-            else
-            {
-                Console.Write(array[array.Length - 1] + " ");
-            }
+
+            Console.Write(array[array.Length - 1] + " ");
+            Console.ResetColor();
 
             Console.WriteLine();
         }
