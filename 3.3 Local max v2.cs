@@ -43,7 +43,6 @@ namespace millionDollarsCourses
 
             Console.Write(array[lastIndex] + " ");
             Console.ResetColor();
-
             Console.WriteLine();
         }
     }
