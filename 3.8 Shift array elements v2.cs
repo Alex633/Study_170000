@@ -10,7 +10,7 @@ namespace millionDollarsCourses
         static void Main()
         {
             int[] numbers = { 1, 2, 3, 4, 5 };
-            int tempNumber = 0;
+            int tempNumber;
 
             Console.Write($"Shift value: ");
             int shiftSteps = Convert.ToInt32(Console.ReadLine());
@@ -34,8 +34,8 @@ namespace millionDollarsCourses
 
             Console.WriteLine($"After: ");
 
-            foreach (int i in numbers)
-                Console.Write($"{i} ");
+            foreach (int number in numbers)
+                Console.Write($"{number} ");
 
             Console.WriteLine();
         }
