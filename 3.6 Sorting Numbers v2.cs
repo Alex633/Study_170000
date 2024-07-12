@@ -12,9 +12,6 @@ namespace millionDollarsCourses
             Random random = new Random();
             int maxRandomValue = 10;
 
-            bool isAraySorted = false;
-            int swapsCount;
-
             int arrayLength = 10;
             int[] numbers = new int[arrayLength];
 
@@ -28,25 +25,18 @@ namespace millionDollarsCourses
 
             Console.WriteLine();
 
-
             #region sort array
-            while (isAraySorted == false)
+            for (int i = 0; i < numbers.Length - 1; i++)
             {
-                swapsCount = 0; 
-
-                for (int i = 0; i < numbers.Length - 1; i++)
+                for (int j = 0; j < numbers.Length - i - 1; j++)
                 {
-                    if (numbers[i] > numbers[i + 1])
+                    if (numbers[j] > numbers[j + 1])
                     {
-                        int tempNumber = numbers[i];
-                        numbers[i] = numbers[i + 1];
-                        numbers[i + 1] = tempNumber;
-                        swapsCount++;
+                        int temp = numbers[j];
+                        numbers[j] = numbers[j + 1];
+                        numbers[j + 1] = temp;
                     }
                 }
-
-                if (swapsCount == 0)
-                    isAraySorted = true;
             }
             #endregion
 
