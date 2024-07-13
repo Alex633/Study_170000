@@ -65,25 +65,25 @@ namespace millionDollarsCourses
             Fighter tempFighter;
             int firstFighterDiceValue;
             int secondFighterDiceValue;
-            bool initiativeDetermined = false;
+            bool isInitiativeDetermined = false;
 
             Utility.WriteLineColored("Determining who goes first\n", ConsoleColor.DarkGray);
 
-            while (initiativeDetermined == false)
+            while (isInitiativeDetermined == false)
             {
                 firstFighterDiceValue = RollDiceForFighter(_fighter1);
                 secondFighterDiceValue = RollDiceForFighter(_fighter2);
 
                 if (firstFighterDiceValue > secondFighterDiceValue)
                 {
-                    initiativeDetermined = true;
+                    isInitiativeDetermined = true;
                 }
                 else if (firstFighterDiceValue < secondFighterDiceValue)
                 {
                     tempFighter = _fighter1;
                     _fighter1 = _fighter2;
                     _fighter2 = tempFighter;
-                    initiativeDetermined = true;
+                    isInitiativeDetermined = true;
                 }
                 else
                 {
