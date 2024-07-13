@@ -11,8 +11,9 @@ namespace millionDollarsCourses
         static void Main()
         {
             string text = "String with text - You win some. You lose some.";
+            char divider = ' ';
 
-            string[] substrings = text.Split(' ');
+            string[] substrings = text.Split(divider);
 
             foreach (string substring in substrings)
                 Console.WriteLine(substring);
