@@ -1,0 +1,132 @@
+//Дана строка из символов '(' и ')'.
+//Определить, является ли она корректным скобочным выражением. Определить максимальную глубину вложенности скобок.
+//Текущая глубина равняется разности открывающихся и закрывающихся скобок в момент подсчета каждого символа.
+//К символу в строке можно обратиться по индексу
+//Пример “(()(()))” - строка корректная и максимум глубины равняется 3.
+//Пример некорректных строк: "(()", "())", ")(", "(()))(()"
+//(((()(()())))) - 5
+//(((()(())))) - 5
+//(()((()))) - 4
+//)()(())( - 2
+
+using System;
+
+namespace millionDollarsCourses
+{
+    internal class Program
+    {
+        static void Main()
+        {
+            string bracketExpression = null;
+
+            char openBracketChar = '(';
+            char closeBracketChar = ')';
+
+            int countExpression;
+            int depthCurrentExpression;
+            int maxDepth;
+
+            bool isCorrectBracket;
+            bool isInsideOneDepthExpression;
+            bool isInsideExpression;
+
+            while (true)
+            {
+                countExpression = 0;
+                depthCurrentExpression = 0;
+                maxDepth = 0;
+                isCorrectBracket = false;
+                isInsideOneDepthExpression = false;
+                isInsideExpression = false;
+
+                Console.Write("\nInput bracket expression: ");
+                bracketExpression = Console.ReadLine();
+
+                #region check bracket
+                for (int i = 0; i < bracketExpression.Length; i++)
+                {
+                    if (bracketExpression[i] == openBracketChar)
+                    {
+                        countExpression++;
+
+                        if (countExpression > 1)
+                        {
+                            isInsideExpression = true;
+                        }
+
+                        if (isInsideExpression)
+                        {
+
+                        }
+
+                        //countOpenBracket++;
+
+                        //if (countMaxDepth > 0 && bracketExpression[i + 1] == closeBracketChar)
+                        //{
+                        //    countMaxDepth--;
+                        //    countOpenBracket--;
+                        //}
+                    }
+                    else if (bracketExpression[i] == closeBracketChar)
+                    {
+
+
+                        if (isInsideExpression)
+                        {
+                            depthCurrentExpression++;
+                            countExpression--;
+
+                            if (countExpression == 0)
+                            {
+                                isInsideExpression = false;
+
+                                if (depthCurrentExpression > maxDepth)
+                                {
+                                    maxDepth = depthCurrentExpression;
+                                    depthCurrentExpression = 0;
+                                }
+                            }
+                        }
+
+                        if (isInsideExpression)
+                        {
+                            if (bracketExpression[i - 1] == openBracketChar)
+                            {
+                                depthCurrentExpression--;
+                            }
+                        }
+                    }
+
+                    //if (countExpression < 0)
+                    //{
+                    //    isIncorrectBracketExpressionForSure = true;
+                    //    countExpression = 0;
+                    //    countOpenBracket = 0;
+                    //    //countMaxDepth = 0;
+                    //}
+
+                    //if (countForCorrectness <= 0)
+                    //{
+                    //    if (countMaxDepth > finaleMaxDepth)
+                    //        finaleMaxDepth = countMaxDepth;
+                    //}
+                }
+
+                if (countExpression == 0)
+                    isCorrectBracket = true;
+
+                //if (countMaxDepth > finaleMaxDepth)
+                //    finaleMaxDepth = countMaxDepth;
+
+                #endregion
+
+                #region output result
+                if (isCorrectBracket)
+                    Console.WriteLine($"{bracketExpression} - This bracket is .... correct! Max depth: {maxDepth}.");
+                else
+                    Console.WriteLine($"{bracketExpression} - This bracket is .... incorrect! Max depth: {maxDepth}.");
+                #endregion
+            }
+        }
+    }
+}
