@@ -22,22 +22,33 @@ namespace millionDollarsCourses
             char openBracketChar = '(';
             char closeBracketChar = ')';
 
-            int countExpression;
+            int countOpenBracket;
+            int countCloseBracket;
+
             int depthCurrentExpression;
             int maxDepth;
 
             bool isCorrectBracket;
-            bool isInsideOneDepthExpression;
+            bool isIncorrectExpressionForSure;
+
             bool isInsideExpression;
+            bool isInnerExpressionGotClosed;
+            int newExpression;
 
             while (true)
             {
-                countExpression = 0;
+                countOpenBracket = 0;
+                countCloseBracket = 0;
+
                 depthCurrentExpression = 0;
                 maxDepth = 0;
+
                 isCorrectBracket = false;
-                isInsideOneDepthExpression = false;
+
+                isIncorrectExpressionForSure = false;
                 isInsideExpression = false;
+                newExpression = 0;
+                isInnerExpressionGotClosed = false;
 
                 Console.Write("\nInput bracket expression: ");
                 bracketExpression = Console.ReadLine();
@@ -45,79 +56,73 @@ namespace millionDollarsCourses
                 #region check bracket
                 for (int i = 0; i < bracketExpression.Length; i++)
                 {
+                    #region count brackets
                     if (bracketExpression[i] == openBracketChar)
                     {
-                        countExpression++;
+                        countOpenBracket++;
 
-                        if (countExpression > 1)
+                        if (countOpenBracket > countCloseBracket)
                         {
                             isInsideExpression = true;
                         }
-
-                        if (isInsideExpression)
+                        else
                         {
-
+                            isInsideExpression = false;
                         }
 
-                        //countOpenBracket++;
+                        if (depthCurrentExpression > 0)
+                        {
+                            depthCurrentExpression--;
 
-                        //if (countMaxDepth > 0 && bracketExpression[i + 1] == closeBracketChar)
-                        //{
-                        //    countMaxDepth--;
-                        //    countOpenBracket--;
-                        //}
+                            if (depthCurrentExpression > maxDepth)
+                                maxDepth = depthCurrentExpression;
+                        }
                     }
                     else if (bracketExpression[i] == closeBracketChar)
                     {
+                        countCloseBracket++;
 
-
-                        if (isInsideExpression)
+                        if (countCloseBracket > countOpenBracket)
                         {
-                            depthCurrentExpression++;
-                            countExpression--;
-
-                            if (countExpression == 0)
-                            {
-                                isInsideExpression = false;
-
-                                if (depthCurrentExpression > maxDepth)
-                                {
-                                    maxDepth = depthCurrentExpression;
-                                    depthCurrentExpression = 0;
-                                }
-                            }
-                        }
-
-                        if (isInsideExpression)
-                        {
-                            if (bracketExpression[i - 1] == openBracketChar)
-                            {
-                                depthCurrentExpression--;
-                            }
+                            countCloseBracket = 0;
+                            isIncorrectExpressionForSure = true;
                         }
                     }
+                    #endregion
 
-                    //if (countExpression < 0)
-                    //{
-                    //    isIncorrectBracketExpressionForSure = true;
-                    //    countExpression = 0;
-                    //    countOpenBracket = 0;
-                    //    //countMaxDepth = 0;
-                    //}
+                    #region check depth and correctness
+                    if (countOpenBracket > 0 && countCloseBracket > 0 && isInsideExpression == true)
+                    {
+                        depthCurrentExpression++;
 
-                    //if (countForCorrectness <= 0)
-                    //{
-                    //    if (countMaxDepth > finaleMaxDepth)
-                    //        finaleMaxDepth = countMaxDepth;
-                    //}
+                        countCloseBracket--;
+                        countOpenBracket--;
+
+                        if (countCloseBracket == 0 && countOpenBracket == 0)
+                        {
+                            isInsideExpression = false;
+                        }
+
+                        if (isInsideExpression == false)
+                        {
+                            if (depthCurrentExpression > maxDepth)
+                                maxDepth = depthCurrentExpression;
+
+                            depthCurrentExpression = 0;
+                        }
+                    }
+                    #endregion
                 }
 
-                if (countExpression == 0)
+                if (depthCurrentExpression > maxDepth)
+                {
+                    maxDepth = depthCurrentExpression;
+                }
+
+                if (countOpenBracket == 0 && countCloseBracket == 0 && isIncorrectExpressionForSure != true)
+                {
                     isCorrectBracket = true;
-
-                //if (countMaxDepth > finaleMaxDepth)
-                //    finaleMaxDepth = countMaxDepth;
-
+                }
                 #endregion
 
                 #region output result
