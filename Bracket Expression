@@ -32,8 +32,13 @@ namespace millionDollarsCourses
             bool isIncorrectExpressionForSure;
 
             bool isInsideExpression;
-            bool isInnerExpressionGotClosed;
-            int newExpression;
+            bool isInsideInnerExpression;
+
+            int counOpenInnerBracket;
+            int countCloseInnerBracker;
+
+            int depthtInnerCurrentExpression;
+            int maxDepthOfInnerExpression;
 
             while (true)
             {
@@ -47,8 +52,13 @@ namespace millionDollarsCourses
 
                 isIncorrectExpressionForSure = false;
                 isInsideExpression = false;
-                newExpression = 0;
-                isInnerExpressionGotClosed = false;
+                isInsideInnerExpression = false;
+
+                counOpenInnerBracket = 0;
+                countCloseInnerBracker = 0;
+
+                depthtInnerCurrentExpression = 0;
+                maxDepthOfInnerExpression = 0;
 
                 Console.Write("\nInput bracket expression: ");
                 bracketExpression = Console.ReadLine();
@@ -61,6 +71,17 @@ namespace millionDollarsCourses
                     {
                         countOpenBracket++;
 
+                        if (isInsideExpression)
+                        {
+                            isInsideInnerExpression = true;
+                        }
+
+                        if (isInsideInnerExpression)
+                        {
+                            countOpenBracket--;
+                            counOpenInnerBracket++;
+                        }
+
                         if (countOpenBracket > countCloseBracket)
                         {
                             isInsideExpression = true;
@@ -68,14 +89,6 @@ namespace millionDollarsCourses
                         else
                         {
                             isInsideExpression = false;
-                        }
-
-                        if (depthCurrentExpression > 0)
-                        {
-                            depthCurrentExpression--;
-
-                            if (depthCurrentExpression > maxDepth)
-                                maxDepth = depthCurrentExpression;
                         }
                     }
                     else if (bracketExpression[i] == closeBracketChar)
@@ -87,32 +100,79 @@ namespace millionDollarsCourses
                             countCloseBracket = 0;
                             isIncorrectExpressionForSure = true;
                         }
+
+                        if (isInsideInnerExpression)
+                        {
+                            countCloseInnerBracker++;
+                            countCloseBracket--;
+                        }
+                    }
+                    else
+                    {
+                        isIncorrectExpressionForSure = true;
                     }
                     #endregion
 
                     #region check depth and correctness
-                    if (countOpenBracket > 0 && countCloseBracket > 0 && isInsideExpression == true)
+                    if (isInsideExpression == true && countOpenBracket > 0 && countCloseBracket > 0)
                     {
                         depthCurrentExpression++;
 
                         countCloseBracket--;
                         countOpenBracket--;
+                    }
 
-                        if (countCloseBracket == 0 && countOpenBracket == 0)
+                    if (isInsideExpression == true && counOpenInnerBracket > 0 && countCloseInnerBracker > 0)
+                    {
+                        depthtInnerCurrentExpression++;
+
+                        counOpenInnerBracket--;
+                        countCloseInnerBracker--;
+                    }
+
+                    if (i != bracketExpression.Length - 1)
+                    {
+                        if (bracketExpression[i + 1] == openBracketChar && counOpenInnerBracket > 1)
                         {
-                            isInsideExpression = false;
+                            isInsideInnerExpression = false;
+                        }
+                    }
+
+                    if (counOpenInnerBracket == 0 && countCloseInnerBracker == 0)
+                    {
+                        isInsideInnerExpression = false;
+                    }
+
+                    if (isInsideInnerExpression == false)
+                    {
+                        if (maxDepthOfInnerExpression < depthtInnerCurrentExpression)
+                            maxDepthOfInnerExpression = depthtInnerCurrentExpression;
+
+                        depthtInnerCurrentExpression = 0;
+                    }
+
+                    if (countCloseBracket == 0 && countOpenBracket == 0)
+                    {
+                        isInsideExpression = false;
+                    }
+
+                    if (isInsideExpression == false) //dont count repeating inner expression if its the same depth as the first one
+                                                     //or count also first and select the deeperst
+                    {
+                        depthCurrentExpression += maxDepthOfInnerExpression;
+
+                        if (depthCurrentExpression > maxDepth)
+                        {
+                            maxDepth = depthCurrentExpression;
                         }
 
-                        if (isInsideExpression == false)
-                        {
-                            if (depthCurrentExpression > maxDepth)
-                                maxDepth = depthCurrentExpression;
-
-                            depthCurrentExpression = 0;
-                        }
+                        depthCurrentExpression = 0;
+                        maxDepthOfInnerExpression = 0;
                     }
                     #endregion
                 }
+
+                depthCurrentExpression += maxDepthOfInnerExpression;
 
                 if (depthCurrentExpression > maxDepth)
                 {
@@ -129,7 +189,7 @@ namespace millionDollarsCourses
                 if (isCorrectBracket)
                     Console.WriteLine($"{bracketExpression} - This bracket is .... correct! Max depth: {maxDepth}.");
                 else
-                    Console.WriteLine($"{bracketExpression} - This bracket is .... incorrect! Max depth: {maxDepth}.");
+                    Console.WriteLine($"{bracketExpression} - This bracket is .... incorrect! Max depth: --{maxDepth}--.");
                 #endregion
             }
         }
