@@ -8,6 +8,8 @@
 //(((()(())))) - 5
 //(()((()))) - 4
 //)()(())( - 2
+//((()())) - 3
+//((()()()()()())) - 3
 
 using System;
 
@@ -132,7 +134,7 @@ namespace millionDollarsCourses
 
                     if (i != bracketExpression.Length - 1)
                     {
-                        if (bracketExpression[i + 1] == openBracketChar && counOpenInnerBracket > 1)
+                        if (bracketExpression[i + 1] == openBracketChar && counOpenInnerBracket > 0)
                         {
                             isInsideInnerExpression = false;
                         }
@@ -156,8 +158,7 @@ namespace millionDollarsCourses
                         isInsideExpression = false;
                     }
 
-                    if (isInsideExpression == false) //dont count repeating inner expression if its the same depth as the first one
-                                                     //or count also first and select the deeperst
+                    if (isInsideExpression == false)
                     {
                         depthCurrentExpression += maxDepthOfInnerExpression;
 
