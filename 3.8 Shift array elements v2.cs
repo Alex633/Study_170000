@@ -17,8 +17,8 @@ namespace millionDollarsCourses
 
             Console.WriteLine($"Before: ");
 
-            foreach (int i in numbers)
-                Console.Write($"{i} ");
+            foreach (int number in numbers)
+                Console.Write($"{number} ");
 
             Console.WriteLine();
 
