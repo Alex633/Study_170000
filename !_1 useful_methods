@@ -2,86 +2,43 @@ class Utility
 {
     private static Random _random = new Random();
 
-    public static void PressAnythingToContinue(ConsoleColor color = ConsoleColor.DarkYellow, bool isCustomPosition = false, int xPosition = 0, int yPosition = 0, string text = "press anything to continue", bool isConsoleClear = true)
-    {
-        if (isCustomPosition)
-            Console.SetCursorPosition(xPosition, yPosition);
-
-        Console.ForegroundColor = color;
-        Console.WriteLine(text);
-        Console.ResetColor();
-        Console.ReadKey(true);
-
-        if (isConsoleClear)
-            Console.Clear();
-    }
-
     public static int GenerateRandomNumber(int maxValue, int minValue = 1)
     {
-
         return _random.Next(minValue, maxValue);
     }
 
-    public static int GetUserNumberInRange(string startMessage = "Select Number: ", int maxInput = 100)
+    public static int GetNumber(string message = "Input number", int maxValue = 100, int minValue = 1)
     {
+        bool isInvalidInput = true;
         int userInput = 0;
-        bool isValidInput = false;
-
-        Console.Write(startMessage);
-
-        while (isValidInput == false)
+    
+        while (isInvalidInput)
         {
+            Console.Write($"{message} ({minValue} - {maxValue}): ");
+    
             if (int.TryParse(Console.ReadLine(), out userInput))
             {
-                if (userInput > 0 && userInput <= maxInput)
-                    isValidInput = true;
+                if (userInput >= minValue && userInput < maxValue + 1)
+                    return userInput;
                 else
-                    Utility.WriteColored($"\nPlease enter a number between 1 and {maxInput}: ", ConsoleColor.Red);
+                    OutputError($"Incorrect input. Please enter a number ({minValue} - {maxValue + 1})");
             }
             else
             {
-                Utility.WriteColored("\nInvalid input. Please enter a number instead: ", ConsoleColor.Red);
+                OutputError($"Incorrect input. Please enter a number ({minValue} - {maxValue + 1})");
             }
         }
-
+    
         return userInput;
     }
 
-    public static void WriteLineColored(string text, ConsoleColor color = ConsoleColor.DarkRed, bool isCustomPosition = false, int xPosition = 0, int yPosition = 0)
+    public static void WriteLine(string message = "Incorrect input", ConsoleColor textColor = ConsoleColor.DarkRed)
     {
-        Console.ForegroundColor = color;
-
-        if (isCustomPosition)
-            WriteLine(xPosition, yPosition, text);
-        else
-            Console.WriteLine(text);
-
+        Console.ForegroundColor = textColor;
+        Console.WriteLine(message);
         Console.ResetColor();
     }
 
-    public static void WriteColored(string text, ConsoleColor color = ConsoleColor.DarkRed, bool isCustomPosition = false, int xPosition = 0, int yPosition = 0)
-    {
-        Console.ForegroundColor = color;
-
-        if (isCustomPosition)
-            Write(xPosition, yPosition, text);
-        else
-            Console.Write(text);
-
-        Console.ResetColor();
-    }
-
-    public static void WriteLine(int xPosition, int yPosition, string text)
-    {
-        Console.SetCursorPosition(xPosition, yPosition);
-        Console.WriteLine(text);
-    }
-
-    public static void Write(int xPosition, int yPos, string text)
-    {
-        Console.SetCursorPosition(xPosition, yPos);
-        Console.Write(text);
-    }
 }
 
 static void #ShowTitleScreen(string developer, string game, int startXDev = 47, int startXGame = 47)
