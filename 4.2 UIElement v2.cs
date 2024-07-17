@@ -11,20 +11,21 @@ namespace millionDollarsCourses
     {
         static void Main()
         {
-            int hpPointsMax = 32;
-            int mpPointMax = 12;
-            int hpPointsCurrentPercentage = 80;
-            int mpPointCurrentPercentage = 33;
-            int hpBarXPosition = 80;
-            int hpBarYPosition = 2;
-            int mpBarXPosition = 80;
-            int mpBarYPosition = 4;
+            int healthPointsMax = 32;
+            int healthPointsCurrentPercentage = 80;
+            int healthBarXPosition = 80;
+            int healthBarYPosition = 2;
+            
+            int manaPointMax = 12;
+            int manaPointCurrentPercentage = 33;
+            int manaBarXPosition = 80;
+            int manaBarYPosition = 4;
 
             ConsoleColor hpBarColor = ConsoleColor.DarkRed;
             ConsoleColor mpBarColor = ConsoleColor.DarkBlue;
 
-            DisplayBar(hpPointsMax, hpPointsCurrentPercentage, hpBarColor, hpBarXPosition, hpBarYPosition);
-            DisplayBar(mpPointMax, mpPointCurrentPercentage, mpBarColor, mpBarXPosition, mpBarYPosition);
+            DisplayBar(healthPointsMax, healthPointsCurrentPercentage, hpBarColor, healthBarXPosition, healthBarYPosition);
+            DisplayBar(manaPointMax, manaPointCurrentPercentage, mpBarColor, manaBarXPosition, manaBarYPosition);
         }
 
         public static void DisplayBar(int length = 10, float currentPercentage = 25, ConsoleColor currentValueColor = ConsoleColor.DarkRed, int xPosition = 0, int yPosition = 0)
