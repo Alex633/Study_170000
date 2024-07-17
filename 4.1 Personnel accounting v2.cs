@@ -53,6 +53,7 @@ namespace millionDollarsCourses
                         RemoveFile(ref names, ref positions);
                         break;
                     case CommandSearchFile:
+                        SearchFile(names, positions);
                         break;
                     case CommandExit:
                         isWorking = !Exit();
@@ -91,7 +92,7 @@ namespace millionDollarsCourses
             }
             else
             {
-                Console.WriteLine("Empty");
+                WriteLine("There are no files");
             }
         }
 
@@ -103,7 +104,7 @@ namespace millionDollarsCourses
             }
             else
             {
-                return "No file";
+                return "File don't exist";
             }
         }
 
@@ -132,13 +133,44 @@ namespace millionDollarsCourses
             }
             else
             {
-                WriteLine("No files to delete", ConsoleColor.DarkRed);
+                WriteLine("There are no files");
             }
         }
 
-        public static void SearchFile()
+        public static void SearchFile(string[] names, string[] positions)
         {
+            Console.Clear();
 
+            if (names.Length > 0)
+            {
+                Console.WriteLine("Input name: ");
+                string userInput = Console.ReadLine();
+                DisplaySearchResult(names, positions, userInput);
+            }
+            else
+            {
+                WriteLine("There are no files");
+            }
+        }
+
+        public static void DisplaySearchResult(string[] names, string[] positions, string name)
+        {
+            bool isFileFound = false;
+
+            Console.Clear();
+            Console.WriteLine("Search result:");
+
+            for (int i = 0; i < names.Length; i++)
+            {
+                if (names[i].ToLower() == name.ToLower())
+                {
+                    Console.WriteLine(GetFileInfo(names, positions, i));
+                    isFileFound = true;
+                }
+            }
+
+            if (isFileFound == false)
+                WriteLine($"No files match name {name}");
         }
 
         public static bool Exit()
@@ -168,12 +200,25 @@ namespace millionDollarsCourses
 
         public static void RemoveItemFromArray(ref string[] textArray, int indexOfItem)
         {
+            bool isItemFound = false;
+
             string[] tempTextArray = new string[textArray.Length];
 
-            for (int i = 0; i < textArray.Length; i++)
+            for (int i = 0; i < textArray.Length - 1; i++)
             {
-                if (i != indexOfItem)
+                if (i != indexOfItem && isItemFound == false)
+                {
                     tempTextArray[i] = textArray[i];
+                }
+                else
+                {
+                    isItemFound = true;
+                }
+                
+                if (isItemFound)
+                {
+                    tempTextArray[i] = textArray[i + 1];
+                }
             }
 
             ShrinkArray(ref tempTextArray);
