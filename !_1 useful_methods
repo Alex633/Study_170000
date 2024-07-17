@@ -14,7 +14,7 @@ class Utility
          Console.Write($"{message} ({minValue} - {maxValue}): ");
 
          while (int.TryParse(Console.ReadLine(), out userInput) == false || userInput < minValue || userInput > maxValue)
-             OutputError($"Incorrect input. Please, input a number ({minValue} - {maxValue}): ");
+             OutputError($"Invalid input. Please, input a number ({minValue} - {maxValue}): ");
 
         return userInput;
     }
@@ -26,7 +26,7 @@ class Utility
         Console.ResetColor();
     }
 
-    public static void OutputError(string message = "Incorrect input")
+    public static void OutputError(string message = "Invalid input")
     {
        Console.ForegroundColor = ConsoleColor.DarkRed;
        Console.Write(message);
