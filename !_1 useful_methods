@@ -32,6 +32,35 @@ class Utility
        Console.Write(message);
        Console.ResetColor();
     }
+
+    public static void WriteArray(int[] numbers)
+    {
+        foreach (int number in numbers)
+            Console.Write(number + " ");
+    
+        Console.WriteLine();
+    }
+
+    public static void Shuffle(int[] numbers)
+    {
+        Random random = new Random();
+    
+        for (int i = 0; i < numbers.Length; i++)
+        {
+            int randomIndex = random.Next(numbers.Length);
+    
+            SwapValues(ref numbers[i], ref numbers[randomIndex]);
+    
+        }
+    }
+    
+    public static void SwapValues(ref int firstValue, ref int secondValue)
+    {
+        int tempValue = firstValue;
+    
+        firstValue = secondValue;
+        secondValue = tempValue;
+    }
 }
 
 static void #ShowTitleScreen(string developer, string game, int startXDev = 47, int startXGame = 47)
