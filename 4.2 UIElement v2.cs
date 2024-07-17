@@ -15,7 +15,7 @@ namespace millionDollarsCourses
             int healthPointsCurrentPercentage = 80;
             int healthBarXPosition = 80;
             int healthBarYPosition = 2;
-            
+
             int manaPointMax = 12;
             int manaPointCurrentPercentage = 33;
             int manaBarXPosition = 80;
@@ -31,9 +31,12 @@ namespace millionDollarsCourses
         public static void DisplayBar(int length = 10, float currentPercentage = 25, ConsoleColor currentValueColor = ConsoleColor.DarkRed, int xPosition = 0, int yPosition = 0)
         {
             int percentageCalculator = 100;
-            float currenValue = length * (currentPercentage / percentageCalculator);
             int currentXPosition = xPosition;
             int currentYPosition = yPosition;
+
+            currentPercentage = GetPercentage(currentPercentage);
+
+            float currenValue = length * (currentPercentage / percentageCalculator);
 
             Console.SetCursorPosition(xPosition, yPosition);
             DrawBarSection((int)currenValue, currentValueColor);
@@ -44,7 +47,17 @@ namespace millionDollarsCourses
             Console.WriteLine();
         }
 
-        private static void DrawBarSection(int length, ConsoleColor color)
+        public static float GetPercentage(float percentage)
+        {
+            if (percentage > 100)
+                return 100;
+            else if (percentage < 0)
+                return 0;
+            else
+                return percentage;
+        }
+
+        public static void DrawBarSection(int length, ConsoleColor color)
         {
             char cell = ' ';
 
