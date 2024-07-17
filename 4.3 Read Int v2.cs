@@ -23,32 +23,26 @@ namespace millionDollarsCourses
 
         public static int GetNumber(string message = "Input number", int maxValue = 100, int minValue = 1)
         {
-            bool isInvalidInput = true;
-            int userInput = 0;
+            int userInput;
 
-            while (isInvalidInput)
-            {
-                Console.Write($"{message} ({minValue} - {maxValue}): ");
+            Console.Write($"{message} ({minValue} - {maxValue}): ");
 
-                if (int.TryParse(Console.ReadLine(), out userInput))
-                {
-                    if (userInput >= minValue && userInput < maxValue + 1)
-                        return userInput;
-                    else
-                        WriteLine($"Incorrect input. Please enter a number ({minValue} - {maxValue + 1})");
-                }
-                else
-                {
-                    WriteLine($"Incorrect input. Please enter a number ({minValue} - {maxValue + 1})");
-                }
-            }
+            while (int.TryParse(Console.ReadLine(), out userInput) == false || userInput < minValue || userInput > maxValue)
+                OutputError($"Incorrect input. Please, input a number ({minValue} - {maxValue})");
 
             return userInput;
         }
 
-        public static void WriteLine(string message = "Incorrect input", ConsoleColor textColor = ConsoleColor.DarkRed)
+        public static void WriteLine(string message, ConsoleColor textColor = ConsoleColor.Blue)
         {
             Console.ForegroundColor = textColor;
+            Console.WriteLine(message);
+            Console.ResetColor();
+        }
+
+        public static void OutputError(string message = "Error")
+        {
+            Console.ForegroundColor = ConsoleColor.DarkRed;
             Console.WriteLine(message);
             Console.ResetColor();
         }
