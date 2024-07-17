@@ -33,13 +33,6 @@ namespace millionDollarsCourses
             return userInput;
         }
 
-        public static void WriteLine(string message, ConsoleColor textColor = ConsoleColor.Blue)
-        {
-            Console.ForegroundColor = textColor;
-            Console.WriteLine(message);
-            Console.ResetColor();
-        }
-
         public static void OutputError(string message = "Error")
         {
             Console.ForegroundColor = ConsoleColor.DarkRed;
