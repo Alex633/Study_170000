@@ -7,38 +7,31 @@ class Utility
         return _random.Next(minValue, maxValue);
     }
 
-    public static int GetNumber(string message = "Input number", int maxValue = 100, int minValue = 1)
-    {
-        bool isInvalidInput = true;
-        int userInput = 0;
-    
-        while (isInvalidInput)
-        {
-            Console.Write($"{message} ({minValue} - {maxValue}): ");
-    
-            if (int.TryParse(Console.ReadLine(), out userInput))
-            {
-                if (userInput >= minValue && userInput < maxValue + 1)
-                    return userInput;
-                else
-                    OutputError($"Incorrect input. Please enter a number ({minValue} - {maxValue + 1})");
-            }
-            else
-            {
-                OutputError($"Incorrect input. Please enter a number ({minValue} - {maxValue + 1})");
-            }
-        }
-    
+     public static int GetNumber(string message = "Input number", int maxValue = 100, int minValue = 1)
+     {
+         int userInput;
+
+         Console.Write($"{message} ({minValue} - {maxValue}): ");
+
+         while (int.TryParse(Console.ReadLine(), out userInput) == false || userInput < minValue || userInput > maxValue)
+             OutputError($"Incorrect input. Please, input a number ({minValue} - {maxValue})");
+
         return userInput;
     }
 
-    public static void WriteLine(string message = "Incorrect input", ConsoleColor textColor = ConsoleColor.DarkRed)
+    public static void WriteLine(string message, ConsoleColor textColor = ConsoleColor.DarkRed)
     {
         Console.ForegroundColor = textColor;
         Console.WriteLine(message);
         Console.ResetColor();
     }
 
+    public static void OutputError(string message = "Incorrect input")
+    {
+       Console.ForegroundColor = ConsoleColor.DarkRed;
+       Console.WriteLine(message);
+       Console.ResetColor();
+    }
 }
 
 static void #ShowTitleScreen(string developer, string game, int startXDev = 47, int startXGame = 47)
