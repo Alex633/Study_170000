@@ -29,6 +29,8 @@ namespace millionDollarsCourses
             const int CommandSearchFile = 4;
             const int CommandExit = 5;
 
+            int commands = CommandExit;
+
             string[] names = new string[0];
             string[] positions = new string[0];
 
@@ -38,7 +40,7 @@ namespace millionDollarsCourses
             {
                 DisplayMenu(CommandDisplayFiles, CommandAddFile, CommandDeleteFile, CommandSearchFile, CommandExit);
 
-                int userInput = GetNumber("Input command:", CommandExit);
+                int userInput = GetNumber("Input command:", commands);
 
                 #region HandleInput
                 switch (userInput)
@@ -198,7 +200,7 @@ namespace millionDollarsCourses
             textArray[textArray.Length - 1] = userInput;
         }
 
-        public static void RemoveItemFromArray(ref string[] textArray, int indexOfItem)
+        public static void RemoveItemFromArray(ref string[] textArray, int itemIndex)
         {
             bool isItemFound = false;
 
@@ -206,7 +208,7 @@ namespace millionDollarsCourses
 
             for (int i = 0; i < textArray.Length - 1; i++)
             {
-                if (i != indexOfItem && isItemFound == false)
+                if (i != itemIndex && isItemFound == false)
                 {
                     tempTextArray[i] = textArray[i];
                 }
@@ -214,7 +216,7 @@ namespace millionDollarsCourses
                 {
                     isItemFound = true;
                 }
-                
+
                 if (isItemFound)
                 {
                     tempTextArray[i] = textArray[i + 1];
