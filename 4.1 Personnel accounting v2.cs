@@ -112,9 +112,13 @@ namespace millionDollarsCourses
 
         public static void AddFile(ref string[] names, ref string[] positions)
         {
-            AddItemToArray(ref names, "Input full name: ");
-            AddItemToArray(ref positions, "Input working position: ");
-
+            Console.Clear();
+            string name = GetUserInput("Input full name: ");
+            string position = GetUserInput("Input working position: ");
+            
+            AddItemToArray(ref names, name);
+            AddItemToArray(ref positions, position);
+        
             WriteLine("File Added!", ConsoleColor.Yellow);
         }
 
@@ -189,15 +193,10 @@ namespace millionDollarsCourses
             Console.WriteLine();
         }
 
-        public static void AddItemToArray(ref string[] textArray, string inputPrompt)
+        public static void AddItemToArray(ref string[] textArray, string newItem)
         {
-            Console.Clear();
-            Console.Write(inputPrompt);
-
-            string userInput = Console.ReadLine();
-
             ExtendArray(ref textArray);
-            textArray[textArray.Length - 1] = userInput;
+            textArray[textArray.Length - 1] = newItem;
         }
 
         public static void RemoveItemFromArray(ref string[] textArray, int itemIndex)
@@ -247,16 +246,23 @@ namespace millionDollarsCourses
             textArray = tempTextArray;
         }
 
-        public static int GetNumber(string message = "Input number", int maxValue = 100, int minValue = 1)
+        public static int GetNumber(string inputPrompt = "Input number", int maxValue = 100, int minValue = 1)
         {
             int userInput;
 
-            Console.Write($"{message} ({minValue} - {maxValue}): ");
+            Console.Write($"{inputPrompt} ({minValue} - {maxValue}): ");
 
             while (int.TryParse(Console.ReadLine(), out userInput) == false || userInput < minValue || userInput > maxValue)
                 WriteLine($"Incorrect input. Please, input a number ({minValue} - {maxValue}): ");
 
             return userInput;
+        }
+
+        public static string GetUserInput(string inputPrompt)
+        {
+            Console.Clear();
+            Console.Write(inputPrompt);
+            return Console.ReadLine();
         }
 
         public static void WriteLine(string message, ConsoleColor textColor = ConsoleColor.DarkRed)
