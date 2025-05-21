@@ -72,7 +72,8 @@ namespace millionDollarsCourses
             }
         }
 
-        public static void DisplayMenu(int command1, int command2, int command3, int command4, int command5)
+        public static void DisplayMenu(int displayFilesNumber, int addFileNumber, 
+            int deleteFileNumber, int searchFileNumber, int exitNumber)
         {
             string displayFilesDescription = "Show all Files";
             string addFileDescription = "Add File";
@@ -80,11 +81,11 @@ namespace millionDollarsCourses
             string searchFileDescription = "Search File";
             string exitDescription = "Exit";
 
-            Console.WriteLine($"{command1}) {displayFilesDescription}\n" +
-                $"{command2}) {addFileDescription}\n" +
-                $"{command3}) {deleteFileDescription}\n" +
-                $"{command4}) {searchFileDescription}\n" +
-                $"{command5}) {exitDescription}\n");
+            Console.WriteLine($"{displayFilesNumber}) {displayFilesDescription}\n" +
+                $"{addFileNumber}) {addFileDescription}\n" +
+                $"{deleteFileNumber}) {deleteFileDescription}\n" +
+                $"{searchFileNumber}) {searchFileDescription}\n" +
+                $"{exitNumber}) {exitDescription}\n");
         }
 
         public static void DisplayFiles(string[] names, string[] positions)
@@ -105,11 +106,11 @@ namespace millionDollarsCourses
         public static void AddFile(ref string[] names, ref string[] positions)
         {
             Console.Clear();
-            string name = GetUserInput("Input full name: ");
-            string position = GetUserInput("Input working position: ");
+            string name = ReadUserInput("Input full name: ");
+            string position = ReadUserInput("Input working position: ");
 
-            names = GetExtendedArray(names, name);
-            positions = GetExtendedArray(positions, position);
+            names = AppendToArray(names, name);
+            positions = AppendToArray(positions, position);
 
             WriteLine("File Added!", ConsoleColor.Yellow);
         }
@@ -127,10 +128,12 @@ namespace millionDollarsCourses
             DisplayFiles(names, positions);
             int userInput = ReadInt("Input file number to remove:", names.Length);
 
-            WriteLine($"File [{GetFileInfo(names, positions, userInput - 1)}] succescully removed", ConsoleColor.Yellow);
+            int userIndex = userInput - 1;
 
-            names = GetArrayWithRemovedItem(names, userInput - 1);
-            positions = GetArrayWithRemovedItem(positions, userInput - 1);
+            WriteLine($"File [{GetFileInfo(names, positions, userIndex)}] succescully removed", ConsoleColor.Yellow);
+
+            names = RemoveItemAt(names, userIndex);
+            positions = RemoveItemAt(positions, userIndex);
         }
 
         public static void SearchFile(string[] names, string[] positions)
@@ -183,22 +186,20 @@ namespace millionDollarsCourses
                 WriteLine($"No files match name {name}");
         }
 
-        public static string[] GetArrayWithRemovedItem(string[] textArray, int itemIndex)
+        public static string[] RemoveItemAt(string[] textArray, int itemIndex)
         {
             string[] tempTextArray = new string[textArray.Length - 1];
 
-            for (int i = 0, j = 0; i < textArray.Length; i++)
-            {
-                if (i == itemIndex)
-                    continue;
+            for (int i = 0; i < itemIndex; i++)
+                tempTextArray[i] = textArray[i];
 
-                tempTextArray[j++] = textArray[i];
-            }
+            for (int i = itemIndex + 1; i < textArray.Length; i++)
+                tempTextArray[i - 1] = textArray[i];
 
             return tempTextArray;
         }
 
-        public static string[] GetExtendedArray(string[] textArray, string item)
+        public static string[] AppendToArray(string[] textArray, string item)
         {
             string[] tempTextArray = new string[textArray.Length + 1];
 
@@ -210,16 +211,6 @@ namespace millionDollarsCourses
             textArray[textArray.Length - 1] = item;
 
             return textArray;
-        }
-
-        public static void ShrinkArray(ref string[] textArray, int amount = 1)
-        {
-            string[] tempTextArray = new string[textArray.Length - amount];
-
-            for (int i = 0; i < tempTextArray.Length; i++)
-                tempTextArray[i] = textArray[i];
-
-            textArray = tempTextArray;
         }
 
         public static int ReadInt(string inputPrompt = "Input number", int maxValue = 100, int minValue = 1)
@@ -234,7 +225,7 @@ namespace millionDollarsCourses
             return userInput;
         }
 
-        public static string GetUserInput(string inputPrompt)
+        public static string ReadUserInput(string inputPrompt)
         {
             Console.Write(inputPrompt);
             return Console.ReadLine();
