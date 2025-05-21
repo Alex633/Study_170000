@@ -1,19 +1,5 @@
 using System;
 
-//todo:
-
-//      do damage to enemy
-//      make enemy hit back
-//      bounce enemy forward
-//      or if in attack _weaponState and pressing attack buttonSymbol again move sword to owner and then do regular attack again
-
-//      connect with Player and enemy consoleText class
-//      make console graphics into stage select
-
-//      add victory royal title  in the os 2
-
-//later      second substage - stage complete after death, when showing death message beginning (in OS)
-
 public class Program
 {
     private static void Main(string[] args)
