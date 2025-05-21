@@ -2,7 +2,7 @@ using System;
 
 public class Program
 {
-    private static void Main(string[] args)
+    private static void Main()
     {
         int xPlayerPosition = 27;
         int yPlayerPosition = 16;
@@ -15,13 +15,13 @@ public class Program
 
         DrawMap(map);
 
-        while (!HasNoCoinsLeft(map))
+        while (HasCoins(map))
         {
             DrawPlayer(map, yPlayerPosition, xPlayerPosition);
             DrawScore(score);
 
             ConsoleKeyInfo inputKey = ReadInputKey();
-            HandleInput(inputKey, map, ref score, ref yPlayerPosition, ref xPlayerPosition);
+            TryPerformPlayerMoveFromInput(inputKey, map, ref score, ref yPlayerPosition, ref xPlayerPosition);
         }
 
         DrawVictoryScreen();
@@ -104,55 +104,56 @@ public class Program
         return pressedKey;
     }
 
-    public static void HandleInput(ConsoleKeyInfo pressedKey, char[,] map, ref int score, ref int yPlayerPosition, ref int xPlayerPosition)
+    public static void TryPerformPlayerMoveFromInput(ConsoleKeyInfo pressedKey, char[,] map, ref int score, ref int yPlayerPosition, ref int xPlayerPosition)
     {
-        int[] offset = TranslateKeyToOffset(pressedKey);
+        int[] offset = GetDirection(pressedKey);
 
         int yTarget = yPlayerPosition + offset[0];
         int xTarget = xPlayerPosition + offset[1];
 
         if (IsValidMoveTarget(map, yTarget, xTarget))
-            MovePlayer(map, ref score, yTarget, xTarget, ref yPlayerPosition, ref xPlayerPosition);
+            PerformPlayerMove(map, ref score, yTarget, xTarget, ref yPlayerPosition, ref xPlayerPosition);
     }
 
-    public static int[] TranslateKeyToOffset(ConsoleKeyInfo pressedKey)
+    public static int[] GetDirection(ConsoleKeyInfo pressedKey)
     {
-        const int verticalStep = 1;
-        const int horizontalStep = verticalStep * 2;
+        int doubleDistance = 2;
+        int verticalStep = 1;
+        int horizontalStep = verticalStep * doubleDistance;
 
-        const ConsoleKey CommandUp1 = ConsoleKey.W;
-        const ConsoleKey CommandUp2 = ConsoleKey.UpArrow;
+        const ConsoleKey CommandUpButton1 = ConsoleKey.W;
+        const ConsoleKey CommandUpButton2 = ConsoleKey.UpArrow;
 
-        const ConsoleKey CommandDown1 = ConsoleKey.S;
-        const ConsoleKey CommandDown2 = ConsoleKey.DownArrow;
+        const ConsoleKey CommandDownButton1 = ConsoleKey.S;
+        const ConsoleKey CommandDownButton2 = ConsoleKey.DownArrow;
 
-        const ConsoleKey CommandLeft1 = ConsoleKey.A;
-        const ConsoleKey CommandLeft2 = ConsoleKey.LeftArrow;
+        const ConsoleKey CommandLeftButton1 = ConsoleKey.A;
+        const ConsoleKey CommandLeftButton2 = ConsoleKey.LeftArrow;
 
-        const ConsoleKey CommandRight1 = ConsoleKey.D;
-        const ConsoleKey CommandRight2 = ConsoleKey.RightArrow;
+        const ConsoleKey CommandRightButton1 = ConsoleKey.D;
+        const ConsoleKey CommandRightButton2 = ConsoleKey.RightArrow;
 
         int[] offset = { 0, 0 };
 
         switch (pressedKey.Key)
         {
-            case CommandUp1:
-            case CommandUp2:
+            case CommandUpButton1:
+            case CommandUpButton2:
                 offset[0] -= verticalStep;
                 break;
 
-            case CommandDown1:
-            case CommandDown2:
+            case CommandDownButton1:
+            case CommandDownButton2:
                 offset[0] += verticalStep;
                 break;
 
-            case CommandLeft1:
-            case CommandLeft2:
+            case CommandLeftButton1:
+            case CommandLeftButton2:
                 offset[1] -= horizontalStep;
                 break;
 
-            case CommandRight1:
-            case CommandRight2:
+            case CommandRightButton1:
+            case CommandRightButton2:
                 offset[1] += horizontalStep;
                 break;
         }
@@ -160,21 +161,29 @@ public class Program
         return offset;
     }
 
-    public static void MovePlayer(char[,] map, ref int score, int yTarget, int xTarget,
+    public static void PerformPlayerMove(char[,] map, ref int score, int yTarget, int xTarget,
         ref int yPlayerPosition, ref int xPlayerPosition)
     {
         ClearMapCell(map, yPlayerPosition, xPlayerPosition);
 
-        yPlayerPosition = yTarget;
-        xPlayerPosition = xTarget;
+        Move(yTarget, xTarget, ref yPlayerPosition, ref xPlayerPosition);
 
-        UpdateScore(map, ref score, yPlayerPosition, xPlayerPosition);
+        score = CalculateScore(map, score, yPlayerPosition, xPlayerPosition);
 
         DrawPlayer(map, yPlayerPosition, xPlayerPosition);
     }
 
+    public static void Move(int yTarget, int xTarget,
+        ref int yPosition, ref int xPosition)
+    {
+        yPosition = yTarget;
+        xPosition = xTarget;
+    }
+
     public static bool IsValidMoveTarget(char[,] map, int yTarget, int xTarget)
     {
+        const char Wall = '#';
+
         bool isWithinBounds = yTarget < map.GetLength(0) - 1
             && yTarget > 0
             && xTarget < map.GetLength(1) - 1
@@ -182,8 +191,6 @@ public class Program
 
         if (isWithinBounds == false)
             return false;
-
-        const char Wall = '#';
 
         return map[yTarget, xTarget] != Wall;
     }
@@ -227,28 +234,29 @@ public class Program
         return map;
     }
 
-    public static void UpdateScore(char[,] map, ref int score, int yPlayerPosition, int xPlayerPosition)
+    public static int CalculateScore(char[,] map, int score, int yPlayerPosition, int xPlayerPosition)
     {
         const char Coin = '·';
         const char BigCoin = '$';
 
-        int CoinValue = 1;
-        int BigCoinValue = 10;
+        const int CoinValue = 1;
+        const int BigCoinValue = 10;
 
-        bool isOnCoin = map[yPlayerPosition, xPlayerPosition] == Coin;
-        bool isOnBigCoin = map[yPlayerPosition, xPlayerPosition] == BigCoin;
+        char cell = map[yPlayerPosition, xPlayerPosition];
 
-        if (isOnCoin == false && isOnBigCoin == false)
-            return;
+        bool isCoin = cell == Coin;
+        bool isBigCoin = cell == BigCoin;
 
-        if (isOnCoin)
+        if (isCoin)
             score += CoinValue;
 
-        if (isOnBigCoin)
+        if (isBigCoin)
             score += BigCoinValue;
+
+        return score;
     }
 
-    public static bool HasNoCoinsLeft(char[,] map)
+    public static bool HasCoins(char[,] map)
     {
         const int Coin = '·';
         const int BigCoin = '$';
@@ -260,11 +268,11 @@ public class Program
                 char cell = map[y, x];
 
                 if (cell == Coin || cell == BigCoin)
-                    return false;
+                    return true;
             }
         }
 
-        return true;
+        return false;
     }
     #endregion
 
