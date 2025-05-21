@@ -40,30 +40,34 @@ namespace millionDollarsCourses
             {
                 DisplayMenu(CommandDisplayFiles, CommandAddFile, CommandDeleteFile, CommandSearchFile, CommandExit);
 
-                int userInput = GetNumber("Input command:", commands);
+                int userInput = ReadInt("Input command:", commands);
 
-                #region HandleInput
                 switch (userInput)
                 {
                     case CommandDisplayFiles:
                         DisplayFiles(names, positions);
                         break;
+
                     case CommandAddFile:
                         AddFile(ref names, ref positions);
                         break;
+
                     case CommandDeleteFile:
                         RemoveFile(ref names, ref positions);
                         break;
+
                     case CommandSearchFile:
                         SearchFile(names, positions);
                         break;
+
                     case CommandExit:
                         isWorking = !Exit();
                         break;
                 }
-                #endregion
 
-                PressAnyKeyToContinue();
+                WriteLine("Press any key", ConsoleColor.Cyan);
+                Console.ReadKey(true);
+
                 Console.Clear();
             }
         }
@@ -94,19 +98,7 @@ namespace millionDollarsCourses
             }
             else
             {
-                WriteLine("There are no files");
-            }
-        }
-
-        public static string GetFileInfo(string[] names, string[] positions, int fileIndex)
-        {
-            if (names.Length >= fileIndex)
-            {
-                return $"{fileIndex + 1}. {names[fileIndex]} - {positions[fileIndex]}";
-            }
-            else
-            {
-                return "File don't exist";
+                WriteLine("File folder is empty");
             }
         }
 
@@ -115,10 +107,10 @@ namespace millionDollarsCourses
             Console.Clear();
             string name = GetUserInput("Input full name: ");
             string position = GetUserInput("Input working position: ");
-            
-            AddItemToArray(ref names, name);
-            AddItemToArray(ref positions, position);
-        
+
+            names = GetExtendedArray(names, name);
+            positions = GetExtendedArray(positions, position);
+
             WriteLine("File Added!", ConsoleColor.Yellow);
         }
 
@@ -126,21 +118,19 @@ namespace millionDollarsCourses
         {
             Console.Clear();
 
-            if (names.Length > 0)
+            if (names.Length == 0)
             {
-                DisplayFiles(names, positions);
-                int userInput = GetNumber("Input file number to remove:", names.Length);
-
-                WriteLine($"File [{GetFileInfo(names, positions, userInput - 1)}] succescully removed", ConsoleColor.Yellow);
-
-                RemoveItemFromArray(ref names, userInput - 1);
-                RemoveItemFromArray(ref positions, userInput - 1);
-
+                WriteLine("File folder is empty");
+                return;
             }
-            else
-            {
-                WriteLine("There are no files");
-            }
+
+            DisplayFiles(names, positions);
+            int userInput = ReadInt("Input file number to remove:", names.Length);
+
+            WriteLine($"File [{GetFileInfo(names, positions, userInput - 1)}] succescully removed", ConsoleColor.Yellow);
+
+            names = GetArrayWithRemovedItem(names, userInput - 1);
+            positions = GetArrayWithRemovedItem(positions, userInput - 1);
         }
 
         public static void SearchFile(string[] names, string[] positions)
@@ -157,6 +147,20 @@ namespace millionDollarsCourses
             {
                 WriteLine("There are no files");
             }
+        }
+
+        public static bool Exit()
+        {
+            Console.WriteLine("\nExiting the Program");
+            return true;
+        }
+
+        public static string GetFileInfo(string[] names, string[] positions, int fileIndex)
+        {
+            if (names.Length >= fileIndex)
+                return $"{fileIndex + 1}. {names[fileIndex]} - {positions[fileIndex]}";
+            else
+                return "File don't exist";
         }
 
         public static void DisplaySearchResult(string[] names, string[] positions, string name)
@@ -179,61 +183,33 @@ namespace millionDollarsCourses
                 WriteLine($"No files match name {name}");
         }
 
-        public static bool Exit()
+        public static string[] GetArrayWithRemovedItem(string[] textArray, int itemIndex)
         {
-            Console.WriteLine("\nExiting the Program");
-            return true;
-        }
+            string[] tempTextArray = new string[textArray.Length - 1];
 
-        public static void WriteArray(string[] textArray)
-        {
-            foreach (string item in textArray)
-                Console.Write(item + " ");
-
-            Console.WriteLine();
-        }
-
-        public static void AddItemToArray(ref string[] textArray, string newItem)
-        {
-            ExtendArray(ref textArray);
-            textArray[textArray.Length - 1] = newItem;
-        }
-
-        public static void RemoveItemFromArray(ref string[] textArray, int itemIndex)
-        {
-            bool isItemFound = false;
-
-            string[] tempTextArray = new string[textArray.Length];
-
-            for (int i = 0; i < textArray.Length - 1; i++)
+            for (int i = 0, j = 0; i < textArray.Length; i++)
             {
-                if (i != itemIndex && isItemFound == false)
-                {
-                    tempTextArray[i] = textArray[i];
-                }
-                else
-                {
-                    isItemFound = true;
-                }
+                if (i == itemIndex)
+                    continue;
 
-                if (isItemFound)
-                {
-                    tempTextArray[i] = textArray[i + 1];
-                }
+                tempTextArray[j++] = textArray[i];
             }
 
-            ShrinkArray(ref tempTextArray);
-            textArray = tempTextArray;
+            return tempTextArray;
         }
 
-        public static void ExtendArray(ref string[] textArray, int amount = 1)
+        public static string[] GetExtendedArray(string[] textArray, string item)
         {
-            string[] tempTextArray = new string[textArray.Length + amount];
+            string[] tempTextArray = new string[textArray.Length + 1];
 
             for (int i = 0; i < textArray.Length; i++)
                 tempTextArray[i] = textArray[i];
 
             textArray = tempTextArray;
+
+            textArray[textArray.Length - 1] = item;
+
+            return textArray;
         }
 
         public static void ShrinkArray(ref string[] textArray, int amount = 1)
@@ -246,7 +222,7 @@ namespace millionDollarsCourses
             textArray = tempTextArray;
         }
 
-        public static int GetNumber(string inputPrompt = "Input number", int maxValue = 100, int minValue = 1)
+        public static int ReadInt(string inputPrompt = "Input number", int maxValue = 100, int minValue = 1)
         {
             int userInput;
 
@@ -260,22 +236,15 @@ namespace millionDollarsCourses
 
         public static string GetUserInput(string inputPrompt)
         {
-            Console.Clear();
             Console.Write(inputPrompt);
             return Console.ReadLine();
         }
 
-        public static void WriteLine(string message, ConsoleColor textColor = ConsoleColor.DarkRed)
+        public static void WriteLine(string message, ConsoleColor textColor = ConsoleColor.Red)
         {
             Console.ForegroundColor = textColor;
             Console.WriteLine(message);
             Console.ResetColor();
-        }
-
-        public static void PressAnyKeyToContinue(string message = "Press any key to continue")
-        {
-            WriteLine(message, ConsoleColor.Cyan);
-            Console.ReadKey(true);
         }
     }
 }
