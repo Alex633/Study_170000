@@ -23,7 +23,7 @@ public class Program
 
         int score = 0;
 
-        char[,] map = GetMap();
+        char[,] map = LoadLevelMap();
 
         Console.CursorVisible = false;
 
@@ -34,7 +34,7 @@ public class Program
             DrawPlayer(map, yPlayerPosition, xPlayerPosition);
             DrawScore(score);
 
-            ConsoleKeyInfo inputKey = GetInputKey();
+            ConsoleKeyInfo inputKey = ReadInputKey();
             HandleInput(inputKey, map, ref score, ref yPlayerPosition, ref xPlayerPosition);
         }
 
@@ -77,12 +77,12 @@ public class Program
         WriteAtPosition(Player, yPosition, xPosition, ConsoleColor.Black, ConsoleColor.DarkYellow);
     }
 
-    public static void ClearMapCell(char[,] map, int yPosition, int xPosition)
+    public static void ClearMapCell(char[,] map, int y, int x)
     {
         const char Empty = ' ';
 
-        map[yPosition, xPosition] = Empty;
-        WriteAtPosition(Empty, yPosition, xPosition);
+        map[y, x] = Empty;
+        WriteAtPosition(Empty, y, x);
     }
 
     #region UI
@@ -107,7 +107,7 @@ public class Program
     #endregion
 
     #region Movement
-    public static ConsoleKeyInfo GetInputKey()
+    public static ConsoleKeyInfo ReadInputKey()
     {
         ConsoleKeyInfo pressedKey = Console.ReadKey(true);
 
@@ -120,7 +120,7 @@ public class Program
 
     public static void HandleInput(ConsoleKeyInfo pressedKey, char[,] map, ref int score, ref int yPlayerPosition, ref int xPlayerPosition)
     {
-        int[] offset = GetOffset(pressedKey);
+        int[] offset = TranslateKeyToOffset(pressedKey);
 
         int yTarget = yPlayerPosition + offset[0];
         int xTarget = xPlayerPosition + offset[1];
@@ -129,7 +129,7 @@ public class Program
             MovePlayer(map, ref score, yTarget, xTarget, ref yPlayerPosition, ref xPlayerPosition);
     }
 
-    public static int[] GetOffset(ConsoleKeyInfo pressedKey)
+    public static int[] TranslateKeyToOffset(ConsoleKeyInfo pressedKey)
     {
         const int verticalStep = 1;
         const int horizontalStep = verticalStep * 2;
@@ -204,7 +204,7 @@ public class Program
     #endregion
 
     #region Map
-    public static char[,] GetMap()
+    public static char[,] LoadLevelMap()
     {
         char[,] map = {
 {   '#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#',    },
