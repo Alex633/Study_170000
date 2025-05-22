@@ -35,7 +35,7 @@ public class Program
         Console.BackgroundColor = backgroundColor;
 
         if (yPosition.HasValue || xPosition.HasValue)
-            Console.SetCursorPosition(xPosition != null ? xPosition.Value : 0, yPosition != null ? yPosition.Value : 0);
+            Console.SetCursorPosition(xPosition ?? 0, yPosition ?? 0);
 
         Console.WriteLine(element);
 
