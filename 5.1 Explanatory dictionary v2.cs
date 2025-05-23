@@ -16,12 +16,12 @@ public class Program
         };
 
         Console.Write("Input key: ");
-        TryOutputValue(Console.ReadLine(), words);
+        OutputValueIfExists(Console.ReadLine(), words);
     }
 
-    public static void TryOutputValue(string key, Dictionary<string, int> dictionary)
+    public static void OutputValueIfExists(string key, Dictionary<string, int> source)
     {
-        if (dictionary.TryGetValue(key, out int result))
+        if (source.TryGetValue(key, out int result))
             WriteLineAt($"{result}", foregroundColor: ConsoleColor.Green);
         else
             WriteLineAt($"Your search ({key}) did not match any keys", foregroundColor: ConsoleColor.Red);
