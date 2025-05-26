@@ -16,22 +16,27 @@ using System.Collections.Generic;
 
 public class Program
 {
+    const int CommandHire = 1;
+    const int CommandFire = 2;
+    const int CommandOutputEmployeesInfo = 3;
+    const int CommandExit = 4;
+
     private static void Main()
     {
         Dictionary<string, List<string>> employees = new Dictionary<string, List<string>>();
 
         List<string> commandDescriptions = new List<string>()
         {
-            "hire employee",
-            "fire employee",
-            "show all job titles and employees",
-            "exit"
+            "Hire employee",
+            "Fire employee",
+            "Show all job titles and employees",
+            "Exit"
         };
 
         Run(commandDescriptions, employees);
     }
 
-    public static void Run(List<string> commandDescriptions, Dictionary<string, List<string>> employees)
+    static void Run(List<string> commandDescriptions, Dictionary<string, List<string>> employees)
     {
         bool isRunning = true;
 
@@ -43,7 +48,7 @@ public class Program
             int input = ReadInt("command");
             Console.Clear();
 
-            isRunning = HandleInput(input, employees);
+            isRunning = TryHandleInput(input, employees, commandDescriptions);
 
             if (isRunning)
                 ClearAfterKeyPress();
@@ -53,16 +58,16 @@ public class Program
         ClearAfterKeyPress();
     }
 
-    public static void ExecuteHireCommand(Dictionary<string, List<string>> employees)
+    static void ExecuteHireCommand(Dictionary<string, List<string>> employees, List<string> commandDescriptions)
     {
-        WriteTitle("Hire Employee", false);
+        WriteTitle(commandDescriptions[CommandHire - 1], false);
 
         string jobTitle = PromptForInput("job title");
         string name = PromptForInput("name");
 
         if (employees.TryGetValue(jobTitle, out List<string> names) == false)
         {
-            employees.Add(jobTitle, AddEmployeeName(name, names));
+            employees.Add(jobTitle, new List<string>() { name });
             WriteAt($"\n{jobTitle} added as a new job title", foregroundColor: ConsoleColor.Green);
         }
         else
@@ -75,11 +80,11 @@ public class Program
         WriteAt($"{name} hired as {jobTitle}", foregroundColor: ConsoleColor.Green);
     }
 
-    public static void ExecuteFireCommand(Dictionary<string, List<string>> employees)
+    static void ExecuteFireCommand(Dictionary<string, List<string>> employees, List<string> commandDescriptions)
     {
-        WriteTitle("Fire Employee", false);
+        WriteTitle(commandDescriptions[CommandFire - 1], false);
 
-        if (PrintEmptyPlaceholder(employees, "No one to fire. Bummer"))
+        if (TryPrintEmptyPlaceholder(employees, "No one to fire. Bummer"))
             return;
 
         string name = PromptForInput($"name");
@@ -93,11 +98,11 @@ public class Program
             WriteAt($"({name}) not found", foregroundColor: ConsoleColor.Red);
     }
 
-    public static void ExecuteOutputEmployeesInfoCommand(Dictionary<string, List<string>> employees)
+    static void ExecuteOutputEmployeesInfoCommand(Dictionary<string, List<string>> employees, List<string> commandDescriptions)
     {
-        WriteTitle("Displaying full info", false);
+        WriteTitle(commandDescriptions[CommandOutputEmployeesInfo - 1], false);
 
-        if (PrintEmptyPlaceholder(employees))
+        if (TryPrintEmptyPlaceholder(employees))
             return;
 
         foreach (var jobTitleNamePair in employees)
@@ -110,24 +115,7 @@ public class Program
         }
     }
 
-    public static List<string> AddEmployeeName(string newName, List<string> names = null)
-    {
-        if (names == null)
-        {
-            names = new List<string>()
-            {
-                newName
-            };
-        }
-        else
-        {
-            names.Add(newName);
-        }
-
-        return names;
-    }
-
-    private static bool RemoveEmployeeJobTitle(string name, Dictionary<string, List<string>> employees)
+    static bool RemoveEmployeeJobTitle(string name, Dictionary<string, List<string>> employees)
     {
         bool wasAnyEmployeeRemoved = false;
 
@@ -135,14 +123,14 @@ public class Program
         {
             ExtractJobTitleNames(jobTitleNamePair, out string jobTitle, out List<string> names);
 
-            if (RemoveAllWithSameName(name, jobTitle, names))
+            if (TryRemoveAllWithSameName(name, jobTitle, names))
                 wasAnyEmployeeRemoved = true;
         }
 
         return wasAnyEmployeeRemoved;
     }
 
-    private static bool RemoveAllWithSameName(string name, string jobTitle, List<string> names)
+    static bool TryRemoveAllWithSameName(string name, string jobTitle, List<string> names)
     {
         bool isAllRemoved = false;
         bool isSomeoneRemoved = false;
@@ -165,7 +153,7 @@ public class Program
         return isSomeoneRemoved;
     }
 
-    private static void RemoveUnusedJobTitles(Dictionary<string, List<string>> employees)
+    static void RemoveUnusedJobTitles(Dictionary<string, List<string>> employees)
     {
         List<string> jobTitlesToRemove = new List<string>();
 
@@ -187,7 +175,7 @@ public class Program
         }
     }
 
-    private static void ExtractJobTitleNames(KeyValuePair<string, List<string>> jobTitleNamePair,
+    static void ExtractJobTitleNames(KeyValuePair<string, List<string>> jobTitleNamePair,
         out string jobTitle,
         out List<string> names)
     {
@@ -195,25 +183,20 @@ public class Program
         names = jobTitleNamePair.Value;
     }
 
-    private static bool HandleInput(int command, Dictionary<string, List<string>> employees)
+    static bool TryHandleInput(int command, Dictionary<string, List<string>> employees, List<string>commandDescriptions)
     {
-        const int CommandHire = 1;
-        const int CommandFire = 2;
-        const int CommandOutputEmployeesInfo = 3;
-        const int CommandExit = 4;
-
         switch (command)
         {
             case CommandHire:
-                ExecuteHireCommand(employees);
+                ExecuteHireCommand(employees, commandDescriptions);
                 return true;
 
             case CommandFire:
-                ExecuteFireCommand(employees);
+                ExecuteFireCommand(employees, commandDescriptions);
                 return true;
 
             case CommandOutputEmployeesInfo:
-                ExecuteOutputEmployeesInfoCommand(employees);
+                ExecuteOutputEmployeesInfoCommand(employees, commandDescriptions);
                 return true;
 
             case CommandExit:
@@ -226,11 +209,11 @@ public class Program
     }
 
     #region Helper
-    public static void WriteCommands(List<string> commandsDecriptions)
+    static void WriteCommands(List<string> commandsDecriptions)
     {
         WriteTitle("Commands");
 
-        if (PrintEmptyPlaceholder(commandsDecriptions))
+        if (TryPrintEmptyPlaceholder(commandsDecriptions))
             return;
 
         for (int i = 0; i < commandsDecriptions.Count; i++)
@@ -240,12 +223,12 @@ public class Program
         }
     }
 
-    public static void WriteCollection<T>(List<T> source, string title = null, bool shouldPrintEachOnNewLine = true)
+    static void WriteCollection<T>(List<T> source, string title = null, bool shouldPrintEachOnNewLine = true)
     {
         if (title != null)
             WriteTitle(title, true);
 
-        if (PrintEmptyPlaceholder(source))
+        if (TryPrintEmptyPlaceholder(source))
             return;
 
         foreach (var item in source)
@@ -254,7 +237,7 @@ public class Program
         Console.WriteLine();
     }
 
-    public static void ClearAfterKeyPress()
+    static void ClearAfterKeyPress()
     {
         Console.WriteLine();
         WriteAt($"Press any key", foregroundColor: ConsoleColor.Cyan);
@@ -262,7 +245,7 @@ public class Program
         Console.Clear();
     }
 
-    public static int ReadInt(string fieldName)
+    static int ReadInt(string fieldName)
     {
         int number = 0;
         bool isNumberInputed = false;
@@ -282,13 +265,13 @@ public class Program
         return number;
     }
 
-    public static string PromptForInput(string fieldName)
+    static string PromptForInput(string fieldName)
     {
         WriteAt($"Input a {fieldName}: ", foregroundColor: ConsoleColor.Cyan, isNewLine: false);
         return Console.ReadLine();
     }
 
-    public static bool PrintEmptyPlaceholder(Dictionary<string, List<string>> source, string description = "-")
+    static bool TryPrintEmptyPlaceholder(Dictionary<string, List<string>> source, string description = "-")
     {
         if (source == null || source.Count == 0)
         {
@@ -299,7 +282,7 @@ public class Program
         return false;
     }
 
-    public static bool PrintEmptyPlaceholder<T>(List<T> source, string description = "-")
+    static bool TryPrintEmptyPlaceholder<T>(List<T> source, string description = "-")
     {
         if (source == null || source.Count == 0)
         {
@@ -310,7 +293,7 @@ public class Program
         return false;
     }
 
-    public static void WriteTitle(string title, bool isSecondary = true)
+    static void WriteTitle(string title, bool isSecondary = true)
     {
         ConsoleColor backgroundColor = isSecondary ? ConsoleColor.DarkGray : ConsoleColor.Gray;
 
@@ -320,7 +303,7 @@ public class Program
             Console.WriteLine();
     }
 
-    public static void WriteAt(object element, int? yPosition = null, int? xPosition = null,
+    static void WriteAt(object element, int? yPosition = null, int? xPosition = null,
         ConsoleColor foregroundColor = ConsoleColor.White, ConsoleColor backgroundColor = ConsoleColor.Black,
         bool isNewLine = true)
     {
