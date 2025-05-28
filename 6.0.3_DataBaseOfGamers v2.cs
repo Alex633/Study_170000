@@ -141,7 +141,7 @@ class Database
     public void OutputFull()
     {
         foreach (Gamer gamer in _gamers)
-            gamer.OutputInfo();
+            Helper.WriteAt(gamer.GetInfo(), foregroundColor: gamer._isBanned == false ? ConsoleColor.Green : ConsoleColor.Red);
     }
 
     public void Add()
@@ -226,13 +226,6 @@ class Gamer
     }
 
     public Id Id { get; private set; }
-
-    public void OutputInfo()
-    {
-        ConsoleColor consoleColor = _isBanned ? ConsoleColor.Red : ConsoleColor.Green;
-
-        Helper.WriteAt(GetInfo(), foregroundColor: consoleColor);
-    }
 
     public string GetInfo()
     {
