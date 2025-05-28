@@ -7,7 +7,7 @@ using System;
 
 public class Program
 {
-    static void Main(string[] args)
+    static void Main()
     {
         int yPlayer = 16;
         int xPlayer = 56;
@@ -15,61 +15,68 @@ public class Program
 
         Renderer renderer = new Renderer();
 
-        WriteTitle("level 1");
+        Helper.WriteTitle("level 1");
         renderer.Draw(gamer);
 
-        ClearAfterKeyPress();
+        Helper.ClearAfterKeyPress();
     }
+}
 
-    class Gamer
+class Gamer
+{
+    public Gamer(char symbol, Point point)
     {
-        public Gamer(char symbol, Point point)
-        {
-            Symbol = symbol;
-            Point = point;
-        }
-
-        public Point Point { get; private set; }
-        public char Symbol { get; private set; }
+        Symbol = symbol;
+        Point = point;
     }
 
-    class Point
+    public Point Point { get; private set; }
+    public char Symbol { get; private set; }
+}
+
+class Point
+{
+    private int _y;
+    private int _x;
+
+    public Point(int y, int x)
     {
-        private int _y;
-        private int _x;
+        _y = 0;
+        _x = 0;
 
-        public Point(int y, int x)
-        {
-            _y = 0;
-            _x = 0;
-
-            Y = y;
-            X = x;
-        }
-
-        public int Y
-        {
-            get => _y;
-            set => _y = Console.BufferHeight > value ? value : Console.BufferHeight - 1;
-        }
-
-        public int X
-        {
-            get => _x;
-            set => _x = Console.BufferWidth > value ? value : Console.BufferWidth - 1;
-        }
+        Set(y, x);
     }
 
-    class Renderer
+    public int Y
     {
-        public void Draw(Gamer gamer)
-        {
-            WriteAt(gamer.Symbol, gamer.Point.Y, gamer.Point.X);
-        }
+        get => _y;
+        private set => _y = Console.BufferHeight > value ? value : Console.BufferHeight - 1;
     }
 
-    #region Helper)
-    static void ClearAfterKeyPress()
+    public int X
+    {
+        get => _x;
+        private set => _x = Console.BufferWidth > value ? value : Console.BufferWidth - 1;
+    }
+
+    public void Set(int y, int x)
+    {
+        Y = y;
+        X = x;
+    }
+}
+
+class Renderer
+{
+    public void Draw(Gamer gamer)
+    {
+        Helper.WriteAt(gamer.Symbol, gamer.Point.Y, gamer.Point.X);
+    }
+}
+
+class Helper
+{
+    public static void ClearAfterKeyPress()
     {
         Console.WriteLine();
         WriteAt($"Press any key", foregroundColor: ConsoleColor.Cyan);
@@ -77,7 +84,7 @@ public class Program
         Console.Clear();
     }
 
-    static void WriteTitle(string title, bool isSecondary = false)
+    public static void WriteTitle(string title, bool isSecondary = false)
     {
         ConsoleColor backgroundColor = isSecondary ? ConsoleColor.DarkGray : ConsoleColor.Gray;
 
@@ -87,7 +94,7 @@ public class Program
             Console.WriteLine();
     }
 
-    static void WriteAt(object element, int? yPosition = null, int? xPosition = null,
+    public static void WriteAt(object element, int? yPosition = null, int? xPosition = null,
         ConsoleColor foregroundColor = ConsoleColor.White, ConsoleColor backgroundColor = ConsoleColor.Black,
         bool isNewLine = true)
     {
@@ -115,5 +122,4 @@ public class Program
             Console.CursorLeft = xStart;
         }
     }
-    #endregion
 }
