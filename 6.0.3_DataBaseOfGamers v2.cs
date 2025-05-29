@@ -18,114 +18,9 @@ public class Program
     {
         Database database = new Database();
 
-        Menu menu = new Menu(database);
+        ConsoleMenu menu = new ConsoleMenu(database);
 
         menu.Run();
-    }
-}
-
-class Menu
-{
-    private const int CommandAdd = 1;
-    private const int CommandRemove = 2;
-    private const int CommandBan = 3;
-    private const int CommandUnban = 4;
-    private const int CommandShow = 5;
-    private const int CommandExit = 6;
-
-    private Dictionary<int, string> _menuItems;
-    private int _input;
-    private bool _shouldRun;
-
-    private Database _database;
-
-    public Menu(Database database)
-    {
-        _database = database;
-        _shouldRun = true;
-
-        InitializeMenu();
-    }
-
-    public void Run()
-    {
-        while (_shouldRun)
-        {
-            OutputCommands();
-            Console.WriteLine();
-
-            _input = Helper.ReadInt("Input command: ");
-            HandleInput();
-
-            Helper.ClearAfterKeyPress();
-        }
-    }
-
-    private void HandleInput()
-    {
-        Console.Clear();
-
-        WriteCommandTitleIfExist();
-
-        switch (_input)
-        {
-            default:
-                Helper.WriteAt("Invalid command. Please try again.", foregroundColor: ConsoleColor.Red);
-                return;
-
-            case CommandAdd:
-                _database.Add();
-                break;
-
-            case CommandRemove:
-                _database.Remove();
-                break;
-
-            case CommandBan:
-                _database.Ban();
-                break;
-
-            case CommandUnban:
-                _database.Unban();
-                break;
-
-            case CommandShow:
-                _database.OutputFull();
-                break;
-
-            case CommandExit:
-                _shouldRun = false;
-                break;
-        }
-    }
-
-    private void OutputCommands()
-    {
-        Helper.WriteTitle("Gamers Database commands");
-
-        foreach (var item in _menuItems)
-            Helper.WriteAt($"{item.Key}) {item.Value}");
-    }
-
-    private void WriteCommandTitleIfExist()
-    {
-        if (_menuItems.ContainsKey(_input))
-        {
-            _menuItems.TryGetValue(_input, out string title);
-            Helper.WriteTitle(title);
-        }
-    }
-
-    private void InitializeMenu()
-    {
-        _menuItems = new Dictionary<int, string>();
-
-        _menuItems.Add(CommandAdd, "Add");
-        _menuItems.Add(CommandRemove, "Remove");
-        _menuItems.Add(CommandBan, "Ban");
-        _menuItems.Add(CommandUnban, "Unban");
-        _menuItems.Add(CommandShow, "Show gamers");
-        _menuItems.Add(CommandExit, "Exit");
     }
 }
 
@@ -138,10 +33,23 @@ class Database
         _gamers = new List<Gamer>();
     }
 
-    public void OutputFull()
+    public bool TryOutputFull()
     {
+        if (_gamers.Count == 0)
+        {
+            Helper.WriteAt("Empty", foregroundColor: ConsoleColor.DarkGray);
+            return false;
+        }
+
         foreach (Gamer gamer in _gamers)
-            Helper.WriteAt(gamer.GetInfo(), foregroundColor: gamer._isBanned == false ? ConsoleColor.Green : ConsoleColor.Red);
+        {
+            ConsoleColor consoleColor = gamer._isBanned == false ? ConsoleColor.Green : ConsoleColor.Red;
+            Helper.WriteAt(gamer.GetInfo(), foregroundColor: consoleColor);
+        }
+
+        Console.WriteLine();
+
+        return true;
     }
 
     public void Add()
@@ -158,46 +66,55 @@ class Database
 
     public void Remove()
     {
+        if (TryOutputFull() == false)
+            return;
+
         int id = Helper.ReadInt("Id: ");
 
         if (TryFindGamer(id, out Gamer gamer))
         {
-            Helper.WriteAt($"{gamer.GetInfo()} removed succesfully", foregroundColor: ConsoleColor.Green);
             _gamers.Remove(gamer);
+            Helper.WriteAt($"{gamer.GetInfo()} removed", foregroundColor: ConsoleColor.Green);
         }
     }
 
     public void Ban()
     {
+        if (TryOutputFull() == false)
+            return;
+
         int id = Helper.ReadInt("Id: ");
 
         if (TryFindGamer(id, out Gamer gamer))
         {
             gamer._isBanned = true;
-            Helper.WriteAt($"{gamer.GetInfo()} banned succesfully", foregroundColor: ConsoleColor.Green);
+            Helper.WriteAt($"{gamer.GetInfo()} banned", foregroundColor: ConsoleColor.Red);
         }
     }
 
     public void Unban()
     {
+        if (TryOutputFull() == false)
+            return;
+
         int id = Helper.ReadInt("Id: ");
 
         if (TryFindGamer(id, out Gamer gamer))
         {
-            Helper.WriteAt($"Unbanned succesfully", foregroundColor: ConsoleColor.Green);
             gamer._isBanned = false;
+            Helper.WriteAt($"{gamer.GetInfo()} unbanned", foregroundColor: ConsoleColor.Green);
         }
     }
 
-    private bool TryFindGamer(int idNumber, out Gamer foundGamer)
+    private bool TryFindGamer(int idNumber, out Gamer result)
     {
-        foundGamer = null;
+        result = null;
 
         foreach (Gamer gamer in _gamers)
         {
             if (gamer.Id.Number == idNumber)
             {
-                foundGamer = gamer;
+                result = gamer;
                 return true;
             }
         }
@@ -235,7 +152,103 @@ class Gamer
     }
 }
 
-public class Id
+class ConsoleMenu
+{
+    private Dictionary<int, MenuItem> _items;
+
+    private int _input;
+    private bool _shouldRun;
+
+    private Database _database;
+
+    public ConsoleMenu(Database database)
+    {
+        _database = database;
+        _shouldRun = true;
+
+        InitilizeItems();
+    }
+
+    public void Run()
+    {
+        while (_shouldRun)
+        {
+            OutputCommands();
+
+            _input = Helper.ReadInt("Input command: ");
+            HandleInput();
+        }
+    }
+
+    private void HandleInput()
+    {
+        Console.Clear();
+
+        if (_items.TryGetValue(_input, out MenuItem item))
+            item.Execute();
+        else
+            Helper.WriteAt("Invalid command. Please try again.", foregroundColor: ConsoleColor.Red);
+
+        Helper.ClearAfterKeyPress();
+    }
+
+
+    private void OutputCommands()
+    {
+        Helper.WriteTitle("Gamers Database commands");
+
+        foreach (var item in _items)
+            Helper.WriteAt($"{item.Key}) {item.Value.Description}");
+
+        Console.WriteLine();
+    }
+
+    private void Exit()
+    {
+        _shouldRun = false;
+    }
+
+    private void InitilizeItems()
+    {
+        const int CommandAdd = 1;
+        const int CommandRemove = 2;
+        const int CommandBan = 3;
+        const int CommandUnban = 4;
+        const int CommandFull = 5;
+        const int CommandExit = 6;
+
+        _items = new Dictionary<int, MenuItem>()
+        {
+            [CommandAdd] = new MenuItem("Add gamer", _database.Add),
+            [CommandRemove] = new MenuItem("Remove gamer", _database.Remove),
+            [CommandBan] = new MenuItem("Ban gamer", _database.Ban),
+            [CommandUnban] = new MenuItem("Unban gamer", _database.Unban),
+            [CommandFull] = new MenuItem("Output full database", () => _database.TryOutputFull()),
+            [CommandExit] = new MenuItem("Exit", Exit),
+        };
+    }
+}
+
+class MenuItem
+{
+    private readonly Action _action;
+
+    public MenuItem(string description, Action action)
+    {
+        Description = description;
+        _action = action;
+    }
+
+    public string Description { get; private set; }
+
+    public void Execute()
+    {
+        Helper.WriteTitle(Description);
+        _action();
+    }
+}
+
+class Id
 {
     private static int _nextId = 0;
 
@@ -249,32 +262,36 @@ public class Id
 
 class Helper
 {
-    public static string ReadString(string helpText, int length = 16)
+    public static string ReadString(string helpText, ConsoleColor primary = ConsoleColor.Cyan, ConsoleColor secondary = ConsoleColor.Black)
     {
-        WriteAt(helpText, foregroundColor: ConsoleColor.Cyan, isNewLine: true);
+        ConsoleColor backgroundColor = Console.BackgroundColor;
+
+        WriteAt(helpText, foregroundColor: primary, isNewLine: true);
 
         int fieldStartY = Console.CursorTop;
         int fieldStartX = Console.CursorLeft;
 
-        WriteAt(new string(' ', length), backgroundColor: ConsoleColor.DarkGray, isNewLine: false, xPosition: fieldStartX);
+        WriteAt(new string(' ', helpText.Length - 1), backgroundColor: primary, isNewLine: false, xPosition: fieldStartX);
 
         Console.SetCursorPosition(fieldStartX + 1, fieldStartY);
 
-        ConsoleColor color = Console.BackgroundColor;
-        Console.BackgroundColor = ConsoleColor.DarkGray;
+        Console.BackgroundColor = primary;
+        Console.ForegroundColor = secondary;
 
         string input = Console.ReadLine();
 
-        Console.BackgroundColor = color;
+        Console.BackgroundColor = backgroundColor;
+
+        Console.WriteLine();
 
         return input;
     }
 
-    public static int ReadInt(string text, int fieldLength = 16)
+    public static int ReadInt(string text)
     {
         int result;
 
-        while (int.TryParse(ReadString(text, fieldLength), out result) == false) ;
+        while (int.TryParse(ReadString(text), out result) == false) ;
 
         return result;
     }
