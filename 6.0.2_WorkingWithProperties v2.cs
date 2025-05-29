@@ -11,11 +11,12 @@ public class Program
     {
         int yPlayer = 16;
         int xPlayer = 56;
-        Gamer gamer = new Gamer('G', new Point(yPlayer, xPlayer));
+        Gamer gamer = new Gamer('G', new Vector2(yPlayer, xPlayer));
 
         Renderer renderer = new Renderer();
 
         Helper.WriteTitle("level 1");
+
         renderer.Draw(gamer);
 
         Helper.ClearAfterKeyPress();
@@ -24,42 +25,22 @@ public class Program
 
 class Gamer
 {
-    public Gamer(char symbol, Point point)
+    public Gamer(char symbol, Vector2 point)
     {
         Symbol = symbol;
-        Point = point;
+        Vector2 = point;
     }
 
-    public Point Point { get; private set; }
+    public Vector2 Vector2 { get; private set; }
     public char Symbol { get; private set; }
 }
 
-class Point
+struct Vector2
 {
-    private int _y;
-    private int _x;
+    public int Y;
+    public int X;
 
-    public Point(int y, int x)
-    {
-        _y = 0;
-        _x = 0;
-
-        Set(y, x);
-    }
-
-    public int Y
-    {
-        get => _y;
-        private set => _y = Console.BufferHeight > value ? value : Console.BufferHeight - 1;
-    }
-
-    public int X
-    {
-        get => _x;
-        private set => _x = Console.BufferWidth > value ? value : Console.BufferWidth - 1;
-    }
-
-    public void Set(int y, int x)
+    public Vector2(int y, int x)
     {
         Y = y;
         X = x;
@@ -70,7 +51,7 @@ class Renderer
 {
     public void Draw(Gamer gamer)
     {
-        Helper.WriteAt(gamer.Symbol, gamer.Point.Y, gamer.Point.X);
+        Helper.WriteAt(gamer.Symbol, gamer.Vector2.Y, gamer.Vector2.X);
     }
 }
 
