@@ -5,6 +5,18 @@
 
 using System;
 
+struct Vector2
+{
+    public int Y;
+    public int X;
+
+    public Vector2(int y, int x)
+    {
+        Y = y;
+        X = x;
+    }
+}
+
 public class Program
 {
     static void Main()
@@ -33,18 +45,6 @@ class Gamer
 
     public Vector2 Vector2 { get; private set; }
     public char Symbol { get; private set; }
-}
-
-struct Vector2
-{
-    public int Y;
-    public int X;
-
-    public Vector2(int y, int x)
-    {
-        Y = y;
-        X = x;
-    }
 }
 
 class Renderer
