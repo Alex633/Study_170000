@@ -10,7 +10,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
 
 public class Program
 {
@@ -18,7 +17,7 @@ public class Program
     {
         Database database = new Database();
 
-        ConsoleMenu menu = new ConsoleMenu(database);
+        DatabaseView menu = new DatabaseView(database);
 
         menu.Run();
     }
@@ -43,7 +42,7 @@ class Database
 
         foreach (Gamer gamer in _gamers)
         {
-            ConsoleColor consoleColor = gamer._isBanned == false ? ConsoleColor.Green : ConsoleColor.Red;
+            ConsoleColor consoleColor = gamer.IsBanned == false ? ConsoleColor.Green : ConsoleColor.Red;
             Helper.WriteAt(gamer.GetInfo(), foregroundColor: consoleColor);
         }
 
@@ -52,7 +51,7 @@ class Database
         return true;
     }
 
-    public void Add()
+    public void AddGamer()
     {
         string name = Helper.ReadString("Name: ");
         int level = Helper.ReadInt("Level: ");
@@ -64,95 +63,106 @@ class Database
         Helper.WriteAt($"{gamer.GetInfo()} added", foregroundColor: ConsoleColor.Green);
     }
 
-    public void Remove()
+    public void RemoveGamer()
     {
-        if (TryOutputFull() == false)
+        if (TryOutputFull() == false || TryReadGuid(out Guid guid) == false)
             return;
 
-        int id = Helper.ReadInt("Id: ");
-
-        if (TryFindGamer(id, out Gamer gamer))
+        if (TryFindGamer(guid, out Gamer gamer))
         {
             _gamers.Remove(gamer);
             Helper.WriteAt($"{gamer.GetInfo()} removed", foregroundColor: ConsoleColor.Green);
         }
     }
 
-    public void Ban()
+    public void BanGamer()
     {
-        if (TryOutputFull() == false)
+        if (TryOutputFull() == false || TryReadGuid(out Guid guid) == false)
             return;
 
-        int id = Helper.ReadInt("Id: ");
-
-        if (TryFindGamer(id, out Gamer gamer))
+        if (TryFindGamer(guid, out Gamer gamer))
         {
-            gamer._isBanned = true;
+            gamer.SetBanStatus(true);
             Helper.WriteAt($"{gamer.GetInfo()} banned", foregroundColor: ConsoleColor.Red);
         }
     }
 
-    public void Unban()
+    public void UnbanGamer()
     {
-        if (TryOutputFull() == false)
+        if (TryOutputFull() == false || TryReadGuid(out Guid guid) == false)
             return;
 
-        int id = Helper.ReadInt("Id: ");
-
-        if (TryFindGamer(id, out Gamer gamer))
+        if (TryFindGamer(guid, out Gamer gamer))
         {
-            gamer._isBanned = false;
+            gamer.SetBanStatus(false);
             Helper.WriteAt($"{gamer.GetInfo()} unbanned", foregroundColor: ConsoleColor.Green);
         }
     }
 
-    private bool TryFindGamer(int idNumber, out Gamer result)
+    private bool TryFindGamer(Guid guid, out Gamer result)
     {
         result = null;
 
         foreach (Gamer gamer in _gamers)
         {
-            if (gamer.Id.Number == idNumber)
+            if (gamer.Id == guid)
             {
                 result = gamer;
                 return true;
             }
         }
 
-        Helper.WriteAt($"Gamer with id {idNumber} doesn't exist", foregroundColor: ConsoleColor.Red);
+        Helper.WriteAt($"Gamer with id {guid} doesn't exist", foregroundColor: ConsoleColor.Red);
 
         return false;
     }
+
+    private bool TryReadGuid(out Guid result)
+    {
+        var input = Helper.ReadString("Id: ");
+
+        if (Guid.TryParse(input, out result))
+            return true;
+
+        Helper.WriteAt("Invalid Id format", foregroundColor: ConsoleColor.Red);
+        return false;
+    }
+
 }
 
 class Gamer
 {
-    public bool _isBanned;
-
     private string _name;
     private int _level;
 
     public Gamer(string name, int level)
     {
-        Id = new Id();
+        Id = Guid.NewGuid();
 
         _name = name;
         _level = level;
 
-        _isBanned = false;
+        IsBanned = false;
     }
 
-    public Id Id { get; private set; }
+    public bool IsBanned { get; private set; }
+
+    public Guid Id { get; private set; }
 
     public string GetInfo()
     {
-        string bannedStatus = _isBanned ? "Banned" : "Not banned";
+        string bannedStatus = IsBanned ? "Banned" : "Not banned";
 
-        return $"{Id.Number}. {_name} - level {_level} ({bannedStatus})";
+        return $"{Id}. {_name} - level {_level} ({bannedStatus})";
+    }
+
+    public void SetBanStatus(bool isBanned)
+    {
+        IsBanned = isBanned;
     }
 }
 
-class ConsoleMenu
+class DatabaseView
 {
     private Dictionary<int, MenuItem> _items;
 
@@ -161,7 +171,7 @@ class ConsoleMenu
 
     private Database _database;
 
-    public ConsoleMenu(Database database)
+    public DatabaseView(Database database)
     {
         _database = database;
         _shouldRun = true;
@@ -219,10 +229,10 @@ class ConsoleMenu
 
         _items = new Dictionary<int, MenuItem>()
         {
-            [CommandAdd] = new MenuItem("Add gamer", _database.Add),
-            [CommandRemove] = new MenuItem("Remove gamer", _database.Remove),
-            [CommandBan] = new MenuItem("Ban gamer", _database.Ban),
-            [CommandUnban] = new MenuItem("Unban gamer", _database.Unban),
+            [CommandAdd] = new MenuItem("Add gamer", _database.AddGamer),
+            [CommandRemove] = new MenuItem("Remove gamer", _database.RemoveGamer),
+            [CommandBan] = new MenuItem("Ban gamer", _database.BanGamer),
+            [CommandUnban] = new MenuItem("Unban gamer", _database.UnbanGamer),
             [CommandFull] = new MenuItem("Output full database", () => _database.TryOutputFull()),
             [CommandExit] = new MenuItem("Exit", Exit),
         };
@@ -246,18 +256,6 @@ class MenuItem
         Helper.WriteTitle(Description);
         _action();
     }
-}
-
-class Id
-{
-    private static int _nextId = 0;
-
-    public Id()
-    {
-        Number = Interlocked.Increment(ref _nextId);
-    }
-
-    public int Number { get; private set; }
 }
 
 class Helper
