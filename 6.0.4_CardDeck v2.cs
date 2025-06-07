@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 enum SuitName
@@ -33,24 +32,24 @@ public class Program
     static void Main()
     {
         Console.OutputEncoding = Encoding.UTF8;
-        //Database database = new Database();
 
-        ConsoleMenu menu = new ConsoleMenu();
-        Deck deck = new Deck();
+        Table table = new Table();
 
-        //menu.Run();
+        table.Render();
 
+        table.DealCardsToPlayer(Helper.ReadInt("\nHow many cards to draw?"));
+        Console.Clear();
 
-        deck.Render("Deck");
-        Console.ReadKey();
+        table.Render();
+
+        Helper.ClearAfterKeyPress();
     }
 }
 
 class Table
 {
-    private Deck _deck;
-
     private Player _player;
+    private Deck _deck;
 
     public Table()
     {
@@ -58,9 +57,18 @@ class Table
         _player = new Player();
     }
 
-    public void DealCards()
+    public void Render()
     {
+        _deck.Render();
+        Console.WriteLine("\n");
+        _player.RenderHand();
+    }
 
+    public void DealCardsToPlayer(int amount)
+    {
+        List<Card> cards = _deck.DrawCards(amount);
+
+        _player.ReceiveCards(cards);
     }
 }
 
@@ -71,6 +79,13 @@ class Player
     public Player()
     {
         _hand = new List<Card>();
+    }
+
+    public void RenderHand() => Renderer.RenderCards("player's hand", _hand);
+
+    public void ReceiveCards(List<Card> cards)
+    {
+        _hand.AddRange(cards);
     }
 }
 
@@ -86,30 +101,23 @@ class Deck
         Shuffle();
     }
 
-    public Card DrawOne()
+    public void Render() => Renderer.RenderCards("deck", _cards);
+
+    public List<Card> DrawCards(int amount)
     {
-        if (_cards.Count == 0)
-            throw new Exception("The deck is empty.");
+        HandleDrawErrors(amount);
 
-        return _cards.Pop();
-    }
+        List<Card> cards = new List<Card>();
 
-    public void Render(string title, int rowSize = 4)
-    {
-        Helper.WriteTitle(title);
-
-        int cardCount = 0;
-
-        foreach (Card card in _cards)
+        for (int i = 0; i < amount; i++)
         {
-            card.Draw();
-            Console.Write(" ");
+            if (_cards.Count == 0)
+                return cards;
 
-            cardCount++;
-
-            if (cardCount % rowSize == 0)
-                Console.WriteLine();
+            cards.Add(_cards.Pop());
         }
+
+        return cards;
     }
 
     public void Shuffle()
@@ -135,51 +143,50 @@ class Deck
     private void Populate()
     {
         _cards = new Stack<Card>(Size);
-        
+
         foreach (ValueName value in Enum.GetValues(typeof(ValueName)))
             foreach (SuitName suit in Enum.GetValues(typeof(SuitName)))
                 _cards.Push(new Card(value, suit));
+    }
+
+    private void HandleDrawErrors(int amount)
+    {
+        if (_cards.Count == 0)
+            throw new Exception("The deck is empty.");
+
+        if (amount < 0)
+            throw new Exception("Amount can't be negative");
     }
 }
 
 class Card
 {
-    private ConsoleColor _color => Suit.Color;
-
     public Card(ValueName value, SuitName suit)
     {
-        Value = new Value(value);
+        Value = value;
         Suit = new Suit(suit);
     }
 
-    public Value Value { get; private set; }
+    public ValueName Value { get; private set; }
     public Suit Suit { get; private set; }
 
-    public void Draw()
-    {
-        Helper.WriteAt($"[ {Suit.Symbol} {Value.Symbol} ]",
-            foregroundColor: _color, isNewLine: false);
-    }
+    public ConsoleColor Color => Suit.Color;
 }
 
 class Suit
 {
-    private string _name;
-
     public Suit(SuitName suit)
     {
-        _name = suit.ToString();
-        Symbol = ToSymbol(suit);
+        Symbol = ConvertToSymbol(suit);
 
-        Color = suit == SuitName.Clubs || suit == SuitName.Spades ? 
+        Color = suit == SuitName.Clubs || suit == SuitName.Spades ?
             ConsoleColor.White : ConsoleColor.DarkRed;
     }
 
     public string Symbol { get; private set; }
     public ConsoleColor Color { get; private set; }
 
-
-    private string ToSymbol(SuitName suit)
+    private string ConvertToSymbol(SuitName suit)
     {
         switch (suit)
         {
@@ -201,161 +208,37 @@ class Suit
     }
 }
 
-class Value
+class Renderer
 {
-    private string _name;
-
-    public Value(ValueName value)
+    public static void RenderCards(string title, IEnumerable<Card> cards, int rowSize = 4)
     {
-        _name = value.ToString();
-        Symbol = ToSymbol(value);
-        Weight = (int)value;
-    }
+        Helper.WriteTitle(title);
 
-    public string Symbol { get; private set; }
+        int cardCount = 0;
 
-    public int Weight { get; private set; }
-
-    public string ToSymbol(ValueName value)
-    {
-        switch (value)
+        foreach (Card card in cards)
         {
-            case ValueName.Ace:
-                return "A ";
+            RenderCard(card);
+            Console.Write(" ");
 
-            case ValueName.Two:
-                return "2 ";
+            cardCount++;
 
-            case ValueName.Three:
-                return "3 ";
-
-            case ValueName.Four:
-                return "4 ";
-
-            case ValueName.Five:
-                return "5 ";
-
-            case ValueName.Six:
-                return "6 ";
-
-            case ValueName.Seven:
-                return "7 ";
-
-            case ValueName.Eight:
-                return "8 ";
-
-            case ValueName.Nine:
-                return "9 ";
-
-            case ValueName.Ten:
-                return "10";
-
-            case ValueName.Jack:
-                return "J ";
-
-            case ValueName.Queen:
-                return "Q ";
-
-            case ValueName.King:
-                return "K ";
-
-            default:
-                throw new Exception("Unknown value");
-        }
-    }
-}
-
-
-class ConsoleMenu
-{
-    private Dictionary<int, MenuItem> _items;
-
-    private int _input;
-    private bool _shouldRun;
-
-    public ConsoleMenu()
-    {
-        _shouldRun = true;
-
-        InitilizeItems();
-    }
-
-    public void Run()
-    {
-        while (_shouldRun)
-        {
-            OutputCommands();
-
-            _input = Helper.ReadInt("Input command: ");
-            HandleInput();
+            if (cardCount % rowSize == 0)
+                Console.WriteLine();
         }
     }
 
-    private void HandleInput()
+    private static void RenderCard(Card card)
     {
-        Console.Clear();
+        int maxValueLength = 5;
+        int currentValueLength = card.Value.ToString().Length;
 
-        if (_items.TryGetValue(_input, out MenuItem item))
-            item.Execute();
-        else
-            Helper.WriteAt("Invalid command. Please try again.", foregroundColor: ConsoleColor.Red);
+        int length = maxValueLength - currentValueLength;
+        string emptySpace = new string(' ', length);
 
-        Helper.ClearAfterKeyPress();
-    }
+        string sprite = $"[ {card.Suit.Symbol} {card.Value} {emptySpace}]";
 
-
-    private void OutputCommands()
-    {
-        Helper.WriteTitle("Gamers Database commands");
-
-        foreach (var item in _items)
-            Helper.WriteAt($"{item.Key}) {item.Value.Description}");
-
-        Console.WriteLine();
-    }
-
-    private void Exit()
-    {
-        _shouldRun = false;
-    }
-
-    private void InitilizeItems()
-    {
-        const int CommandAdd = 1;
-        const int CommandRemove = 2;
-        const int CommandBan = 3;
-        const int CommandUnban = 4;
-        const int CommandFull = 5;
-        const int CommandExit = 6;
-
-        //_items = new Dictionary<int, MenuItem>()
-        //{
-        //    [CommandAdd] = new MenuItem("Add gamer", _database.AddGamer),
-        //    [CommandRemove] = new MenuItem("Remove gamer", _database.RemoveGamer),
-        //    [CommandBan] = new MenuItem("Ban gamer", _database.BanGamer),
-        //    [CommandUnban] = new MenuItem("Unban gamer", _database.UnbanGamer),
-        //    [CommandFull] = new MenuItem("Output full database", () => _database.TryOutputFull()),
-        //    [CommandExit] = new MenuItem("Exit", Exit),
-        //};
-    }
-}
-
-class MenuItem
-{
-    private readonly Action _action;
-
-    public MenuItem(string description, Action action)
-    {
-        Description = description;
-        _action = action;
-    }
-
-    public string Description { get; private set; }
-
-    public void Execute()
-    {
-        Helper.WriteTitle(Description);
-        _action();
+        Helper.WriteAt(sprite, foregroundColor: card.Color, isNewLine: false);
     }
 }
 
