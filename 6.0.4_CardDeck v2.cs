@@ -81,7 +81,10 @@ class Player
         _hand = new List<Card>();
     }
 
-    public void RenderHand() => Renderer.RenderCards("player's hand", _hand);
+    public IEnumerable<Card> Hand => _hand;
+
+    public void RenderHand() =>
+        Renderer.RenderCards("player's hand", Hand);
 
     public void ReceiveCards(List<Card> cards)
     {
@@ -91,8 +94,6 @@ class Player
 
 class Deck
 {
-    public const int Size = 52;
-
     private Stack<Card> _cards;
 
     public Deck()
@@ -101,7 +102,10 @@ class Deck
         Shuffle();
     }
 
-    public void Render() => Renderer.RenderCards("deck", _cards);
+    public IEnumerable<Card> Cards => _cards;
+
+    public void Render() => 
+        Renderer.RenderCards("deck", Cards);
 
     public List<Card> DrawCards(int amount)
     {
@@ -122,14 +126,15 @@ class Deck
 
     public void Shuffle()
     {
-        var tempDeck = new List<Card>(Size);
+        int size = _cards.Count;
+        var tempDeck = new List<Card>(size);
 
-        for (int i = 0; i < Size; i++)
+        for (int i = 0; i < size; i++)
             tempDeck.Add(_cards.Pop());
 
-        for (int i = Size - 1; i > 0; i--)
+        for (int i = size - 1; i >= 0; i--)
         {
-            int randomIndex = Helper.GetRandomInt(0, (i + 1));
+            int randomIndex = Helper.GetRandomInt(0, size);
 
             Card tempCard = tempDeck[i];
 
@@ -142,7 +147,8 @@ class Deck
 
     private void Populate()
     {
-        _cards = new Stack<Card>(Size);
+        int size = 52;
+        _cards = new Stack<Card>(size);
 
         foreach (ValueName value in Enum.GetValues(typeof(ValueName)))
             foreach (SuitName suit in Enum.GetValues(typeof(SuitName)))
@@ -164,48 +170,55 @@ class Card
     public Card(ValueName value, SuitName suit)
     {
         Value = value;
-        Suit = new Suit(suit);
+        InitializeSuit(suit);
     }
 
     public ValueName Value { get; private set; }
     public Suit Suit { get; private set; }
 
     public ConsoleColor Color => Suit.Color;
-}
 
-class Suit
-{
-    public Suit(SuitName suit)
+    private void InitializeSuit(SuitName suitName)
     {
-        Symbol = ConvertToSymbol(suit);
-
-        Color = suit == SuitName.Clubs || suit == SuitName.Spades ?
+        char symbol = GetSuitSymbol(suitName);
+        ConsoleColor color = suitName == SuitName.Clubs || suitName == SuitName.Spades ?
             ConsoleColor.White : ConsoleColor.DarkRed;
+
+        Suit = new Suit(color, symbol);
     }
 
-    public string Symbol { get; private set; }
-    public ConsoleColor Color { get; private set; }
-
-    private string ConvertToSymbol(SuitName suit)
+    private char GetSuitSymbol(SuitName suitName)
     {
-        switch (suit)
+        switch (suitName)
         {
             case SuitName.Clubs:
-                return "♣";
+                return '♣';
 
             case SuitName.Diamonds:
-                return "♦";
+                return '♦';
 
             case SuitName.Hearts:
-                return "♥";
+                return '♥';
 
             case SuitName.Spades:
-                return "♠";
+                return '♠';
 
             default:
                 throw new Exception("Unknown suit");
         }
     }
+}
+
+class Suit
+{
+    public Suit(ConsoleColor color, char symbol)
+    {
+        Color = color;
+        Symbol = symbol;
+    }
+
+    public ConsoleColor Color { get; private set; }
+    public char Symbol { get; private set; }
 }
 
 class Renderer
@@ -219,7 +232,9 @@ class Renderer
         foreach (Card card in cards)
         {
             RenderCard(card);
-            Console.Write(" ");
+
+            char empty = ' ';
+            Console.Write(empty);
 
             cardCount++;
 
@@ -234,7 +249,9 @@ class Renderer
         int currentValueLength = card.Value.ToString().Length;
 
         int length = maxValueLength - currentValueLength;
-        string emptySpace = new string(' ', length);
+        char empty = ' ';
+
+        string emptySpace = new string(empty, length);
 
         string sprite = $"[ {card.Suit.Symbol} {card.Value} {emptySpace}]";
 
@@ -244,11 +261,11 @@ class Renderer
 
 class Helper
 {
-    private static readonly Random _rng = new Random();
+    private static readonly Random _random = new Random();
 
     public static int GetRandomInt(int minValue, int maxValue)
     {
-        return _rng.Next(minValue, maxValue);
+        return _random.Next(minValue, maxValue);
     }
 
     public static string ReadString(string helpText, ConsoleColor primary = ConsoleColor.Cyan, ConsoleColor secondary = ConsoleColor.Black)
@@ -260,7 +277,8 @@ class Helper
         int fieldStartY = Console.CursorTop;
         int fieldStartX = Console.CursorLeft;
 
-        WriteAt(new string(' ', helpText.Length - 1), backgroundColor: primary, isNewLine: false, xPosition: fieldStartX);
+        char empty = ' ';
+        WriteAt(new string(empty, helpText.Length - 1), backgroundColor: primary, isNewLine: false, xPosition: fieldStartX);
 
         Console.SetCursorPosition(fieldStartX + 1, fieldStartY);
 
