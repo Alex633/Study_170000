@@ -6,9 +6,8 @@ public class Program
     static void Main()
     {
         Library library = new Library();
-        LibraryControl libraryControl = new LibraryControl(library);
 
-        libraryControl.Run();
+        library.Run();
 
         Helper.ClearAfterKeyPress();
     }
@@ -18,10 +17,17 @@ class Library
 {
     private List<Book> _books;
 
+    private UserCommandInterface _mainMenu;
+
     public Library()
     {
+        InitializeCommands();
+
         _books = new List<Book>();
     }
+
+    public void Run() =>
+        _mainMenu.Run();
 
     public void AddBook()
     {
@@ -40,7 +46,7 @@ class Library
         if (CancelCommandIfNoBooks())
             return;
 
-        List<Book> result = ReadBooks();
+        List<Book> result = ReadBooksByTitle();
 
         if (result.Count == 0)
             return;
@@ -95,28 +101,27 @@ class Library
         return year;
     }
 
-    private List<Book> ReadBooks()
+    private List<Book> ReadBooks(bool searchCondition, string title)
     {
-        string input = Helper.ReadString("Keywords:");
+        string input = Helper.ReadString(title);
 
         List<Book> matchedBooks = new List<Book>();
 
         foreach (Book book in _books)
         {
-            if (book.Title == input)
-                matchedBooks.Add(book);
-            else if (book.Author == input)
-                matchedBooks.Add(book);
-            else if (book.ReleaseYear == Convert.ToInt32(input))
-                matchedBooks.Add(book);
-            else if (book.Anotation == input)
+            if (searchCondition)
                 matchedBooks.Add(book);
         }
 
         if (matchedBooks.Count == 0)
-            Helper.WriteAt($"Books with inputed keywords doesn't exist", foregroundColor: ConsoleColor.Red);
+            Helper.WriteAt($"Books with inputed {title} doesn't exist", foregroundColor: ConsoleColor.Red);
 
         return matchedBooks;
+    }
+
+    private void ApplySearchType()
+    {
+        
     }
 
     private bool CancelCommandIfNoBooks()
@@ -125,6 +130,29 @@ class Library
             Helper.WriteAt($"-", foregroundColor: ConsoleColor.DarkGray);
 
         return _books.Count == 0;
+    }
+
+    private void InitializeCommands()
+    {
+        Dictionary<int, MenuItem> commandsMainMenu = new Dictionary<int, MenuItem>()
+        {
+            [1] = new MenuItem("Add book", AddBook),
+            [2] = new MenuItem("Remove books", RemoveBooks),
+            [3] = new MenuItem("Search books", FindBooks),
+            [4] = new MenuItem("Show all books", () => ShowAllBooks()),
+        };
+
+        _mainMenu = new UserCommandInterface(commandsMainMenu, "Library commands");
+
+        Dictionary<int, MenuItem> commandsSearch = new Dictionary<int, MenuItem>()
+        {
+            [1] = new MenuItem("Title", AddBook),
+            [2] = new MenuItem("Author", RemoveBooks),
+            [3] = new MenuItem("Anotation", FindBooks),
+            [4] = new MenuItem("Release year", () => ShowAllBooks()),
+        };
+
+        _mainMenu = new UserCommandInterface(commandsSearch, "Search by");
     }
 }
 
@@ -152,21 +180,23 @@ class Book
     }
 }
 
-class LibraryControl
+class UserCommandInterface
 {
     private Dictionary<int, MenuItem> _items;
 
     private int _input;
     private bool _shouldRun;
 
-    private Library _library;
+    private string _title;
 
-    public LibraryControl(Library library)
+    public UserCommandInterface(Dictionary<int, MenuItem> items, string title)
     {
-        _library = library;
         _shouldRun = true;
+        _title = title;
 
-        InitilizeItems();
+        _items = items;
+        _items.Add(_items.Count + 1, new MenuItem("Exit", Exit));
+
     }
 
     public void Run()
@@ -194,7 +224,7 @@ class LibraryControl
 
     private void OutputCommands()
     {
-        Helper.WriteTitle("Library commands");
+        Helper.WriteTitle(_title);
 
         foreach (var item in _items)
             Helper.WriteAt($"{item.Key}) {item.Value.Description}");
@@ -205,24 +235,6 @@ class LibraryControl
     private void Exit()
     {
         _shouldRun = false;
-    }
-
-    private void InitilizeItems()
-    {
-        const int CommandAdd = 1;
-        const int CommandRemove = 2;
-        const int CommandSearch = 3;
-        const int CommandShowAll = 4;
-        const int CommandExit = 5;
-
-        _items = new Dictionary<int, MenuItem>()
-        {
-            [CommandAdd] = new MenuItem("Add book", _library.AddBook),
-            [CommandRemove] = new MenuItem("Remove books", _library.RemoveBooks),
-            [CommandSearch] = new MenuItem("Search books", _library.FindBooks),
-            [CommandShowAll] = new MenuItem("Show all books", () => _library.ShowAllBooks()),
-            [CommandExit] = new MenuItem("Exit", Exit),
-        };
     }
 }
 
@@ -237,6 +249,7 @@ class MenuItem
     }
 
     public string Description { get; private set; }
+    public int Key { get; private set; }
 
     public void Execute()
     {
@@ -247,13 +260,6 @@ class MenuItem
 
 class Helper
 {
-    private static readonly Random _random = new Random();
-
-    public static int GetRandomInt(int minValue, int maxValue)
-    {
-        return _random.Next(minValue, maxValue);
-    }
-
     public static string ReadString(string helpText, ConsoleColor primary = ConsoleColor.Cyan, ConsoleColor secondary = ConsoleColor.Black)
     {
         ConsoleColor backgroundColor = Console.BackgroundColor;
