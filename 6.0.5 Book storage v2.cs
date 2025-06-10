@@ -17,7 +17,8 @@ class Library
 {
     private List<Book> _books;
 
-    private UserCommandInterface _mainMenu;
+    private CommandLineInterface _mainMenu;
+    private CommandLineInterface _searchFiltered;
 
     public Library()
     {
@@ -43,19 +44,21 @@ class Library
 
     public void RemoveBooks()
     {
-        if (CancelCommandIfNoBooks())
+        if (TryShowAllBooks() == false)
             return;
 
-        List<Book> result = ReadBooksByTitle();
+        int input = Helper.ReadInt("Input book number: ");
+        int index = input - 1;
+        bool isInvalidIndex = index >= _books.Count || index < 0;
 
-        if (result.Count == 0)
-            return;
-
-        foreach (Book book in result)
+        if (isInvalidIndex)
         {
-            Helper.WriteAt($"Removing ", isNewLine: false);
-            book.ShowInfo();
-            _books.Remove(book);
+            Helper.WriteAt($"Book at {input} doesnt exist");
+        }
+        else
+        {
+            _books.RemoveAt(index);
+            Helper.WriteAt($"Book at {input} removed", isNewLine: false);
         }
     }
 
@@ -64,26 +67,97 @@ class Library
         if (CancelCommandIfNoBooks())
             return;
 
-        List<Book> result = ReadBooks();
-
-        foreach (Book book in result)
-            book.ShowInfo(true);
+        _searchFiltered.Run();
     }
 
-    public void ShowAllBooks()
+    private void SearchBooksByTitle()
     {
-        if (CancelCommandIfNoBooks())
-            return;
+        string input = Helper.ReadString("Title: ");
+
+        List<Book> matchedBooks = new List<Book>();
 
         foreach (Book book in _books)
-            book.ShowInfo(true);
+        {
+            if (book.Title.ToLower() == input.ToLower())
+                matchedBooks.Add(book);
+        }
+
+        ShowAllBooks(matchedBooks);
+    }
+
+    private void SearchBooksByAuthor()
+    {
+        string input = Helper.ReadString("Author: ");
+
+        List<Book> matchedBooks = new List<Book>();
+
+        foreach (Book book in _books)
+        {
+            if (book.Author.ToLower() == input.ToLower())
+                matchedBooks.Add(book);
+        }
+
+        ShowAllBooks(matchedBooks);
+    }
+
+    private void SearchBooksByReleaseYear()
+    {
+        int input = Helper.ReadInt("Release Year: ");
+
+        List<Book> matchedBooks = new List<Book>();
+
+        foreach (Book book in _books)
+        {
+            if (book.ReleaseYear == input)
+                matchedBooks.Add(book);
+        }
+
+        ShowAllBooks(matchedBooks);
+    }
+
+    private void SearchBooksByAnotation()
+    {
+        string input = Helper.ReadString("Anotation: ");
+
+        List<Book> matchedBooks = new List<Book>();
+
+        foreach (Book book in _books)
+        {
+            if (book.Anotation.Contains(input))
+                matchedBooks.Add(book);
+        }
+
+        ShowAllBooks(matchedBooks);
+    }
+
+    public bool TryShowAllBooks()
+    {
+        if (CancelCommandIfNoBooks())
+            return false;
+
+        for (int i = 1; i <= _books.Count; i++)
+        {
+            Console.Write(i + ". ");
+            _books[i - 1].ShowInfo();
+        }
+
+        return true;
+    }
+
+    public void ShowAllBooks(List<Book> books)
+    {
+        if (CancelCommandIfNoBooks(books))
+            return;
+
+        foreach (Book book in books)
+            book.ShowInfo();
     }
 
     private int ReadYear()
     {
         bool isCorrectYear = false;
 
-        int currentYear = 2026;
+        int currentYear = 2027;
         int year = 0;
 
         while (isCorrectYear == false)
@@ -101,35 +175,20 @@ class Library
         return year;
     }
 
-    private List<Book> ReadBooks(bool searchCondition, string title)
-    {
-        string input = Helper.ReadString(title);
-
-        List<Book> matchedBooks = new List<Book>();
-
-        foreach (Book book in _books)
-        {
-            if (searchCondition)
-                matchedBooks.Add(book);
-        }
-
-        if (matchedBooks.Count == 0)
-            Helper.WriteAt($"Books with inputed {title} doesn't exist", foregroundColor: ConsoleColor.Red);
-
-        return matchedBooks;
-    }
-
-    private void ApplySearchType()
-    {
-        
-    }
-
     private bool CancelCommandIfNoBooks()
     {
         if (_books.Count == 0)
-            Helper.WriteAt($"-", foregroundColor: ConsoleColor.DarkGray);
+            Helper.WriteAt($"No books found", foregroundColor: ConsoleColor.DarkGray);
 
         return _books.Count == 0;
+    }
+
+    private bool CancelCommandIfNoBooks(List<Book> books)
+    {
+        if (books.Count == 0)
+            Helper.WriteAt($"No books found", foregroundColor: ConsoleColor.DarkGray);
+
+        return books.Count == 0;
     }
 
     private void InitializeCommands()
@@ -139,20 +198,20 @@ class Library
             [1] = new MenuItem("Add book", AddBook),
             [2] = new MenuItem("Remove books", RemoveBooks),
             [3] = new MenuItem("Search books", FindBooks),
-            [4] = new MenuItem("Show all books", () => ShowAllBooks()),
+            [4] = new MenuItem("Show all books", () => TryShowAllBooks()),
         };
 
-        _mainMenu = new UserCommandInterface(commandsMainMenu, "Library commands");
+        _mainMenu = new CommandLineInterface(commandsMainMenu, "Library commands");
 
-        Dictionary<int, MenuItem> commandsSearch = new Dictionary<int, MenuItem>()
+        Dictionary<int, MenuItem> commandsSearchFiltered = new Dictionary<int, MenuItem>()
         {
-            [1] = new MenuItem("Title", AddBook),
-            [2] = new MenuItem("Author", RemoveBooks),
-            [3] = new MenuItem("Anotation", FindBooks),
-            [4] = new MenuItem("Release year", () => ShowAllBooks()),
+            [1] = new MenuItem("Search by Title", SearchBooksByTitle),
+            [2] = new MenuItem("Search by Author", SearchBooksByAuthor),
+            [3] = new MenuItem("Search by Anotation", SearchBooksByAnotation),
+            [4] = new MenuItem("Search by Release year", SearchBooksByReleaseYear),
         };
 
-        _mainMenu = new UserCommandInterface(commandsSearch, "Search by");
+        _searchFiltered = new CommandLineInterface(commandsSearchFiltered, "Search by");
     }
 }
 
@@ -171,16 +230,13 @@ class Book
     public int ReleaseYear { get; private set; }
     public string Anotation { get; private set; }
 
-    public void ShowInfo(bool shouldShowAnotation = false)
+    public void ShowInfo()
     {
-        Helper.WriteTitle($"{Title} by {Author} ({ReleaseYear})", true);
-
-        if (shouldShowAnotation)
-            Helper.WriteAt(Anotation + "\n");
+        Helper.WriteAt($"{Title} by {Author} ({ReleaseYear}) - {Anotation}");
     }
 }
 
-class UserCommandInterface
+class CommandLineInterface
 {
     private Dictionary<int, MenuItem> _items;
 
@@ -189,7 +245,7 @@ class UserCommandInterface
 
     private string _title;
 
-    public UserCommandInterface(Dictionary<int, MenuItem> items, string title)
+    public CommandLineInterface(Dictionary<int, MenuItem> items, string title)
     {
         _shouldRun = true;
         _title = title;
@@ -201,6 +257,10 @@ class UserCommandInterface
 
     public void Run()
     {
+        Console.Clear();
+
+        _shouldRun = true;
+
         while (_shouldRun)
         {
             OutputCommands();
@@ -219,7 +279,8 @@ class UserCommandInterface
         else
             Helper.WriteAt("Invalid command. Please try again.", foregroundColor: ConsoleColor.Red);
 
-        Helper.ClearAfterKeyPress();
+        if (_shouldRun)
+            Helper.ClearAfterKeyPress();
     }
 
     private void OutputCommands()
