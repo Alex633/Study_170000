@@ -30,19 +30,28 @@ class Game
 
         while (shouldRun)
         {
-            _stranger.ShowItems();
-            Console.WriteLine();
-            Console.WriteLine();
-            _merchant.ShowItems();
-
-            if (_merchant.TrySelectItem(Helper.ReadInt("Input an item number: "), out Item selectedItem))
-            {
-                if (_stranger.TryBuy(selectedItem))
-                    _merchant.SellItem(selectedItem);
-            }
+            ShowItems();
+            AttemptMakeTransaction();
 
             Helper.ClearAfterKeyPress();
         }
+    }
+
+    private void AttemptMakeTransaction()
+    {
+        if (_merchant.TrySelectItem(Helper.ReadInt("Input an item number: "), out Item selectedItem))
+        {
+            if (_stranger.TryBuyItem(selectedItem))
+                _merchant.SellItem(selectedItem);
+        }
+    }
+
+    private void ShowItems()
+    {
+        _stranger.ShowItems();
+        Console.WriteLine();
+        Console.WriteLine();
+        _merchant.ShowItems();
     }
 }
 
@@ -55,22 +64,22 @@ class Merchant : Character
 
     public bool TrySelectItem(int itemNumber, out Item selectedItem)
     {
-        if (items.Count < itemNumber)
+        if (_items.Count < itemNumber)
         {
             Helper.WriteAt($"There is no such item ({itemNumber}), stranger", foregroundColor: ConsoleColor.Red);
             selectedItem = null;
             return false;
         }
 
-        selectedItem = items[itemNumber - 1];
+        selectedItem = _items[itemNumber - 1];
         return true;
     }
 
     public void SellItem(Item item)
     {
-        balance += item.Price;
+        _balance += item.Price;
 
-        items.Remove(item);
+        _items.Remove(item);
 
         Helper.WriteAt($"Thank you :)", foregroundColor: ConsoleColor.Green);
     }
@@ -83,7 +92,7 @@ class Merchant : Character
 
     private void InitializeItems()
     {
-        items.AddRange(new List<Item>
+        _items.AddRange(new List<Item>
         {
             new Item(8000, "Handgun"),
             new Item(20000, "Shotgun"),
@@ -96,19 +105,19 @@ class Stranger : Character
 {
     public Stranger() : base(name: $"Leon")
     {
-        balance = 25000;
+        _balance = 25000;
     }
 
-    public bool TryBuy(Item item)
+    public bool TryBuyItem(Item item)
     {
-        if (balance < item.Price)
+        if (_balance < item.Price)
         {
             Helper.WriteAt($"Not enough cash, stranger");
             return false;
         }
 
-        items.Add(item);
-        balance -= item.Price;
+        _items.Add(item);
+        _balance -= item.Price;
 
         return true;
     }
@@ -116,31 +125,31 @@ class Stranger : Character
 
 class Character
 {
-    protected List<Item> items;
-    protected int balance;
+    protected List<Item> _items;
+    protected int _balance;
 
     private string _name;
 
     public Character(string name)
     {
         _name = name;
-        balance = 0;
+        _balance = 0;
 
-        items = new List<Item>();
+        _items = new List<Item>();
     }
 
     public virtual void ShowItems()
     {
-        Helper.WriteTitle($"{_name}'s inventory (${balance})");
+        Helper.WriteTitle($"{_name}'s inventory (${_balance})");
 
-        if (items.Count <= 0)
+        if (_items.Count <= 0)
         {
             Helper.WriteAt($"Empty", foregroundColor: ConsoleColor.DarkGray);
             return;
         }
 
-        for (int i = 0; i < items.Count; i++)
-            Console.WriteLine($"{i + 1} - {items[i].GetInfo()}");
+        for (int i = 0; i < _items.Count; i++)
+            Console.WriteLine($"{i + 1} - {_items[i].GetInfo()}");
     }
 }
 
