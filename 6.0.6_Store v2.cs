@@ -64,22 +64,22 @@ class Merchant : Character
 
     public bool TrySelectItem(int itemNumber, out Item selectedItem)
     {
-        if (_items.Count < itemNumber)
+        if (Items.Count < itemNumber)
         {
             Helper.WriteAt($"There is no such item ({itemNumber}), stranger", foregroundColor: ConsoleColor.Red);
             selectedItem = null;
             return false;
         }
 
-        selectedItem = _items[itemNumber - 1];
+        selectedItem = Items[itemNumber - 1];
         return true;
     }
 
     public void SellItem(Item item)
     {
-        _balance += item.Price;
+        Balance += item.Price;
 
-        _items.Remove(item);
+        Items.Remove(item);
 
         Helper.WriteAt($"Thank you :)", foregroundColor: ConsoleColor.Green);
     }
@@ -92,7 +92,7 @@ class Merchant : Character
 
     private void InitializeItems()
     {
-        _items.AddRange(new List<Item>
+        Items.AddRange(new List<Item>
         {
             new Item(8000, "Handgun"),
             new Item(20000, "Shotgun"),
@@ -103,21 +103,21 @@ class Merchant : Character
 
 class Stranger : Character
 {
-    public Stranger() : base(name: $"Leon")
+    public Stranger() : base(name: "Leon")
     {
-        _balance = 25000;
+        Balance = 25000;
     }
 
     public bool TryBuyItem(Item item)
     {
-        if (_balance < item.Price)
+        if (Balance < item.Price)
         {
             Helper.WriteAt($"Not enough cash, stranger");
             return false;
         }
 
-        _items.Add(item);
-        _balance -= item.Price;
+        Items.Add(item);
+        Balance -= item.Price;
 
         return true;
     }
@@ -125,31 +125,31 @@ class Stranger : Character
 
 class Character
 {
-    protected List<Item> _items;
-    protected int _balance;
+    protected List<Item> Items;
+    protected int Balance;
 
     private string _name;
 
     public Character(string name)
     {
         _name = name;
-        _balance = 0;
+        Balance = 0;
 
-        _items = new List<Item>();
+        Items = new List<Item>();
     }
 
     public virtual void ShowItems()
     {
-        Helper.WriteTitle($"{_name}'s inventory (${_balance})");
+        Helper.WriteTitle($"{_name}'s inventory (${Balance})");
 
-        if (_items.Count <= 0)
+        if (Items.Count <= 0)
         {
             Helper.WriteAt($"Empty", foregroundColor: ConsoleColor.DarkGray);
             return;
         }
 
-        for (int i = 0; i < _items.Count; i++)
-            Console.WriteLine($"{i + 1} - {_items[i].GetInfo()}");
+        for (int i = 0; i < Items.Count; i++)
+            Console.WriteLine($"{i + 1} - {Items[i].GetInfo()}");
     }
 }
 
