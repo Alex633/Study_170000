@@ -7,34 +7,24 @@ public class Program
     {
         Library library = new Library();
 
-        Func<int, int, int> math = Sum;
-        int s = math(1, 5);
-        int s1 = Sum(1, 5);
-        Console.WriteLine(s);
-        Helper.ClearAfterKeyPress();
-
         library.Run();
 
         Helper.ClearAfterKeyPress();
-    }
-
-    static int Sum(int x, int y)
-    {
-        return x + y;
     }
 }
 
 class Library
 {
+    private const int CommandSearchByTitle = 1;
+    private const int CommandSearchByAuthor = 2;
+    private const int CommandSearchByAnotation = 3;
+    private const int CommandSearchByReleaseYear = 4;
+
     private List<Book> _books;
 
     private CommandLineInterface _mainMenu;
 
     private CommandLineInterface _searchFiltered;
-    private const int CommandSearchByTitle = 1;
-    private const int CommandSearchByAuthor = 2;
-    private const int CommandSearchByAnotation = 3;
-    private const int CommandSearchByReleaseYear = 4;
 
     public Library()
     {
@@ -80,7 +70,7 @@ class Library
 
     private void SearchBooks()
     {
-        if (CancelCommandIfNoBooks())
+        if (CancelCommandIfNoBooks(_books))
             return;
 
         _searchFiltered.Run();
@@ -117,19 +107,15 @@ class Library
     private List<Book> GetBooksByYear(string prompt)
     {
         if (int.TryParse(prompt, out int year))
-        {
             return _books.FindAll(book => book.ReleaseYear.Equals(year));
-        }
-        else
-        {
-            Helper.WriteAt("Incorrect year format", foregroundColor: ConsoleColor.Red);
-            return null;
-        }
+
+        Helper.WriteAt("Incorrect year format", foregroundColor: ConsoleColor.Red);
+        return null;
     }
 
     private bool TryShowAllBooks()
     {
-        if (CancelCommandIfNoBooks())
+        if (CancelCommandIfNoBooks(_books))
             return false;
 
         for (int i = 1; i <= _books.Count; i++)
@@ -170,14 +156,6 @@ class Library
         }
 
         return year;
-    }
-
-    private bool CancelCommandIfNoBooks()
-    {
-        if (_books.Count == 0)
-            Helper.WriteAt($"No books found", foregroundColor: ConsoleColor.DarkGray);
-
-        return _books.Count == 0;
     }
 
     private bool CancelCommandIfNoBooks(List<Book> books)
