@@ -1,12 +1,6 @@
 using System;
 using System.Collections.Generic;
 
-//Диспетчер содержит все созданные поезда и перед выбором в консольном меню показать короткую информацию
-// Add output of all trains before main menu in trasin system
-// Add release the train in main menu
-// Instead of having locomotion price - change price to one price of releasing trains
-// ... so combining release of few trains would be more profitable if player have enough money for that
-
 public enum WagonCapacity
 {
     Small = 24,
@@ -41,18 +35,34 @@ class TrainSystem
 
     public void Run()
     {
-        Console.WriteLine(_mainMenu.IsExitSelected);
-        Console.WriteLine(_mainMenu.LastSelectedOption);
-
         while (_dispatcher.IsFired == false && _mainMenu.IsExitSelected == false)
+        {
+            _dispatcher.ShowBalance();
+            _dispatcher.AttempShowOrders();
             _mainMenu.Run();
+            EvaluateDispatcherFiringStatus();
+        }
+    }
+
+    private void EvaluateDispatcherFiringStatus()
+    {
+        int aLotOfMoney = -3000;
+
+        if (_dispatcher.Balance <= aLotOfMoney)
+        {
+            _dispatcher.IsFired = true;
+
+            Helper.WriteAt($"You’ve been fired and now owe ${_dispatcher.Balance} to the train company. " +
+                $"Glory to the train company.", foregroundColor: ConsoleColor.DarkRed);
+        }
     }
 
     private void InitializeCommandsMainMenu()
     {
         Dictionary<int, Command> menu = new Dictionary<int, Command>()
         {
-            [1] = new Command("Create train", _dispatcher.CompleteOrder),
+            [1] = new Command("Create order", _dispatcher.CreateOrder),
+            [2] = new Command("Dispatch trains", _dispatcher.DispatchTrains)
         };
 
         _mainMenu = new CommandLineInterface(menu, "Train system commands", shouldRunOnce: true);
@@ -61,32 +71,70 @@ class TrainSystem
 
 class Dispatcher
 {
-    private int _ticketsSold;
-    private int _lastIncome;
-    private int _balance;
+    public bool IsFired;
+
+    private List<Order> _orders;
+    private int _lastSoldTickets;
 
     public Dispatcher()
     {
         IsFired = false;
 
-        _balance = 100;
-        _ticketsSold = 0;
+        Balance = 100;
+
+        _orders = new List<Order>();
     }
 
-    public void CompleteOrder()
+    public int Balance { get; private set; }
+
+    public void ShowBalance()
     {
-        Route tempRoute = CreateRoute();
-        int boughtTickets = GenerateSoldTickets();
-        Train tempTrain = BuildTrain();
+        bool isNegative = Balance < 0;
 
-        AttemptDispatchTrain(tempRoute);
+        int xPosition = 100;
+
+        ConsoleColor color = isNegative ? ConsoleColor.Red : ConsoleColor.Green;
+
+        Helper.WriteAt($"Balance: ${Balance}", 0, xPosition, color);
     }
 
-    public bool IsFired { get; private set; }
+    public void DispatchTrains()
+    {
+        int dispatchCost = 110;
+
+        Balance -= dispatchCost;
+
+        Console.WriteLine($"You paid ${dispatchCost} for dispatching...\n");
+
+        foreach (Order order in _orders)
+            CompleteOrder(order);
+
+        _orders.Clear();
+        EvaluateRetirement();
+    }
+
+    public void AttempShowOrders()
+    {
+        if (_orders.Count <= 0)
+            return;
+
+        Helper.WriteTitle("Current orders");
+
+        foreach (Order order in _orders)
+        {
+            order.ShowInfo();
+            Console.WriteLine();
+        }
+    }
+
+    public void CreateOrder()
+    {
+        _orders.Add(new Order(CreateRoute(), GenerateSoldTickets(), BuildTrain()));
+    }
 
     private Route CreateRoute()
     {
-        Helper.WriteTitle("Create a route");
+        Helper.WriteTitle("Create route");
 
         Route tempRoute = new Route(Helper.ReadString("Departure: "), Helper.ReadString("Destination: "));
 
@@ -102,15 +150,14 @@ class Dispatcher
 
         int maxPassengers = 448;
         int ticketPrice = 4;
-        _ticketsSold = new Random().Next(maxPassengers);
-        _lastIncome = ticketPrice * _ticketsSold;
-        _balance += _lastIncome;
 
-        Helper.WriteAt($"Tickets sold: {_ticketsSold}. Income: ${_lastIncome} (total balance: ${_balance})");
+        _lastSoldTickets = new Random().Next(maxPassengers);
+        int income = ticketPrice * _lastSoldTickets;
+
+        Helper.WriteAt($"Tickets sold: {_lastSoldTickets}. Income (locked until order complete): ${income}");
         Helper.ClearAfterKeyPress();
 
-        return _ticketsSold;
-
+        return _lastSoldTickets;
     }
 
     private Train BuildTrain()
@@ -127,62 +174,39 @@ class Dispatcher
         };
 
         CommandLineInterface trainConstructor = new CommandLineInterface(trainConstructorCommands,
-            $"Train constructor (passengers: {_ticketsSold})");
+            $"Train constructor (tickets sold: {_lastSoldTickets})");
 
         trainConstructor.Run();
 
-        CalculatePenalty(tempTrain);
-
         Helper.WriteAt($"Train constructed (seats: {tempTrain.Capacity}). Total train cost: ${tempTrain.Cost}", foregroundColor: ConsoleColor.Green);
-        Helper.ClearAfterKeyPress();
+
+        Balance -= tempTrain.Cost;
 
         return tempTrain;
     }
 
-    private void CalculatePenalty(Train train)
+    private void CompleteOrder(Order order)
     {
-        int penalty = 0;
-        int angryPassengers = _ticketsSold - train.Capacity;
-        int finePerPassenger = 8;
+        order.Complete();
 
-        if (angryPassengers > 0)
-        {
-            penalty = angryPassengers * finePerPassenger;
-            Helper.WriteAt($"There is no seats for {angryPassengers} people. You payed ${penalty} penalty", foregroundColor: ConsoleColor.Red);
-        }
+        string incomeStatus = order.IsProfitable ? "earned" : "lost";
+        ConsoleColor incomeStatusColor = order.IsProfitable ? ConsoleColor.Green : ConsoleColor.Red;
 
-        int moneySpent = train.Cost + penalty;
+        Balance += order.Sales;
+        Balance -= order.Penalty;
 
-        _lastIncome -= moneySpent;
-        _balance -= moneySpent;
+        Helper.WriteAt($"You {incomeStatus}: ${order.Income} (balance: ${Balance})\n", foregroundColor: incomeStatusColor);
     }
 
-    private void AttemptDispatchTrain(Route route)
+    private void EvaluateRetirement()
     {
-        if (_balance > 0)
-        {
-            string incomeStatus = _lastIncome > 0 ? "earned" : "lost";
-            ConsoleColor incomeStatusColor = _lastIncome > 0 ? ConsoleColor.Green : ConsoleColor.Red;
-
-            Helper.WriteAt($"Train to {route.Destination} leaving the station {route.Departure}. You {incomeStatus}: ${_lastIncome} (balance: {_balance})",
-                foregroundColor: incomeStatusColor);
-
-        }
-        else
-        {
-            IsFired = true;
-
-            Helper.WriteAt($"You’ve been fired and now owe ${_balance} to the train company. Glory to the train company.",
-                foregroundColor: ConsoleColor.DarkRed);
-        }
-
         int aLotOfMoney = 1400;
 
-        if (_balance >= aLotOfMoney)
+        if (Balance >= aLotOfMoney)
         {
             IsFired = true;
 
-            Helper.WriteAt($"\"I quit!\", - you say to your train company while having ${_balance} in your pockets. " +
+            Helper.WriteAt($"\"I quit!\", - you say to your train company while having ${Balance} in your pockets. " +
                 $"You buy youself a house, a car, your own train and travel the world. Good job, man",
                 foregroundColor: ConsoleColor.Blue);
         }
@@ -209,7 +233,8 @@ class Train
     {
         _wagons = new List<Wagon>();
 
-        int locomotionPrice = 30;
+        int locomotionPrice = 28;
+        Console.WriteLine($"New train created. Locomotion price: {locomotionPrice}\n");
 
         Cost = locomotionPrice;
     }
@@ -225,7 +250,7 @@ class Train
         _wagons.Add(tempWagon);
         Capacity += tempWagon.Capacity;
 
-        int couplingPrice = 29;
+        int couplingPrice = 16;
         Cost += tempWagon.Cost + couplingPrice;
 
         Console.WriteLine($"Wagon added (cost: ${tempWagon.Cost} + ${couplingPrice} coupling). Train price increased to ${Cost}. Current train capacity: {Capacity}");
@@ -245,6 +270,77 @@ class Wagon
     public int Cost { get; private set; }
 
     public int Capacity { get; private set; }
+}
+
+class Order
+{
+    private int _soldTickets;
+    private int _angryPassengers;
+
+    public Order(Route route, int soldTickets, Train train)
+    {
+        _route = route;
+
+        _soldTickets = soldTickets;
+        _train = train;
+
+        CalculateSales();
+        CalculatePenalty();
+        CalculateIncome();
+    }
+
+    private Route _route;
+    private Train _train;
+
+    public int Penalty { get; private set; }
+    public int Income { get; private set; }
+    public int Sales { get; private set; }
+
+    public bool IsProfitable { get; private set; }
+
+    public void Complete()
+    {
+        Helper.WriteAt($"Train (${_train.Cost}) to {_route.Destination} leaving the station {_route.Departure} (sales: ${Sales})");
+
+        if (_angryPassengers > 0)
+        {
+            Helper.WriteAt($"However, there were not enough seats. {_angryPassengers} passengers were very angry " +
+                $"(penalty: ${Penalty})",
+                foregroundColor: ConsoleColor.Red);
+        }
+    }
+
+    public void ShowInfo()
+    {
+        Console.WriteLine($"Train (${_train.Cost}) from {_route.Departure} to {_route.Destination}. Sold tickets: {_soldTickets}. " +
+            $"Train capacity: {_train.Capacity}");
+    }
+
+    private void CalculateSales()
+    {
+        int ticketPrice = 4;
+
+        Sales = ticketPrice * _soldTickets;
+    }
+
+    private void CalculateIncome()
+    {
+        Income -= (_train.Cost + Penalty);
+        Income += Sales;
+
+        IsProfitable = Income >= 0;
+    }
+
+    private void CalculatePenalty()
+    {
+        if (_soldTickets > _train.Capacity)
+        {
+            int finePerPassenger = 8;
+
+            _angryPassengers = _soldTickets - _train.Capacity;
+            Penalty = _angryPassengers * finePerPassenger;
+        }
+    }
 }
 
 class CommandLineInterface
@@ -271,8 +367,6 @@ class CommandLineInterface
 
     public void Run()
     {
-        Console.Clear();
-
         _shouldRun = true;
 
         while (_shouldRun)
