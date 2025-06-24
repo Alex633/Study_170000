@@ -12,6 +12,8 @@ public class Program
 {
     static void Main()
     {
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
+
         TrainSystem trainSystem = new TrainSystem();
 
         trainSystem.Run();
@@ -38,7 +40,7 @@ class TrainSystem
         while (_dispatcher.IsFired == false && _mainMenu.IsExitSelected == false)
         {
             _dispatcher.ShowBalance();
-            _dispatcher.AttempShowOrders();
+            _dispatcher.AttemptShowOrders();
             _mainMenu.Run();
             EvaluateDispatcherFiringStatus();
         }
@@ -113,7 +115,7 @@ class Dispatcher
         EvaluateRetirement();
     }
 
-    public void AttempShowOrders()
+    public void AttemptShowOrders()
     {
         if (_orders.Count <= 0)
             return;
