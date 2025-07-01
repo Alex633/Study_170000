@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 
+// test
+
 interface IDamageable
 {
     void TakeDamage(int damage);
@@ -13,8 +15,10 @@ public class Program
     {
         Console.OutputEncoding = System.Text.Encoding.UTF8;
 
+        Arena arena = new Arena();
+        arena.Run();
 
-        Helper.ClearAfterKeyPress();
+        Helper.WaitForKeyPress();
     }
 }
 
@@ -33,24 +37,27 @@ class Arena
         InitializeCommands();
     }
 
+    private bool IsFightOn => _firstFighter.IsAlive && _secondFighter.IsAlive;
+
     public void Run()
     {
-
-        OutputFighterClasses();
         SelectFighters();
-
+        Fight();
+        ShowFightResult();
     }
 
     private void SelectFighters()
     {
         Helper.WriteTitle($"Выбор воинов");
 
-        int input = Helper.ReadInt("Выберите первого воина: ");
-        _firstFighter = new Fighter();
-        _firstFighter = _fighterClasses[input];
+        OutputFighters();
 
-        input = Helper.ReadInt("Выберите второго воина: ");
-        _secondFighter = _fighterClasses[input];
+        Console.WriteLine();
+        int firstFighter = Helper.ReadIntInRange("Выберите первого воина: ", _fighterClasses.Count) - 1;
+        int secondFighter = Helper.ReadInt("Выберите второго воина: ") - 1;
+
+        DetermineInitiative(firstFighter, secondFighter);
+        Helper.WaitForKeyPress();
     }
 
     private void SayHi()
@@ -58,14 +65,66 @@ class Arena
         Console.WriteLine("Привет!");
     }
 
+    private void DetermineInitiative(int firstFighter, int secondFighter)
+    {
+        Helper.WriteTitle("Определение инициативы", true);
+
+        int firstFighterInitiative = 0;
+        int secondFighterInitiative = 0;
+
+        while (firstFighterInitiative == secondFighterInitiative)
+        {
+            firstFighterInitiative = Helper.GetDiceValue();
+            secondFighterInitiative = Helper.GetDiceValue();
+
+            Console.WriteLine($"Первый воин выкинул: {firstFighterInitiative}");
+            Console.WriteLine($"Второй воин выкинул: {secondFighterInitiative}");
+
+            if (firstFighterInitiative == secondFighterInitiative)
+                Console.WriteLine("Перекидываем кубики");
+        }
+
+        if (firstFighterInitiative > secondFighterInitiative)
+        {
+            _firstFighter = _fighterClasses[firstFighter].Clone();
+            _secondFighter = _fighterClasses[secondFighter].Clone();
+        }
+        else
+        {
+            _firstFighter = _fighterClasses[secondFighter].Clone();
+            _secondFighter = _fighterClasses[firstFighter].Clone();
+        }
+
+        Console.WriteLine($"Первый ходит: {_firstFighter.Name}");
+    }
+
     private void Fight()
     {
-        Helper.WriteTitle($"Бой");
+        int round = 1;
 
-        while (_firstFighter.IsAlive && _secondFighter.IsAlive)
+        while (IsFightOn)
         {
+            Helper.WriteTitle($"Раунд {round}");
 
+            CompleteTurn(_firstFighter, _secondFighter);
+
+            if (IsFightOn)
+            {
+                Console.WriteLine();
+                CompleteTurn(_secondFighter, _firstFighter);
+
+                round++;
+            }
+
+            Console.Clear();
         }
+    }
+
+    private void CompleteTurn(Fighter fighter, Fighter target)
+    {
+        Helper.WriteTitle($"Ход {fighter.Name}", true);
+        fighter.Attack(target);
+        Helper.WaitForKeyPress(false);
     }
 
     private void ShowFightResult()
@@ -74,25 +133,33 @@ class Arena
 
         if (_firstFighter.IsAlive == false && _secondFighter.IsAlive == false)
             Helper.WriteAt("Дружба", foregroundColor: ConsoleColor.DarkRed);
-        else if (_firstFighter.IsAlive == false)
+        else if (_firstFighter.IsAlive)
             Helper.WriteAt(_firstFighter.Name);
-        else if (_firstFighter.IsAlive == false)
-            Helper.WriteAt(_firstFighter.Name);
+        else if (_secondFighter.IsAlive)
+            Helper.WriteAt(_secondFighter.Name);
     }
 
-    private void OutputFighterClasses()
+    private void OutputFighters()
     {
-        foreach (Fighter fighter in _fighterClasses)
-            fighter.ShowInfo();
+        Helper.WriteTitle("Классы", true);
+
+        for (int i = 0; i < _fighterClasses.Count; i++)
+        {
+            int number = i + 1;
+            Console.Write(number + ") ");
+
+            _fighterClasses[i].ShowInfo();
+        }
     }
 
     private void IntializeFighters()
     {
-        _fighterClasses = new List<Fighter>();
-
+        _fighterClasses = new List<Fighter>()
+        {
+            new Assassin(),
+            new Thief(),
+        };
     }
-
-
 
     private void InitializeCommands()
     {
@@ -107,13 +174,93 @@ class Arena
     }
 }
 
-abstract class Fighter : IDamageable
+class Assassin : Fighter
 {
-    public void ShowInfo()
-    {
+    private int _criticalChancePercentage;
+    private double _criticalMultiplier;
 
+    public Assassin() : base("Убийца", 20, 2, 0)
+    {
+        _criticalMultiplier = 2.5;
+        _criticalChancePercentage = 33;
     }
 
+    public override void Attack(IDamageable subject)
+    {
+        int damage = CalculateAttackDamage();
+
+        Helper.WriteAt($"({Health}) {Name} атакует на {damage} урона");
+
+        subject.TakeDamage(damage);
+    }
+
+    public override void ShowInfo()
+    {
+        base.ShowInfo();
+        Console.WriteLine($", крит. шанс: {_criticalChancePercentage}%, крит. урон: {_criticalMultiplier}");
+    }
+
+    private int CalculateAttackDamage()
+    {
+        int dice = Helper.GetDiceValue();
+
+        bool isCriticalStrike = 100 - _criticalChancePercentage <= dice;
+        string criticalStrikeDescription = isCriticalStrike ? "Успех" : "Провал";
+
+        Helper.WriteAt($"{Name} кидает кубик на критическую атаку: {criticalStrikeDescription} ({dice})",
+            foregroundColor: isCriticalStrike ? ConsoleColor.Blue : ConsoleColor.DarkRed);
+
+        return isCriticalStrike == false ? Damage : (int)(Damage * _criticalMultiplier);
+    }
+
+    public override Fighter Clone()
+        => new Assassin();
+}
+
+class Thief : Fighter
+{
+    private int _dodgeChangePercentage;
+
+    public Thief() : base("Вор", 10, 4, 0)
+    {
+        _dodgeChangePercentage = 75;
+    }
+
+    public override void TakeDamage(int damage)
+    {
+        bool isDodge = CalculateDodgeStatus();
+
+        if (isDodge == false)
+            base.TakeDamage(damage);
+        else
+            Helper.WriteAt($"({Health}) {Name} уворачивается от атаки");
+    }
+
+    public override void ShowInfo()
+    {
+        base.ShowInfo();
+        Console.WriteLine($", уворот: {_dodgeChangePercentage}%");
+    }
+
+    private bool CalculateDodgeStatus()
+    {
+        int dice = Helper.GetDiceValue();
+
+        bool isDodge = 100 - _dodgeChangePercentage <= dice;
+        string dodgeDescription = isDodge ? "Успех" : "Провал";
+
+        Helper.WriteAt($"{Name} кидает кубик на уворот: {dodgeDescription} ({dice})",
+            foregroundColor: isDodge ? ConsoleColor.Blue : ConsoleColor.DarkRed);
+
+        return isDodge;
+    }
+
+    public override Fighter Clone()
+        => new Thief();
+}
+
+abstract class Fighter : IDamageable
+{
     public string Name { get; private set; }
     public int Health { get; private set; }
     public int Damage { get; private set; }
@@ -121,14 +268,22 @@ abstract class Fighter : IDamageable
 
     public bool IsAlive => Health > 0;
 
-    public void Attack(IDamageable fighter)
+    public Fighter(string name, int health = 30, int damage = 4, int armor = 1)
+    {
+        Name = name;
+        Health = health;
+        Damage = damage;
+        Armor = armor;
+    }
+
+    public virtual void Attack(IDamageable subject)
     {
         Helper.WriteAt($"({Health}) {Name} атакует на {Damage} урона");
 
-        fighter.TakeDamage(Damage);
+        subject.TakeDamage(Damage);
     }
 
-    public void TakeDamage(int damage)
+    public virtual void TakeDamage(int damage)
     {
         int minHealth = 0;
 
@@ -141,6 +296,19 @@ abstract class Fighter : IDamageable
         else
             Helper.WriteAt($"({Health}) {Name} поглащает весь урон");
     }
+
+    private void FallDead()
+    {
+        if (IsAlive == false)
+            Helper.WriteAt($"({Health}) {Name} драматически падает на землю (X_X)");
+    }
+
+    public virtual void ShowInfo()
+    {
+        Console.Write($"{Name}: {Health} ХП, {Damage} урона, {Armor} брони");
+    }
+
+    public abstract Fighter Clone();
 }
 
 class CommandLineInterface
@@ -191,7 +359,7 @@ class CommandLineInterface
             Helper.WriteAt("Неверная команда. Пожалуйста, попробуйте снова.", foregroundColor: ConsoleColor.Red);
 
         if (_shouldRun)
-            Helper.ClearAfterKeyPress();
+            Helper.WaitForKeyPress();
     }
 
     private void OutputCommands()
@@ -233,6 +401,15 @@ class Command
 
 class Helper
 {
+    private static Random _random = new Random();
+
+    public static int GetDiceValue()
+    {
+        int maxRoll = 100;
+
+        return _random.Next(maxRoll + 1);
+    }
+
     public static string ReadString(string helpText, ConsoleColor primary = ConsoleColor.Cyan, ConsoleColor secondary = ConsoleColor.Black)
     {
         ConsoleColor backgroundColor = Console.BackgroundColor;
@@ -305,12 +482,14 @@ class Helper
             Console.WriteLine();
     }
 
-    public static void ClearAfterKeyPress()
+    public static void WaitForKeyPress(bool shouldClear = true)
     {
         Console.WriteLine();
         WriteAt("Нажмите любую клавишу", foregroundColor: ConsoleColor.Cyan);
         Console.ReadKey(true);
-        Console.Clear();
+
+        if (shouldClear)
+            Console.Clear();
     }
 
     public static void WriteAt(object element, int? yPosition = null, int? xPosition = null,
