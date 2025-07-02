@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 
-// test
-
 interface IDamageable
 {
     void TakeDamage(int damage);
@@ -40,6 +38,13 @@ class Arena
     private bool IsFightOn => _firstFighter.IsAlive && _secondFighter.IsAlive;
 
     public void Run()
+    {
+        SayHi();
+        Console.WriteLine();
+        _commandInterface.Run();
+    }
+
+    private void Open()
     {
         SelectFighters();
         Fight();
@@ -81,7 +86,7 @@ class Arena
             Console.WriteLine($"Второй воин выкинул: {secondFighterInitiative}");
 
             if (firstFighterInitiative == secondFighterInitiative)
-                Console.WriteLine("Перекидываем кубики");
+                Console.WriteLine("Одинаковые значения. Перекидываем кубики");
         }
 
         if (firstFighterInitiative > secondFighterInitiative)
@@ -158,6 +163,8 @@ class Arena
         {
             new Assassin(),
             new Thief(),
+            new Dualist(),
+            new Berserk(),
         };
     }
 
@@ -166,7 +173,7 @@ class Arena
         Dictionary<int, Command> commands = new Dictionary<int, Command>()
         {
             [1] = new Command("Сказать привет еще раз", SayHi),
-            [2] = new Command("Начать бой", Fight)
+            [2] = new Command("Начать бой", Open)
         };
 
         _commandInterface = new CommandLineInterface(commands, "Арена");
@@ -179,17 +186,19 @@ class Assassin : Fighter
     private int _criticalChancePercentage;
     private double _criticalMultiplier;
 
-    public Assassin() : base("Убийца", 20, 2, 0)
+    public Assassin() : base("Убийца", 22, 2, 0)
     {
-        _criticalMultiplier = 2.5;
+        _criticalMultiplier = 8.5;
         _criticalChancePercentage = 33;
     }
 
     public override void Attack(IDamageable subject)
     {
-        int damage = CalculateAttackDamage();
+        bool isCriticalStrike = Helper.PerformDiceCheck($"{Name} кидает кубик на критическую атаку", _criticalChancePercentage);
+        int damage = isCriticalStrike == false ? Damage : (int)(Damage * _criticalMultiplier);
+        string strikeAdditionalInfo = isCriticalStrike ? "критически " : "";
 
-        Helper.WriteAt($"({Health}) {Name} атакует на {damage} урона");
+        Helper.WriteAt($"({Health}) {Name} {strikeAdditionalInfo}атакует на {damage} урона");
 
         subject.TakeDamage(damage);
     }
@@ -197,20 +206,7 @@ class Assassin : Fighter
     public override void ShowInfo()
     {
         base.ShowInfo();
-        Console.WriteLine($", крит. шанс: {_criticalChancePercentage}%, крит. урон: {_criticalMultiplier}");
-    }
-
-    private int CalculateAttackDamage()
-    {
-        int dice = Helper.GetDiceValue();
-
-        bool isCriticalStrike = 100 - _criticalChancePercentage <= dice;
-        string criticalStrikeDescription = isCriticalStrike ? "Успех" : "Провал";
-
-        Helper.WriteAt($"{Name} кидает кубик на критическую атаку: {criticalStrikeDescription} ({dice})",
-            foregroundColor: isCriticalStrike ? ConsoleColor.Blue : ConsoleColor.DarkRed);
-
-        return isCriticalStrike == false ? Damage : (int)(Damage * _criticalMultiplier);
+        Console.WriteLine($", крит. шанс: {_criticalChancePercentage}%, крит. урон множитель: {_criticalMultiplier}");
     }
 
     public override Fighter Clone()
@@ -228,7 +224,7 @@ class Thief : Fighter
 
     public override void TakeDamage(int damage)
     {
-        bool isDodge = CalculateDodgeStatus();
+        bool isDodge = Helper.PerformDiceCheck($"{Name} кидает кубик на уворот", _dodgeChangePercentage);
 
         if (isDodge == false)
             base.TakeDamage(damage);
@@ -242,28 +238,93 @@ class Thief : Fighter
         Console.WriteLine($", уворот: {_dodgeChangePercentage}%");
     }
 
-    private bool CalculateDodgeStatus()
-    {
-        int dice = Helper.GetDiceValue();
-
-        bool isDodge = 100 - _dodgeChangePercentage <= dice;
-        string dodgeDescription = isDodge ? "Успех" : "Провал";
-
-        Helper.WriteAt($"{Name} кидает кубик на уворот: {dodgeDescription} ({dice})",
-            foregroundColor: isDodge ? ConsoleColor.Blue : ConsoleColor.DarkRed);
-
-        return isDodge;
-    }
-
     public override Fighter Clone()
         => new Thief();
 }
 
+class Dualist : Fighter
+{
+    private int _extraAttackFrequency;
+    private int _attackCount;
+
+    public Dualist() : base("Дуалист", damage: 3)
+    {
+        _extraAttackFrequency = 2;
+    }
+
+    public override void Attack(IDamageable subject)
+    {
+        base.Attack(subject);
+        _attackCount++;
+
+        if (_attackCount == _extraAttackFrequency)
+        {
+            Helper.WriteAt($"{Name} атакует еще раз, так как это {_attackCount} атака");
+            _attackCount = 0;
+            base.Attack(subject);
+        }
+
+    }
+
+    public override void ShowInfo()
+    {
+        base.ShowInfo();
+        Console.WriteLine($", атакует дважды каждую {_extraAttackFrequency} атаку");
+    }
+
+    public override Fighter Clone()
+        => new Dualist();
+}
+
+class Berserk : Fighter
+{
+    private int _rageCurrent;
+    private int _rageToDoubleDamage;
+    private int _ragePerHit;
+
+    public Berserk() : base("Берсерк", 100, 3, -10)
+    {
+        _rageToDoubleDamage = 10;
+        _ragePerHit = 2;
+    }
+
+    public override void TakeDamage(int damage)
+    {
+        base.TakeDamage(damage);
+
+        if (IsAlive)
+            ApplyRage(damage);
+    }
+
+    public override void ShowInfo()
+    {
+        base.ShowInfo();
+        Console.WriteLine($", накапливает {_ragePerHit} ярости при получении урона. Ярость удваивает атаку каждые {_rageToDoubleDamage} очков ярости");
+    }
+
+    public override Fighter Clone()
+    => new Berserk();
+
+    private void ApplyRage(int damage)
+    {
+        _rageCurrent += _ragePerHit;
+        Helper.WriteAt($"{Name} накапливает ярость до {_rageCurrent}");
+
+        if (_rageCurrent % _rageToDoubleDamage == 0)
+        {
+            int damageModifier = 2;
+
+            Damage *= damageModifier;
+            Helper.WriteAt($"{Name} в ярости. Атака увеличена до {Damage}", foregroundColor: ConsoleColor.Yellow);
+        }
+    }
+}
+
 abstract class Fighter : IDamageable
 {
+    public int Damage { get; protected set; }
     public string Name { get; private set; }
     public int Health { get; private set; }
-    public int Damage { get; private set; }
     public int Armor { get; private set; }
 
     public bool IsAlive => Health > 0;
@@ -285,19 +346,24 @@ abstract class Fighter : IDamageable
 
     public virtual void TakeDamage(int damage)
     {
-        int minHealth = 0;
+        if (IsAlive == false)
+            Helper.WriteAt($"(X_X) {Name} уже мертв. Оставьте его в покое");
 
+        int minHealth = 0;
         int actualDamage = Math.Max(minHealth, damage - Armor);
+        string damageRedaction = Armor > 0 ? $"(-{Armor}) " : "";
 
         Health = Math.Max(minHealth, Health - actualDamage);
 
         if (actualDamage > 0)
-            Helper.WriteAt($"({Health}) {Name} получает {actualDamage} урона");
+            Helper.WriteAt($"({Health}) {Name} получает {actualDamage} {damageRedaction}урона");
         else
             Helper.WriteAt($"({Health}) {Name} поглащает весь урон");
+
+        FallDramaticallyIfDead();
     }
 
-    private void FallDead()
+    private void FallDramaticallyIfDead()
     {
         if (IsAlive == false)
             Helper.WriteAt($"({Health}) {Name} драматически падает на землю (X_X)");
@@ -403,11 +469,25 @@ class Helper
 {
     private static Random _random = new Random();
 
+    public static bool PerformDiceCheck(string prompt, int chancePercentage)
+    {
+        int roll = GetDiceValue();
+        int minimalDiceForSuccess = 101 - chancePercentage;
+
+        bool isSuccess = roll >= minimalDiceForSuccess;
+        string status = isSuccess ? "Успех" : "Провал";
+
+        WriteAt($"{prompt} (требуется {minimalDiceForSuccess} или выше): {status} ({roll})",
+            foregroundColor: isSuccess ? ConsoleColor.Yellow : ConsoleColor.DarkRed);
+
+        return isSuccess;
+    }
+
     public static int GetDiceValue()
     {
         int maxRoll = 100;
 
-        return _random.Next(maxRoll + 1);
+        return _random.Next(1, maxRoll + 1);
     }
 
     public static string ReadString(string helpText, ConsoleColor primary = ConsoleColor.Cyan, ConsoleColor secondary = ConsoleColor.Black)
