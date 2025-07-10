@@ -1,11 +1,6 @@
 using System;
 using System.Collections.Generic;
 
-interface IDamageable
-{
-    void TakeDamage(int damage);
-}
-
 public class Program
 {
     static void Main()
