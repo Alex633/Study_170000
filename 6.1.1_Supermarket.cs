@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 interface IDamageable
 {
@@ -22,14 +21,13 @@ public class Program
 
 class Supermarket
 {
-    private List<Item> _items;
+    private Groceries _grocerries;
     private Queue<Client> _clients;
 
     private int _balance;
 
     public Supermarket()
     {
-        _items = new List<Item>();
         _clients = new Queue<Client>();
 
         _balance = 0;
@@ -48,7 +46,7 @@ class Supermarket
             Helper.WriteAt($"Balance: ${_balance}", 0, 100);
 
             Client nextClient = _clients.Dequeue();
-            nextClient.CollectBasket(_items);
+            nextClient.CollectBasket(_grocerries);
 
             Helper.WaitForKeyPress(false);
             Console.WriteLine();
@@ -63,17 +61,38 @@ class Supermarket
 
     private void ProcessSale(Client client)
     {
-        Helper.WriteTitle($"Hi {client.Name}");
+        string greetings = client.Name == "Mark" ? $"Oh, hi {client.Name}" : $"Hi {client.Name}";
+        Helper.WriteTitle(greetings);
 
-        Item item = new Item(3, "Milk", 1000, "ml");
-        _balance += item.Price;
+        if (TryCollectBag(client, out Groceries bag))
+        {
+            client.PickupBag(bag);
+            Helper.WriteAt($"Thanks for shopping at SUPERMARKET, {client.Name}. Have a nice day", foregroundColor: ConsoleColor.Green);
+        }
+        else
+        {
+            Helper.WriteAt($"Get the hell out of here and get a job", foregroundColor: ConsoleColor.Red);
+        }
 
-        Console.WriteLine($"That's it with him/her. Just {_clients.Count} weirdos left. Wait, did I said that out loud?");
+        Console.WriteLine($"You got ${bag.TotalPrice}. Just {_clients.Count} weirdos left");
+    }
+
+    private bool TryCollectBag(Client client, out Groceries bag)
+    {
+        bag = new Groceries();
+
+        if (client.TryBuy())
+        {
+            _balance += client.Basket.TotalPrice;
+            bag = client.Basket;
+        }
+
+        return bag.Quantity > 0;
     }
 
     private void InitializeItems()
     {
-        _items = new List<Item>
+        List<Item> items = new List<Item>()
         {
             new Item(3, "Milk", 1000, "ml"),
             new Item(2, "Bread", 1, "count"),
@@ -86,15 +105,17 @@ class Supermarket
             new Item(7, "Cheese", 200, "g"),
             new Item(2, "Rice", 1, "kg")
         };
+
+        _grocerries = new Groceries(items);
     }
 
     private void InitializeClients()
     {
-        string[] _randomNames = 
+        string[] _randomNames =
         {
             "Amina", "Aroha", "Aurora", "Carlos", "Chimamanda",
             "Diego", "Elena", "Freya", "Hannah", "Ivan",
-            "Jordan", "Kwame", "Lars", "Luna", "Maria",
+            "Jordan", "Kwame", "Lars", "Luna", "Mark",
             "Mei", "Ngozi", "Orion", "Phoenix", "Raj",
             "Riley", "Sakura", "Sofia", "Tama", "Yuki"
         };
@@ -106,6 +127,142 @@ class Supermarket
             Client client = new Client(name);
             _clients.Enqueue(client);
         }
+    }
+}
+
+class Client
+{
+    private int _balance;
+    private Groceries _bag;
+
+    public Client(string name)
+    {
+        Basket = new Groceries();
+        _bag = new Groceries();
+
+        _balance = Helper.GetRandomInt(0, 40);
+
+        Name = name;
+    }
+
+    public string Name { get; private set; }
+    public Groceries Basket { get; private set; }
+
+    public void CollectBasket(Groceries grocerries)
+    {
+        int minItemsNeeded = 1;
+        int maxItemsNeeded = 10;
+        int itemsNeededCount = Helper.GetRandomInt(minItemsNeeded, maxItemsNeeded + 1);
+        Helper.WriteTitle($"My name is {Name}. I need {itemsNeededCount} things");
+
+        for (int i = 0; i < itemsNeededCount; i++)
+        {
+            if (grocerries.TryPickRandomItem(out Item item))
+            {
+                Helper.WriteAt($"This {item.GetInfo()} looks good to me. I'll put it in my basket");
+                Basket.AddItem(item);
+            }
+        }
+
+        Helper.WriteAt($"\nOkay. I think it's all I need. I have {Basket.Quantity} items for ${Basket.TotalPrice}. I'll go to the cashier now");
+    }
+
+    public bool TryBuy()
+    {
+        if (TryRemoveItemsFromBasketUntilCanAfford() == false)
+            return false;
+
+        _balance -= Basket.TotalPrice;
+        Helper.WriteAt($"Here is ${Basket.TotalPrice}, cashier (you saw, that he now have ${_balance})\n", foregroundColor: ConsoleColor.Green);
+
+        return true;
+    }
+
+    public void PickupBag(Groceries bag)
+    {
+        _bag = bag;
+    }
+
+    private bool TryRemoveItemsFromBasketUntilCanAfford()
+    {
+        Console.WriteLine($"Looking inside his wallet (${_balance})");
+
+        while (Basket.TotalPrice > _balance && Basket.Quantity != 0)
+        {
+            Helper.WriteAt($"Looks, like I can't afford it. Everything costs ${Basket.TotalPrice}", foregroundColor: ConsoleColor.DarkRed);
+
+            if (Basket.TryDrawRandomItem(out Item itemToRemove))
+                Helper.WriteAt($"I will get rid of this {itemToRemove.GetInfo()}");
+        }
+
+        bool canAfford = _balance >= Basket.TotalPrice && Basket.Quantity != 0;
+
+        if (canAfford == false)
+            Helper.WriteAt($"I'm terribly sorry, but I don't have enough money", foregroundColor: ConsoleColor.Red);
+
+        return canAfford;
+    }
+}
+
+class Groceries
+{
+    private List<Item> _items;
+
+    public Groceries()
+    {
+        _items = new List<Item>();
+    }
+
+    public Groceries(List<Item> items)
+    {
+        _items = items;
+    }
+
+    public int Quantity => _items != null ? _items.Count : 0;
+
+    public int TotalPrice
+        => CalculateTotalPrice();
+
+    public void AddItem(Item item)
+    {
+        _items.Add(item);
+    }
+
+    public bool TryDrawRandomItem(out Item item)
+    {
+        if (_items.Count == 0)
+        {
+            item = null;
+            return false;
+        }
+
+        TryPickRandomItem(out item);
+        _items.Remove(item);
+        return true;
+    }
+
+    public bool TryPickRandomItem(out Item item)
+    {
+        if (_items.Count == 0)
+        {
+            item = null;
+            return false;
+        }
+
+        int itemIndex = Helper.GetRandomInt(0, Quantity);
+        item = _items[itemIndex];
+
+        return true;
+    }
+
+    private int CalculateTotalPrice()
+    {
+        int totalPrice = 0;
+
+        foreach (Item item in _items)
+            totalPrice += item.Price;
+
+        return totalPrice;
     }
 }
 
@@ -131,142 +288,6 @@ class Item
     }
 }
 
-class Client
-{
-    private List<Item> _basket;
-    private List<Item> _bag;
-
-    private int _balance;
-
-    public Client(string name)
-    {
-        _basket = new List<Item>();
-        _bag = new List<Item>();
-
-        _balance = Helper.GetRandomInt(0, 101);
-
-        Name = name;
-    }
-
-    public string Name { get; private set; }
-    public IEnumerable<Item> Basket => _basket;
-    public IEnumerable<Item> Bag => _bag;
-
-    public void CollectBasket(IEnumerable<Item> storeItems)
-    {
-        List<Item> items = storeItems.ToList();
-
-        int minItemsNeeded = 1;
-        int maxItemsNeeded = 10;
-        int itemsNeededCount = Helper.GetRandomInt(minItemsNeeded, maxItemsNeeded + 1);
-        Helper.WriteTitle($"My name is {Name}. I need {itemsNeededCount} things");
-
-        for (int i = 0; i < itemsNeededCount; i++)
-        {
-            int itemIndex = Helper.GetRandomInt(0, items.Count());
-            Item item = items[itemIndex];
-            Helper.WriteAt($"This {item.GetInfo()} looks good to me. I'll put it in my basket");
-
-            _basket.Add(item);
-        }
-
-        Helper.WriteAt($"\nOkay. I think it's all I need ({_basket.Count}). I'll go to the cashier now");
-    }
-
-    public void PickupBag(List<Item> bag)
-    {
-        _bag = bag;
-    }
-}
-
-class CommandLineInterface
-{
-    private Dictionary<int, Command> _items;
-
-    private bool _shouldRun;
-    private bool _shouldRunOnce;
-
-    private string _title;
-
-    public CommandLineInterface(Dictionary<int, Command> items, string title, bool shouldRunOnce = false)
-    {
-        _shouldRun = true;
-        _shouldRunOnce = shouldRunOnce;
-        _title = title;
-
-        _items = items;
-        _items.Add(_items.Count + 1, new Command("Выход", Exit));
-    }
-
-    public int LastSelectedOption { get; private set; }
-    public bool IsExitSelected => LastSelectedOption == _items.Count;
-
-    public void Run()
-    {
-        _shouldRun = true;
-
-        while (_shouldRun)
-        {
-            OutputCommands();
-
-            LastSelectedOption = Helper.ReadInt("Введите команду: ");
-            HandleInput();
-
-            if (_shouldRunOnce)
-                _shouldRun = false;
-        }
-    }
-
-    private void HandleInput()
-    {
-        Console.Clear();
-
-        if (_items.TryGetValue(LastSelectedOption, out Command item))
-            item.Execute();
-        else
-            Helper.WriteAt("Неверная команда. Пожалуйста, попробуйте снова.", foregroundColor: ConsoleColor.Red);
-
-        if (_shouldRun)
-            Helper.WaitForKeyPress();
-    }
-
-    private void OutputCommands()
-    {
-        Helper.WriteTitle(_title);
-
-        foreach (var item in _items)
-            Helper.WriteAt($"{item.Key}) {item.Value.Description}");
-
-        Console.WriteLine();
-    }
-
-    private void Exit()
-    {
-        _shouldRun = false;
-
-        Helper.WriteAt($"Закрытие {_title}");
-    }
-}
-
-class Command
-{
-    private readonly Action _action;
-
-    public Command(string description, Action action)
-    {
-        Description = description;
-        _action = action;
-    }
-
-    public string Description { get; private set; }
-
-    public void Execute()
-    {
-        Helper.WriteTitle(Description);
-        _action();
-    }
-}
-
 class Helper
 {
     private static Random _random = new Random();
@@ -274,68 +295,6 @@ class Helper
     public static int GetRandomInt(int min, int max)
     {
         return _random.Next(min, max);
-    }
-
-    public static string ReadString(string helpText, ConsoleColor primary = ConsoleColor.Cyan, ConsoleColor secondary = ConsoleColor.Black)
-    {
-        ConsoleColor backgroundColor = Console.BackgroundColor;
-
-        WriteAt(helpText, foregroundColor: primary, isNewLine: true);
-
-        int fieldStartY = Console.CursorTop;
-        int fieldStartX = Console.CursorLeft;
-
-        char emptiness = ' ';
-        WriteAt(new string(emptiness, helpText.Length - 1), backgroundColor: primary, isNewLine: false, xPosition: fieldStartX);
-
-        Console.SetCursorPosition(fieldStartX + 1, fieldStartY);
-
-        Console.BackgroundColor = primary;
-        Console.ForegroundColor = secondary;
-
-        string input = Console.ReadLine();
-
-        Console.BackgroundColor = backgroundColor;
-
-        Console.WriteLine();
-
-        return input;
-    }
-
-    public static int ReadIntInRange(string prompt, int max, int min = 1)
-    {
-        int result = 0;
-
-        bool isNumberInRangeInputed = false;
-
-        while (isNumberInRangeInputed == false)
-        {
-            result = ReadInt(prompt);
-
-            if (result > max || result < min)
-                WriteAt($"Неверный ввод ({result}). Введите число от {min} до {max}");
-            else
-                isNumberInRangeInputed = true;
-        }
-
-        return result;
-    }
-
-    public static int ReadInt(string prompt)
-    {
-        int result = 0;
-
-        bool isNumberInputed = false;
-
-        while (isNumberInputed == false)
-        {
-            isNumberInputed = int.TryParse(ReadString(prompt), out result);
-
-            if (isNumberInputed == false)
-                WriteAt($"Неверный ввод ({result}). Введите число");
-        }
-
-        return result;
     }
 
     public static void WriteTitle(string title, bool isSecondary = false)
@@ -351,7 +310,7 @@ class Helper
     public static void WaitForKeyPress(bool shouldClear = true)
     {
         Console.WriteLine();
-        WriteAt("Нажмите любую клавишу", foregroundColor: ConsoleColor.Cyan);
+        WriteAt("Press any key", foregroundColor: ConsoleColor.Cyan);
         Console.ReadKey(true);
 
         if (shouldClear)
