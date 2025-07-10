@@ -59,8 +59,10 @@ class Supermarket
         string greetings = client.Name == "Mark" ? $"Oh, hi {client.Name}" : $"Hi {client.Name}";
         Helper.WriteTitle(greetings);
 
-        if (TryCollectBag(client, out Groceries bag))
+        if (client.TryBuy())
         {
+            _balance += client.Basket.TotalPrice;
+            Groceries bag = client.Basket;
             client.PickupBag(bag);
             Helper.WriteAt($"Thanks for shopping at SUPERMARKET, {client.Name}. Have a nice day", foregroundColor: ConsoleColor.Green);
         }
@@ -69,20 +71,7 @@ class Supermarket
             Helper.WriteAt($"Get the hell out of here and get a job", foregroundColor: ConsoleColor.Red);
         }
 
-        Console.WriteLine($"You got ${bag.TotalPrice}. Just {_clients.Count} weirdos left");
-    }
-
-    private bool TryCollectBag(Client client, out Groceries bag)
-    {
-        bag = new Groceries();
-
-        if (client.TryBuy())
-        {
-            _balance += client.Basket.TotalPrice;
-            bag = client.Basket;
-        }
-
-        return bag.Quantity > 0;
+        Console.WriteLine($"Just {_clients.Count} weirdos left");
     }
 
     private void InitializeItems()
@@ -164,7 +153,7 @@ class Client
 
     public bool TryBuy()
     {
-        if (TryRemoveItemsFromBasketUntilCanAfford() == false)
+        if (TryMakeBasketAffordable() == false)
             return false;
 
         _balance -= Basket.TotalPrice;
@@ -178,7 +167,7 @@ class Client
         _bag = bag;
     }
 
-    private bool TryRemoveItemsFromBasketUntilCanAfford()
+    private bool TryMakeBasketAffordable()
     {
         Console.WriteLine($"Looking inside his wallet (${_balance})");
 
