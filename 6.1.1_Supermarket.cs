@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public class Program
 {
@@ -16,15 +17,13 @@ public class Program
 
 class Supermarket
 {
-    private Groceries _grocerries;
+    private List<Item> _storeItems;
     private Queue<Client> _clients;
 
     private int _balance;
 
     public Supermarket()
     {
-        _clients = new Queue<Client>();
-
         _balance = 0;
 
         InitializeItems();
@@ -41,9 +40,8 @@ class Supermarket
             Helper.WriteAt($"Balance: ${_balance}", 0, 100);
 
             Client nextClient = _clients.Dequeue();
-            nextClient.CollectBasket(_grocerries);
+            nextClient.CollectBasket(_storeItems);
 
-            Helper.WaitForKeyPress(false);
             Console.WriteLine();
 
             ProcessSale(nextClient);
@@ -59,11 +57,9 @@ class Supermarket
         string greetings = client.Name == "Mark" ? $"Oh, hi {client.Name}" : $"Hi {client.Name}";
         Helper.WriteTitle(greetings);
 
-        if (client.TryBuy())
+        if (client.TryBuy(out int income))
         {
-            _balance += client.Basket.TotalPrice;
-            Groceries bag = client.Basket;
-            client.PickupBag(bag);
+            _balance += income;
             Helper.WriteAt($"Thanks for shopping at SUPERMARKET, {client.Name}. Have a nice day", foregroundColor: ConsoleColor.Green);
         }
         else
@@ -71,31 +67,35 @@ class Supermarket
             Helper.WriteAt($"Get the hell out of here and get a job", foregroundColor: ConsoleColor.Red);
         }
 
+        Helper.WaitForKeyPress();
         Console.WriteLine($"Just {_clients.Count} weirdos left");
     }
 
     private void InitializeItems()
     {
-        List<Item> items = new List<Item>()
+        _storeItems = new List<Item>()
         {
-            new Item(3, "Milk", 1000, "ml"),
-            new Item(2, "Bread", 1, "count"),
-            new Item(5, "Eggs", 12, "count"),
-            new Item(4, "Apples", 1, "kg"),
-            new Item(6, "Chicken Breast", 1, "kg"),
-            new Item(2, "Pasta", 500, "g"),
-            new Item(3, "Tomato Sauce", 500, "ml"),
-            new Item(1, "Bananas", 1, "kg"),
-            new Item(7, "Cheese", 200, "g"),
-            new Item(2, "Rice", 1, "kg")
+            new Item(3, "Milk"),
+            new Item(2, "Bread"),
+            new Item(5, "Eggs"),
+            new Item(4, "Apples"),
+            new Item(6, "Chicken Breast"),
+            new Item(2, "Pasta"),
+            new Item(3, "Tomato Sauce"),
+            new Item(1, "Bananas"),
+            new Item(7, "Cheese"),
+            new Item(2, "Rice")
         };
-
-        _grocerries = new Groceries(items);
     }
 
     private void InitializeClients()
     {
-        string[] _randomNames =
+        _clients = new Queue<Client>();
+        int minClients = 3;
+        int maxClients = 10;
+        int clientCount = Helper.GetRandomInt(minClients, maxClients + 1);
+
+        string[] randomNames =
         {
             "Amina", "Aroha", "Aurora", "Carlos", "Chimamanda",
             "Diego", "Elena", "Freya", "Hannah", "Ivan",
@@ -104,10 +104,10 @@ class Supermarket
             "Riley", "Sakura", "Sofia", "Tama", "Yuki"
         };
 
-        for (int i = 0; i < Helper.GetRandomInt(3, 11); i++)
+        for (int i = 0; i < clientCount; i++)
         {
-            int nameIndex = Helper.GetRandomInt(0, _randomNames.Length);
-            string name = _randomNames[nameIndex];
+            int nameIndex = Helper.GetRandomInt(0, randomNames.Length);
+            string name = randomNames[nameIndex];
             Client client = new Client(name);
             _clients.Enqueue(client);
         }
@@ -117,23 +117,27 @@ class Supermarket
 class Client
 {
     private int _balance;
-    private Groceries _bag;
+    private List<Item> _basket;
+    private List<Item> _bag;
 
     public Client(string name)
     {
-        Basket = new Groceries();
-        _bag = new Groceries();
+        _basket = new List<Item>();
 
-        _balance = Helper.GetRandomInt(0, 40);
+        int maxMoney = 40;
+        _balance = Helper.GetRandomInt(0, maxMoney + 1);
 
         Name = name;
     }
 
     public string Name { get; private set; }
-    public Groceries Basket { get; private set; }
 
-    public void CollectBasket(Groceries grocerries)
+    private int TotalBasketPrice
+        => CalculateTotalBasketPrice();
+
+    public void CollectBasket(IEnumerable<Item> storeItems)
     {
+        List<Item> items = storeItems.ToList();
         int minItemsNeeded = 1;
         int maxItemsNeeded = 10;
         int itemsNeededCount = Helper.GetRandomInt(minItemsNeeded, maxItemsNeeded + 1);
@@ -141,109 +145,83 @@ class Client
 
         for (int i = 0; i < itemsNeededCount; i++)
         {
-            if (grocerries.TryPickRandomItem(out Item item))
-            {
-                Helper.WriteAt($"This {item.GetInfo()} looks good to me. I'll put it in my basket");
-                Basket.AddItem(item);
-            }
+            Item item = PickRandomItem(items);
+
+            if (item != null) 
+                _basket.Add(item);
         }
 
-        Helper.WriteAt($"\nOkay. I think it's all I need. I have {Basket.Quantity} items for ${Basket.TotalPrice}. I'll go to the cashier now");
+        Helper.WriteAt($"\nOkay. I think it's all I need. I have {_basket.Count} items for ${TotalBasketPrice}. I'll go to the cashier now");
+        Helper.WaitForKeyPress(false);
     }
 
-    public bool TryBuy()
+    public bool TryBuy(out int purchasePrice)
     {
         if (TryMakeBasketAffordable() == false)
+        {
+            purchasePrice = 0;
             return false;
+        }
 
-        _balance -= Basket.TotalPrice;
-        Helper.WriteAt($"Here is ${Basket.TotalPrice}, cashier (you saw, that he now have ${_balance})\n", foregroundColor: ConsoleColor.Green);
+        purchasePrice = TotalBasketPrice;
+        _balance -= purchasePrice;
+        Helper.WriteAt($"Here is ${purchasePrice}, cashier (you saw, that he now have ${_balance})\n", foregroundColor: ConsoleColor.Green);
+        _bag = _basket;
+        _basket.Clear();
 
         return true;
-    }
-
-    public void PickupBag(Groceries bag)
-    {
-        _bag = bag;
     }
 
     private bool TryMakeBasketAffordable()
     {
         Console.WriteLine($"Looking inside his wallet (${_balance})");
 
-        while (Basket.TotalPrice > _balance && Basket.Quantity != 0)
+        while (TotalBasketPrice > _balance && _basket.Count != 0)
         {
-            Helper.WriteAt($"Looks, like I can't afford it. Everything costs ${Basket.TotalPrice}", foregroundColor: ConsoleColor.DarkRed);
-
-            if (Basket.TryDrawRandomItem(out Item itemToRemove))
-                Helper.WriteAt($"I will get rid of this {itemToRemove.GetInfo()}");
+            Helper.WriteAt($"Looks like I can't afford it. Everything costs ${TotalBasketPrice}", foregroundColor: ConsoleColor.DarkRed);
+            RemoveRandomItemFromBasket();
+            Helper.WaitForKeyPress(false);
         }
 
-        bool canAfford = _balance >= Basket.TotalPrice && Basket.Quantity != 0;
+        bool canAfford = _balance >= TotalBasketPrice && _basket.Count != 0;
 
         if (canAfford == false)
-            Helper.WriteAt($"I'm terribly sorry, but I don't have enough money", foregroundColor: ConsoleColor.Red);
+            Helper.WriteAt($"I'm terribly sorry, but I don't have enough money", foregroundColor: ConsoleColor.DarkRed);
 
         return canAfford;
     }
-}
 
-class Groceries
-{
-    private List<Item> _items;
-
-    public Groceries()
+    private Item PickRandomItem(List<Item> items)
     {
-        _items = new List<Item>();
+        if (items.Count == 0)
+            return null;
+
+        int itemIndex = Helper.GetRandomInt(0, items.Count);
+        Item item = items[itemIndex];
+        Helper.WriteAt($"I pick this {item.GetInfo()}.");
+
+        return item;
     }
 
-    public Groceries(List<Item> items)
+    private void RemoveRandomItemFromBasket()
     {
-        _items = items;
+        if (_basket.Count == 0)
+            return;
+
+        Item item = PickRandomItem(_basket);
+        Helper.WriteAt($"I didn't need it anyway");
+
+        _basket.Remove(item);
     }
 
-    public int Quantity => _items != null ? _items.Count : 0;
-
-    public int TotalPrice
-        => CalculateTotalPrice();
-
-    public void AddItem(Item item)
-    {
-        _items.Add(item);
-    }
-
-    public bool TryDrawRandomItem(out Item item)
-    {
-        if (_items.Count == 0)
-        {
-            item = null;
-            return false;
-        }
-
-        TryPickRandomItem(out item);
-        _items.Remove(item);
-        return true;
-    }
-
-    public bool TryPickRandomItem(out Item item)
-    {
-        if (_items.Count == 0)
-        {
-            item = null;
-            return false;
-        }
-
-        int itemIndex = Helper.GetRandomInt(0, Quantity);
-        item = _items[itemIndex];
-
-        return true;
-    }
-
-    private int CalculateTotalPrice()
+    private int CalculateTotalBasketPrice()
     {
         int totalPrice = 0;
 
-        foreach (Item item in _items)
+        if (_basket == null || _basket.Count == 0)
+            return totalPrice;
+
+        foreach (Item item in _basket)
             totalPrice += item.Price;
 
         return totalPrice;
@@ -253,32 +231,28 @@ class Groceries
 class Item
 {
     private string _name;
-    private int _quantity;
-    private string _quantityType;
 
-    public Item(int price, string name, int quantity, string quantityType)
+    public Item(int price, string name)
     {
         Price = price;
         _name = name;
-        _quantity = quantity;
-        _quantityType = quantityType;
     }
 
     public int Price { get; private set; }
 
     public string GetInfo()
     {
-        return $"{_name} - {_quantity} ({_quantityType}) for ${Price}";
+        return $"{_name} for ${Price}";
     }
 }
 
 class Helper
 {
-    private static Random _random = new Random();
+    private static Random s_random = new Random();
 
     public static int GetRandomInt(int min, int max)
     {
-        return _random.Next(min, max);
+        return s_random.Next(min, max);
     }
 
     public static void WriteTitle(string title, bool isSecondary = false)
@@ -314,7 +288,18 @@ class Helper
         bool isCustomPosition = yPosition.HasValue || xPosition.HasValue;
 
         if (isCustomPosition)
-            Console.SetCursorPosition(xPosition ?? xStart, yPosition ?? yStart);
+        {
+            int targetY = yPosition ?? yStart;
+            int targetX = xPosition ?? xStart;
+
+            targetY = Math.Max(0, targetY);
+            targetX = Math.Max(0, targetX);
+
+            int safeYPosition = Math.Min(targetY, Console.WindowHeight - 1);
+            int safeXPosition = Math.Min(targetX, Console.WindowWidth - 1);
+
+            Console.SetCursorPosition(safeXPosition, safeYPosition);
+        }
 
         if (isNewLine)
             Console.WriteLine(element);
