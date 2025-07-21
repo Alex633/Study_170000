@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
-using static System.Net.Mime.MediaTypeNames;
+
+//why everybody's dead
 
 interface IDamageble
 {
@@ -18,6 +19,7 @@ public class Program
     {
         Console.OutputEncoding = System.Text.Encoding.UTF8;
 
+        new Battlefield().Fight();
 
         Helper.WaitForKeyPress();
     }
@@ -25,40 +27,146 @@ public class Program
 
 class Battlefield
 {
-    private Squid SquidA;
-    private Squid SquidB;
+    private Squad SquadA;
+    private Squad SquadB;
 
     public Battlefield()
     {
-        SquidA = new Squid();
-        SquidB = new Squid();
+        SquadA = BuildSquad("A");
+        SquadB = BuildSquad("B");
+    }
+
+    public bool IsInFight => SquadA.IsAlive && SquadB.IsAlive;
+
+    public void Fight()
+    {
+        Helper.WriteTitle($"Fighting");
+
+        Console.WriteLine($"{SquadA.IsAlive}, {SquadB.IsAlive}");
+
+        while (IsInFight)
+        {
+            SquadA.Attack(SquadB);
+            SquadB.Attack(SquadA);
+        }
+
+        Console.WriteLine();
+
+        ShowResult();
+    }
+
+    private void ShowResult()
+    {
+        Helper.WriteTitle($"Winner:");
+
+        if (SquadA.IsAlive)
+            SquadA.ShowInfo();
+        else if (SquadB.IsAlive)
+            SquadB.ShowInfo();
+        else
+            Helper.WriteAt($"There are only dead left");
+    }
+
+    private Squad BuildSquad(string name)
+    {
+        Squad squad = new Squad(name);
+
+        Soldier defaultSoldier = new Soldier();
+        List<Unit> defaultSoldiers = new List<Unit>();
+
+        int minClones = 5;
+        int maxClones = 10;
+        int clonesCount = Helper.GetRandomInt(minClones, maxClones);
+
+        for (int i = 0; i < clonesCount; i++)
+            defaultSoldiers.Add(defaultSoldier.Clone());
+
+        squad.AddUnit(defaultSoldiers);
+
+        SoloSoldier soloSoldier = new SoloSoldier();
+        List<Unit> soloSoldiers = new List<Unit>();
+
+        minClones = 1;
+        maxClones = 3;
+        clonesCount = Helper.GetRandomInt(minClones, maxClones);
+
+        for (int i = 0; i < clonesCount; i++)
+            soloSoldiers.Add(soloSoldier.Clone());
+
+        squad.AddUnit(soloSoldiers);
+
+        return squad;
     }
 }
 
-class Squid : IDamageble
+class Squad : IDamageble
 {
     private List<Unit> _units;
 
-    public Squid()
+    private string _name;
+
+    public Squad(string name)
     {
         _units = new List<Unit>();
+        _name = name;
+    }
+
+    public bool IsAlive => CollectAliveData();
+
+    public void AddUnit(Unit unit)
+    {
+        _units.Add(unit);
+    }
+
+    public void AddUnit(List<Unit> units)
+    {
+        _units.AddRange(units);
     }
 
     public void Attack(IDamageble target)
     {
+        if (IsAlive == false)
+            return;
+
+        Helper.WriteTitle($"Squad {_name} attacks", isSecondary: true);
+
         //target.TakeDamage(Damage);
+        Helper.WaitForKeyPress(false);
     }
 
     public void TakeDamage(double damage)
     {
+        if (IsAlive == false)
+            return;
+    }
 
+    public void ShowInfo()
+    {
+        Helper.WriteTitle($"Squad {_name}", isSecondary: true);
+
+        foreach (var unit in _units)
+            unit.ShowInfo();
+    }
+
+    private bool CollectAliveData()
+    {
+        foreach (Unit unit in _units)
+        {
+            if (unit.IsAlive)
+                return true;
+        }
+
+        return false;
     }
 }
 
 class Soldier : Unit
 {
-    public Soldier() : base(5, 0.4, 0.1)
+    public Soldier() : base(5, 0.4, 0.1, "Soldier")
     { }
+
+    public override Unit Clone()
+        => new Soldier();
 
     public override void Attack(IDamageble target)
     {
@@ -70,10 +178,13 @@ class SoloSoldier : Unit
 {
     private double _damageModificator;
 
-    public SoloSoldier() : base(10, 0.8, 0.2)
+    public SoloSoldier() : base(10, 0.8, 0.2, "Solo Soldier")
     {
         _damageModificator = 2.5;
     }
+
+    public override Unit Clone()
+        => new SoloSoldier();
 
     public override void Attack(IDamageble target)
     {
@@ -81,27 +192,31 @@ class SoloSoldier : Unit
     }
 }
 
-class AreaOfEffectSoldier : Unit
-{
+//class AreaOfEffectSoldier : Unit
+//{
 
-}
+//}
 
-class MultipleAttacksSoldier : Unit
-{
+//class MultipleAttacksSoldier : Unit
+//{
 
-}
+//}
 
 abstract class Unit : IDamageble
 {
     private double _health;
     private double _damage;
+    private string _name;
 
-    public Unit(double health, double damage, double armor)
+    public Unit(double health, double damage, double armor, string name)
     {
         Health = health;
         Damage = damage;
         Armor = armor;
+        _name = name;
     }
+
+    public bool IsAlive => Health > 0;
 
     public double Armor { get; private set; }
 
@@ -116,12 +231,26 @@ abstract class Unit : IDamageble
         get => _damage;
         private set => _ = Math.Min(_damage, 0);
     }
+    public abstract Unit Clone();
 
     public abstract void Attack(IDamageble target);
 
     public void TakeDamage(double damage)
     {
-        Health -= damage;
+        if (IsAlive == false)
+            return;
+
+        double actualDamage = Math.Min(damage - Armor, 0);
+
+        Health -= actualDamage;
+    }
+
+    public void ShowInfo()
+    {
+        if (IsAlive == false)
+            return;
+
+        Helper.WriteAt($"({Health} HP) {_name}");
     }
 }
 
