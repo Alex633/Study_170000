@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 
-//why everybody's dead
+//infinite loop in area of effect (because when it tries to attack 5 times but squad is less, so it cant find unique target)
 
 interface IDamageble
 {
-    void TakeDamage(double damage);
+    void TakeDamage(int target, double damage);
 }
 
 //interface IAttack
@@ -27,27 +27,31 @@ public class Program
 
 class Battlefield
 {
-    private Squad SquadA;
-    private Squad SquadB;
+    private Squad _squadA;
+    private Squad _squadB;
 
     public Battlefield()
     {
-        SquadA = BuildSquad("A");
-        SquadB = BuildSquad("B");
+        _squadA = BuildSquad("A");
+        _squadB = BuildSquad("B");
     }
 
-    public bool IsInFight => SquadA.IsAlive && SquadB.IsAlive;
+    public bool IsInFight => _squadA.IsAlive && _squadB.IsAlive;
 
     public void Fight()
     {
-        Helper.WriteTitle($"Fighting");
-
-        Console.WriteLine($"{SquadA.IsAlive}, {SquadB.IsAlive}");
+        int round = 1;
 
         while (IsInFight)
         {
-            SquadA.Attack(SquadB);
-            SquadB.Attack(SquadA);
+            Helper.WriteTitle($"Round {round}");
+
+            ShowSquadsData();
+            _squadA.Attack(_squadB);
+            _squadB.Attack(_squadA);
+
+            Console.Clear();
+            round++;
         }
 
         Console.WriteLine();
@@ -55,14 +59,24 @@ class Battlefield
         ShowResult();
     }
 
+    private void ShowSquadsData()
+    {
+        _squadA.ShowInfo();
+        Console.WriteLine();
+        _squadB.ShowInfo();
+
+        Console.WriteLine();
+        Helper.WaitForKeyPress();
+    }
+
     private void ShowResult()
     {
         Helper.WriteTitle($"Winner:");
 
-        if (SquadA.IsAlive)
-            SquadA.ShowInfo();
-        else if (SquadB.IsAlive)
-            SquadB.ShowInfo();
+        if (_squadA.IsAlive)
+            _squadA.ShowInfo();
+        else if (_squadB.IsAlive)
+            _squadB.ShowInfo();
         else
             Helper.WriteAt($"There are only dead left");
     }
@@ -71,35 +85,35 @@ class Battlefield
     {
         Squad squad = new Squad(name);
 
-        Soldier defaultSoldier = new Soldier();
-        List<Unit> defaultSoldiers = new List<Unit>();
+        Unit defaultSoldier = new Unit();
+        squad.AddUnit(BuildClones(defaultSoldier, 1, 3));
 
-        int minClones = 5;
-        int maxClones = 10;
-        int clonesCount = Helper.GetRandomInt(minClones, maxClones);
+        SoloSoldier solo = new SoloSoldier();
+        squad.AddUnit(BuildClones(solo, 1, 3));
 
-        for (int i = 0; i < clonesCount; i++)
-            defaultSoldiers.Add(defaultSoldier.Clone());
+        RandomAreaOfEffectSoldier randomAoe = new RandomAreaOfEffectSoldier();
+        squad.AddUnit(BuildClones(randomAoe, 1, 3));
 
-        squad.AddUnit(defaultSoldiers);
-
-        SoloSoldier soloSoldier = new SoloSoldier();
-        List<Unit> soloSoldiers = new List<Unit>();
-
-        minClones = 1;
-        maxClones = 3;
-        clonesCount = Helper.GetRandomInt(minClones, maxClones);
-
-        for (int i = 0; i < clonesCount; i++)
-            soloSoldiers.Add(soloSoldier.Clone());
-
-        squad.AddUnit(soloSoldiers);
+        AreaOfEffectSoldier aoe = new AreaOfEffectSoldier();
+        squad.AddUnit(BuildClones(aoe, 1, 3));
 
         return squad;
     }
+
+    private List<Unit> BuildClones(Unit soldierType, int minClones, int maxClones)
+    {
+        List<Unit> soldiers = new List<Unit>();
+
+        int clonesCount = Helper.GetRandomInt(minClones, maxClones);
+
+        for (int i = 0; i < clonesCount; i++)
+            soldiers.Add(soldierType.Clone());
+
+        return soldiers;
+    }
 }
 
-class Squad : IDamageble
+class Squad
 {
     private List<Unit> _units;
 
@@ -111,66 +125,59 @@ class Squad : IDamageble
         _name = name;
     }
 
-    public bool IsAlive => CollectAliveData();
+    public List<Unit> Units => Helper.GetCopyOf(_units);
 
-    public void AddUnit(Unit unit)
-    {
-        _units.Add(unit);
-    }
+    public int Quantity => _units.Count;
+
+    public bool IsAlive => Quantity > 0;
+
+    private string Name => _name + $" ({Quantity})";
 
     public void AddUnit(List<Unit> units)
     {
         _units.AddRange(units);
     }
 
-    public void Attack(IDamageble target)
+    public void Attack(Squad target)
     {
         if (IsAlive == false)
             return;
 
-        Helper.WriteTitle($"Squad {_name} attacks", isSecondary: true);
+        Helper.WriteTitle($"Squad {Name} attacks", isSecondary: true);
 
-        //target.TakeDamage(Damage);
-        Helper.WaitForKeyPress(false);
+        foreach (var unit in _units)
+        {
+            unit.Attack(target);
+
+            if (target.IsAlive == false)
+                break;
+        }
+
+        Helper.WaitForKeyPress();
     }
 
-    public void TakeDamage(double damage)
+    public void RemoveDead()
     {
         if (IsAlive == false)
             return;
+
+        int count = 0;
+
+        while (count != _units.Count)
+        {
+            if (_units[count].IsAlive == false)
+                _units.RemoveAt(count);
+            else
+                count++;
+        }
     }
 
     public void ShowInfo()
     {
-        Helper.WriteTitle($"Squad {_name}", isSecondary: true);
+        Helper.WriteTitle($"Squad {Name}", isSecondary: true);
 
         foreach (var unit in _units)
             unit.ShowInfo();
-    }
-
-    private bool CollectAliveData()
-    {
-        foreach (Unit unit in _units)
-        {
-            if (unit.IsAlive)
-                return true;
-        }
-
-        return false;
-    }
-}
-
-class Soldier : Unit
-{
-    public Soldier() : base(5, 0.4, 0.1, "Soldier")
-    { }
-
-    public override Unit Clone()
-        => new Soldier();
-
-    public override void Attack(IDamageble target)
-    {
-        target.TakeDamage(Damage);
     }
 }
 
@@ -181,40 +188,110 @@ class SoloSoldier : Unit
     public SoloSoldier() : base(10, 0.8, 0.2, "Solo Soldier")
     {
         _damageModificator = 2.5;
+
+        Damage *= _damageModificator;
     }
 
     public override Unit Clone()
         => new SoloSoldier();
+}
 
-    public override void Attack(IDamageble target)
+class AreaOfEffectSoldier : Unit
+{
+    List<int> _attackedUnitIndexes;
+
+    public AreaOfEffectSoldier() : base(8, 1, 0, "Area of Effect Soldier")
     {
-        target.TakeDamage(Damage * _damageModificator);
+        _attackedUnitIndexes = new List<int>();
+    }
+
+    public override Unit Clone()
+        => new AreaOfEffectSoldier();
+
+    public override void Attack(Squad squad)
+    {
+        int attackCount = 5;
+        Console.WriteLine($"{Name} prepares to attack {attackCount} times\n");
+
+        for (int i = 0; i < attackCount; i++)
+        {
+            AttackNewTarget(squad);
+
+            if (squad.IsAlive == false)
+                break;
+        }
+
+        _attackedUnitIndexes.Clear();
+    }
+
+    private void AttackNewTarget(Squad squadTarget)
+    {
+        if (IsAlive == false || squadTarget.IsAlive == false)
+            return;
+
+        bool isFound = false;
+        int unitIndex = 0;
+
+        while (isFound == false || unitIndex >= squadTarget.Quantity)
+        {
+            if (_attackedUnitIndexes.Contains(unitIndex) == false)
+            {
+                _attackedUnitIndexes.Add(unitIndex);
+                isFound = true;
+            }
+            else
+            {
+                unitIndex++;
+            }
+        }
+
+        Console.WriteLine($"⚔️ {Name} attacks for {Damage}");
+
+        squadTarget.Units[unitIndex].TakeDamage(Damage);
+        squadTarget.RemoveDead();
     }
 }
 
-//class AreaOfEffectSoldier : Unit
-//{
+class RandomAreaOfEffectSoldier : Unit
+{
+    public RandomAreaOfEffectSoldier() : base(6, 0.6, 0, "Random Area of Effect Soldier")
+    {
+    }
 
-//}
+    public override Unit Clone()
+        => new RandomAreaOfEffectSoldier();
 
-//class MultipleAttacksSoldier : Unit
-//{
+    public override void Attack(Squad squad)
+    {
+        int minAttacks = 2;
+        int maxAttacks = 5;
+        int attackCount = Helper.GetRandomInt(minAttacks, maxAttacks);
+        Console.WriteLine($"{Name} prepares to attack {attackCount} times\n");
 
-//}
+        for (int i = 0; i < attackCount; i++)
+        {
+            base.Attack(squad);
 
-abstract class Unit : IDamageble
+            if (squad.IsAlive == false)
+                break;
+        }
+    }
+}
+
+class Unit
 {
     private double _health;
     private double _damage;
-    private string _name;
 
-    public Unit(double health, double damage, double armor, string name)
+    public Unit(double health = 5, double damage = 0.4, double armor = 0.1, string name = "Regular Soldier")
     {
         Health = health;
         Damage = damage;
         Armor = armor;
-        _name = name;
+        Name = $"{name} ({Helper.GetId()})";
     }
+
+    protected string Name { get; private set; }
 
     public bool IsAlive => Health > 0;
 
@@ -223,26 +300,46 @@ abstract class Unit : IDamageble
     public double Health
     {
         get => _health;
-        private set => _ = Math.Min(_health, 0);
+        private set => _health = Math.Max(value, 0);
     }
+
+    public string HealthUi => ConvertHealthToHealthBar();
 
     public double Damage
     {
         get => _damage;
-        private set => _ = Math.Min(_damage, 0);
+        protected set => _damage = Math.Max(value, 0);
     }
-    public abstract Unit Clone();
+    public virtual Unit Clone()
+        => new Unit();
 
-    public abstract void Attack(IDamageble target);
+    public virtual void Attack(Squad squadTarget)
+    {
+        if (IsAlive == false || squadTarget.IsAlive == false)
+            return;
+
+        int randomUnitIndex = Helper.GetRandomInt(0, squadTarget.Quantity);
+
+        Console.WriteLine($"⚔️ {Name} attacks for {Damage}");
+
+        squadTarget.Units[randomUnitIndex].TakeDamage(Damage);
+        squadTarget.RemoveDead();
+    }
 
     public void TakeDamage(double damage)
     {
         if (IsAlive == false)
             return;
 
-        double actualDamage = Math.Min(damage - Armor, 0);
+        double actualDamage = Math.Max(damage - Armor, 0);
 
         Health -= actualDamage;
+
+        if (IsAlive)
+            Helper.WriteAt($"💢 {HealthUi} {Name} takes {actualDamage} damage\n");
+        else
+            Helper.WriteAt($"💀 {Name} takes {actualDamage} and falls dead\n", foregroundColor: ConsoleColor.DarkRed);
+
     }
 
     public void ShowInfo()
@@ -250,13 +347,38 @@ abstract class Unit : IDamageble
         if (IsAlive == false)
             return;
 
-        Helper.WriteAt($"({Health} HP) {_name}");
+        Helper.WriteAt($"{HealthUi} {Name}");
+    }
+
+    private string ConvertHealthToHealthBar()
+    {
+        int maxLength = 4;
+
+        string healthStr = Health.ToString("F1").PadLeft(maxLength);
+        return $"|{healthStr}❤️|";
     }
 }
 
 class Helper
 {
     private static readonly Random s_random = new Random();
+
+    private static int s_id = 0;
+
+    public static int GetId()
+    {
+        return s_id++;
+    }
+
+    public static List<T> GetCopyOf<T>(List<T> list)
+    {
+        List<T> tempList = new List<T>();
+
+        foreach (T item in list)
+            tempList.Add(item);
+
+        return tempList;
+    }
 
     public static int GetRandomInt(int min, int max)
     {
@@ -275,7 +397,6 @@ class Helper
 
     public static void WaitForKeyPress(bool shouldClear = true)
     {
-        Console.WriteLine();
         WriteAt("Press any key", foregroundColor: ConsoleColor.Cyan);
         Console.ReadKey(true);
 
