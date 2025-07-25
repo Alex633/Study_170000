@@ -1,18 +1,6 @@
 using System;
 using System.Collections.Generic;
 
-//infinite loop in area of effect (because when it tries to attack 5 times but squad is less, so it cant find unique target)
-
-interface IDamageble
-{
-    void TakeDamage(int target, double damage);
-}
-
-//interface IAttack
-//{
-//    void Attack(int target);
-//}
-
 public class Program
 {
     static void Main()
@@ -153,7 +141,9 @@ class Squad
                 break;
         }
 
-        Helper.WaitForKeyPress();
+        Helper.WaitForKeyPress(true);
+        Console.WriteLine(new string('-', Console.WindowWidth));
+        Console.WriteLine();
     }
 
     public void RemoveDead()
@@ -198,11 +188,8 @@ class SoloSoldier : Unit
 
 class AreaOfEffectSoldier : Unit
 {
-    List<int> _attackedUnitIndexes;
-
     public AreaOfEffectSoldier() : base(8, 1, 0, "Area of Effect Soldier")
     {
-        _attackedUnitIndexes = new List<int>();
     }
 
     public override Unit Clone()
@@ -210,45 +197,17 @@ class AreaOfEffectSoldier : Unit
 
     public override void Attack(Squad squad)
     {
-        int attackCount = 5;
-        Console.WriteLine($"{Name} prepares to attack {attackCount} times\n");
+        int attackAmount = squad.Quantity >= 5 ? 5 : squad.Quantity;
+        Helper.WriteAt($"{Name} prepares to attack {attackAmount} enemies (enemy squad size: {squad.Quantity})\n", foregroundColor: ConsoleColor.Blue);
 
-        for (int i = 0; i < attackCount; i++)
+        for (int i = 0; i < attackAmount && i < squad.Quantity; i++)
         {
-            AttackNewTarget(squad);
-
-            if (squad.IsAlive == false)
-                break;
+            int attackCount = i + 1;
+            Helper.WriteAt($"⚔️ {Name} attacks for {Damage} damage his {attackCount} time\n");
+            squad.Units[i].TakeDamage(Damage);
         }
 
-        _attackedUnitIndexes.Clear();
-    }
-
-    private void AttackNewTarget(Squad squadTarget)
-    {
-        if (IsAlive == false || squadTarget.IsAlive == false)
-            return;
-
-        bool isFound = false;
-        int unitIndex = 0;
-
-        while (isFound == false || unitIndex >= squadTarget.Quantity)
-        {
-            if (_attackedUnitIndexes.Contains(unitIndex) == false)
-            {
-                _attackedUnitIndexes.Add(unitIndex);
-                isFound = true;
-            }
-            else
-            {
-                unitIndex++;
-            }
-        }
-
-        Console.WriteLine($"⚔️ {Name} attacks for {Damage}");
-
-        squadTarget.Units[unitIndex].TakeDamage(Damage);
-        squadTarget.RemoveDead();
+        squad.RemoveDead();
     }
 }
 
@@ -266,14 +225,19 @@ class RandomAreaOfEffectSoldier : Unit
         int minAttacks = 2;
         int maxAttacks = 5;
         int attackCount = Helper.GetRandomInt(minAttacks, maxAttacks);
-        Console.WriteLine($"{Name} prepares to attack {attackCount} times\n");
+        Helper.WriteAt($"{Name} prepares to attack {attackCount} times\n", foregroundColor: ConsoleColor.Blue);
 
         for (int i = 0; i < attackCount; i++)
         {
             base.Attack(squad);
 
             if (squad.IsAlive == false)
+            {
+                if (attackCount == i + 1)
+                    Helper.WriteAt($"{Name} tries to attack, but everybody is already dead. Calm down {Name}", foregroundColor: ConsoleColor.Yellow);
+
                 break;
+            }
         }
     }
 }
@@ -303,13 +267,14 @@ class Unit
         private set => _health = Math.Max(value, 0);
     }
 
-    public string HealthUi => ConvertHealthToHealthBar();
+    public string HealthBar => ConvertHealthToHealthBar();
 
     public double Damage
     {
         get => _damage;
         protected set => _damage = Math.Max(value, 0);
     }
+
     public virtual Unit Clone()
         => new Unit();
 
@@ -336,7 +301,7 @@ class Unit
         Health -= actualDamage;
 
         if (IsAlive)
-            Helper.WriteAt($"💢 {HealthUi} {Name} takes {actualDamage} damage\n");
+            Helper.WriteAt($"💢 {HealthBar} {Name} takes {actualDamage} damage\n");
         else
             Helper.WriteAt($"💀 {Name} takes {actualDamage} and falls dead\n", foregroundColor: ConsoleColor.DarkRed);
 
@@ -347,15 +312,15 @@ class Unit
         if (IsAlive == false)
             return;
 
-        Helper.WriteAt($"{HealthUi} {Name}");
+        Helper.WriteAt($"{HealthBar} {Name}");
     }
 
     private string ConvertHealthToHealthBar()
     {
         int maxLength = 4;
 
-        string healthStr = Health.ToString("F1").PadLeft(maxLength);
-        return $"|{healthStr}❤️|";
+        string healthValue = Health.ToString("F1").PadLeft(maxLength);
+        return $"|❤️{healthValue}|";
     }
 }
 
