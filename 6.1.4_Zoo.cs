@@ -6,6 +6,13 @@
 using System;
 using System.Collections.Generic;
 
+enum Gender
+{
+    Male = 0,
+    Female
+}
+
+
 public class Program
 {
     static void Main()
@@ -27,46 +34,57 @@ class ZooKeeper
 
     public ZooKeeper()
     {
-        _zoo = new Zoo();
-        PopulateZoo();
+        _zoo = new ZooFactory().GewNewZoo(GetCages());
         InitializeInterface();
     }
 
     public void Open()
     => _interface.Run();
 
-    private void PopulateZoo()
+    private List<Cage> GetCages()
     {
-        Animal elephant = new Animal("Moo?", "Male");
-        Animal bat = new Animal("Clap", "Male");
-        Animal octopus = new Animal("Water sound?", "Female");
-        Animal lion = new Animal("Loud Zzz", "Male");
-        Animal dolphin = new Animal("Eeeeee", "Female");
-        Animal parrot = new Animal("Step", "Male");
-        Animal cat = new Animal("Zzz", "Female");
-        Animal dog = new Animal("Woof", "Male");
+        CageFactory cageFactory = new CageFactory();
+        AnimalFactory animalFactory = new AnimalFactory();
 
-        Cage cage1 = new Cage("1");
-        Cage cage2 = new Cage("2");
-        Cage cage3 = new Cage("3");
-        Cage cage4 = new Cage("4");
+        List<Cage> cages = new List<Cage>();
 
-        cage1.PlaceAnimal(elephant);
-        cage1.PlaceAnimal(bat);
+        Animal elephant = animalFactory.GetNewAnimal("Moo?");
+        Animal bat = animalFactory.GetNewAnimal("Clap");
+        List<Animal> animalsCage1 = new List<Animal>()
+        {
+            elephant, bat
+        };
+        Cage cage1 = cageFactory.GetNewCage("1", animalsCage1);
+        cages.Add(cage1);
 
-        cage2.PlaceAnimal(octopus);
-        cage2.PlaceAnimal(lion);
+        Animal octopus = animalFactory.GetNewAnimal("Water sound?");
+        Animal lion = animalFactory.GetNewAnimal("Loud Zzz");
+        List<Animal> animalsCage2 = new List<Animal>()
+        {
+            octopus, lion
+        };
+        Cage cage2 = cageFactory.GetNewCage("2", animalsCage2);
+        cages.Add(cage2);
 
-        cage3.PlaceAnimal(dolphin);
-        cage3.PlaceAnimal(parrot);
+        Animal dolphin = animalFactory.GetNewAnimal("Eeeeee");
+        Animal parrot = animalFactory.GetNewAnimal("Step");
+        List<Animal> animalsCage3 = new List<Animal>()
+        {
+            dolphin, parrot
+        };
+        Cage cage3 = cageFactory.GetNewCage("3", animalsCage3);
+        cages.Add(cage3);
 
-        cage4.PlaceAnimal(cat);
-        cage4.PlaceAnimal(dog);
+        Animal cat = animalFactory.GetNewAnimal("Zzz");
+        Animal dog = animalFactory.GetNewAnimal("Woof");
+        List<Animal> animalsCage4 = new List<Animal>()
+        {
+            cat, dog
+        };
+        Cage cage4 = cageFactory.GetNewCage("4", animalsCage4);
+        cages.Add(cage4);
 
-        _zoo.BuildCage(cage1);
-        _zoo.BuildCage(cage2);
-        _zoo.BuildCage(cage3);
-        _zoo.BuildCage(cage4);
+        return cages;
     }
 
     private void InitializeInterface()
@@ -79,8 +97,15 @@ class ZooKeeper
             [4] = new Command("Visit cage 4", () => _zoo.VisitCage(4))
         };
 
-
         _interface = new CommandLineInterface(commands, "Zoo");
+    }
+}
+
+class ZooFactory
+{
+    public Zoo GewNewZoo(List<Cage> cages)
+    {
+        return new Zoo(cages);
     }
 }
 
@@ -88,9 +113,9 @@ class Zoo
 {
     private readonly List<Cage> _cages;
 
-    public Zoo()
+    public Zoo(List<Cage> cages)
     {
-        _cages = new List<Cage>();
+        _cages = cages;
     }
 
     public void VisitCage(int cageNumber)
@@ -107,23 +132,26 @@ class Zoo
 
         _cages[cageIndex].OutputSounds();
     }
+}
 
-    public void BuildCage(Cage cage)
+class CageFactory
+{
+    public Cage GetNewCage(string title, List<Animal> animals)
     {
-        _cages.Add(cage);
+        return new Cage(title, animals);
     }
 }
 
 class Cage
 {
-    private readonly List<Animal> _animals = new List<Animal>();
+    private readonly List<Animal> _animals;
 
     private readonly string _title;
 
-    public Cage(string title)
+    public Cage(string title, List<Animal> animals)
     {
-        _animals = new List<Animal>();
         _title = title;
+        _animals = animals;
     }
 
     public void OutputSounds()
@@ -136,22 +164,28 @@ class Cage
         foreach (var animal in _animals)
             animal.Speak();
     }
+}
 
-    public void PlaceAnimal(Animal animal)
+class AnimalFactory
+{
+    public Animal GetNewAnimal(string speach)
     {
-        _animals.Add(animal);
+        return new Animal(speach);
     }
 }
 
 class Animal
 {
     private readonly string _speach;
-    private readonly string _sex;
+    private readonly Gender _gender;
 
-    public Animal(string speach, string sex = "Female")
+    public Animal(string speach)
     {
         _speach = speach;
-        _sex = sex;
+
+        int male = 0;
+        int female = 1;
+        _gender = (Gender)Helper.GetRandomInt(male, female + 1);
     }
 
     public void Speak()
@@ -160,7 +194,7 @@ class Animal
         int maxSounds = 5;
         int speachCount = Helper.GetRandomInt(minSounds, maxSounds + 1);
 
-        Console.WriteLine($"I am {_sex}. Nice to meet you");
+        Console.WriteLine($"I am {_gender}. Nice to meet you");
 
         for (int i = 0; i < speachCount; i++)
             Console.Write($"{_speach} ");
