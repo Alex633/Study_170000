@@ -22,9 +22,7 @@ public class Program
     {
         Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-        Client client = new Client();
-        RepairService repairService = new RepairService(client);
-
+        RepairService repairService = new RepairService();
         repairService.Open();
 
         Helper.WaitForKeyPress();
@@ -39,17 +37,14 @@ class RepairService
     private Queue<Car> _cars;
     private Stack<Part> _spareParts;
 
-    private Client _client;
-
-    public RepairService(Client client)
+    public RepairService()
     {
         StockUp();
 
         _balance = 0;
         _isRunOutOfSpareParts = false;
 
-        _client = client;
-        _cars = _client.ProvideCars();
+        _cars = CarFactory.CreateFew(amount: 4);
     }
 
     public void Open()
@@ -140,7 +135,11 @@ class RepairService
 
         Console.WriteLine(message);
 
-        int userInput = Helper.ReadInt("Whatcha you say? (1 - i guess i can try, 2 - but i don't wanna)");
+        const int YesCommand = 1;
+        const int NoCommand = 2;
+        string yesCommandDescription = "i guess i can try";
+        string noCommandDescription = "but i don't wanna";
+        int userInput = Helper.ReadInt($"Whatcha you say? ({YesCommand} - {yesCommandDescription}, {NoCommand} - {noCommandDescription})");
 
         return userInput == 1;
     }
@@ -220,7 +219,6 @@ class RepairService
 
     private void StockUp(int carsQuantity = 4, int partsQuantity = 10)
     {
-
         _spareParts = new Stack<Part>();
 
         for (int i = 0; i < partsQuantity; i++)
@@ -289,21 +287,6 @@ static class PartFactory
 
 
         return new Part(isBroken, price.Value);
-    }
-}
-
-class Client
-{
-    private Queue<Car> _cars;
-
-    public Client()
-    {
-        _cars = CarFactory.CreateFew(amount: 4);
-    }
-
-    public Queue<Car> ProvideCars()
-    {
-        return _cars;
     }
 }
 
