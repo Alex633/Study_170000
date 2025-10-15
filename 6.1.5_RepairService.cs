@@ -1,6 +1,4 @@
-using System;
-using System.Collections.Generic;
-
+namespace CsLearning;
 //У вас есть автосервис, в котором будут машины для починки.
 //Автосервис содержит баланс денег и склад деталей. В автосервисе стоит очередь машин.
 //Машина состоит из деталей и количество поломанных будет не меньше 1 детали. Надо показывать все детали, которые поломанные.
@@ -15,6 +13,19 @@ using System.Collections.Generic;
 //За каждую удачную починку вы получаете выплату за ремонт, которая указана в чек-листе починки.
 //Класс Деталь не может содержать значение “количество”. Деталь всего одна, за количество отвечает тот, кто хранит детали.
 //При необходимости можно создать дополнительный класс для конкретной детали и работе с количеством.
+
+//create few collections with each type of part
+//make selector - fix broken part with that part
+
+enum PartType
+{
+    Wheels,
+    Engine,
+    SteeringWheel,
+    Seats,
+    Windows,
+    SomethingElseCarsHave  
+}
 
 public class Program
 {
@@ -97,8 +108,6 @@ class RepairService
 
         Helper.WriteAt("Car is in perfect condition", foregroundColor: ConsoleColor.DarkGreen);
         Helper.WaitForKeyPress(shouldClearAfter: true);
-
-        return;
     }
 
     private void ShowResultMessage()
@@ -217,15 +226,17 @@ class RepairService
         Helper.WriteAt($"Cars: {_cars.Count}", yPosition: 2, xPosition: xPosition);
     }
 
-    private void StockUp(int carsQuantity = 4, int partsQuantity = 10)
+    private void StockUp(int carsQuantity = 4, int uniquePartsQuantity = 3)
     {
         _spareParts = new Stack<Part>();
 
-        for (int i = 0; i < partsQuantity; i++)
+        for (int i = 0; i < uniquePartsQuantity; i++)
         {
             _spareParts.Push(PartFactory.Create(false));
         }
     }
+    
+    private void BuyParts(string name)
 }
 
 static class CarFactory
@@ -244,39 +255,55 @@ static class CarFactory
 
     public static Car Create()
     {
-        List<Part> parts = PartFactory.CreateFew(6);
-
+        Queue<PartType> partsNames = new Queue<PartType>();
+        
+        List<Part> parts = PartFactory.CreateFew(CreateNewCarSet());
+        
         return new Car(parts);
+    }
+
+    private static Queue<PartType> CreateNewCarSet()
+    {
+        Queue<PartType> partTypes = new Queue<PartType>();
+        
+        partTypes.Enqueue(PartType.Wheels);
+        partTypes.Enqueue(PartType.Engine);
+        partTypes.Enqueue(PartType.SteeringWheel);
+        partTypes.Enqueue(PartType.Seats);
+        partTypes.Enqueue(PartType.Windows);
+        partTypes.Enqueue(PartType.SomethingElseCarsHave);
+
+        return partTypes;
     }
 }
 
 static class PartFactory
 {
-    public static List<Part> CreateFew(int amount = 1)
+    public static List<Part> CreateFew(Queue<PartType> partTypes, int quantity = 6)
     {
         List<Part> parts = new List<Part>();
 
         int brokenPartValue = 0;
         int goodPartValue = 1;
         bool hasManufacturingDefect = false;
-
-        for (int i = 0; i < amount; i++)
+        
+        for (int i = 0; i < quantity; i++)
         {
             bool isBrokenPart = Convert.ToBoolean(Helper.GetRandomInt(brokenPartValue, goodPartValue + 1));
 
             if (isBrokenPart && hasManufacturingDefect == false)
                 hasManufacturingDefect = true;
 
-            if (hasManufacturingDefect == false && amount == i + 1)
+            if (hasManufacturingDefect == false && quantity == i + 1)
                 isBrokenPart = true;
-
-            parts.Add(Create(isBrokenPart));
+            
+            parts.Add(Create(partTypes.Dequeue(), isBrokenPart));
         }
 
         return parts;
     }
 
-    public static Part Create(bool isBroken, int? price = null)
+    public static Part Create(PartType type, bool isBroken, int? price = null)
     {
         if (price.HasValue == false)
         {
@@ -285,8 +312,7 @@ static class PartFactory
             price = Helper.GetRandomInt(minPrice, maxPrice + 1);
         }
 
-
-        return new Part(isBroken, price.Value);
+        return new Part(type, isBroken, price.Value);
     }
 }
 
@@ -354,12 +380,14 @@ class Car
 
 class Part
 {
-    public Part(bool isBroken, int price)
+    public Part(PartType type, bool isBroken, int price)
     {
+        Type = type;
         IsBroken = isBroken;
         Price = price;
     }
 
+    public PartType Type { get; private set; }
     public int Price { get; private set; }
     public bool IsBroken { get; private set; }
 }
@@ -378,8 +406,8 @@ class Helper
         int fieldStartY = Console.CursorTop;
         int fieldStartX = Console.CursorLeft;
 
-        char emptiness = ' ';
-        WriteAt(new string(emptiness, helpText.Length - 1), backgroundColor: primary, isNewLine: false, xPosition: fieldStartX);
+        const char Space = ' ';
+        WriteAt(new string(Space, helpText.Length - 1), backgroundColor: primary, isNewLine: false, xPosition: fieldStartX);
 
         Console.SetCursorPosition(fieldStartX + 1, fieldStartY);
 
@@ -430,8 +458,8 @@ class Helper
     }
 
     public static void WriteAt(object element, int? yPosition = null, int? xPosition = null,
-    ConsoleColor foregroundColor = ConsoleColor.White, ConsoleColor backgroundColor = ConsoleColor.Black,
-    bool isNewLine = true)
+        ConsoleColor foregroundColor = ConsoleColor.White, ConsoleColor backgroundColor = ConsoleColor.Black,
+        bool isNewLine = true)
     {
         Console.ForegroundColor = foregroundColor;
         Console.BackgroundColor = backgroundColor;
