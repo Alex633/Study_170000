@@ -14,7 +14,7 @@ namespace CsLearning;
 //Класс Деталь не может содержать значение “количество”. Деталь всего одна, за количество отвечает тот, кто хранит детали.
 //При необходимости можно создать дополнительный класс для конкретной детали и работе с количеством.
 
-//create few collections with each type of part
+//in searching for broken part method - show what part type is broken
 //make selector - fix broken part with that part
 
 enum PartType
@@ -222,21 +222,67 @@ class RepairService
         int xPosition = 104;
 
         Helper.WriteAt($"Balance: ${_balance}", yPosition: 0, xPosition: xPosition);
-        Helper.WriteAt($"Spare Parts: {_spareParts.Count}", yPosition: 1, xPosition: xPosition);
         Helper.WriteAt($"Cars: {_cars.Count}", yPosition: 2, xPosition: xPosition);
+        ShowSpareParts(4, xPosition);
     }
 
-    private void StockUp(int carsQuantity = 4, int uniquePartsQuantity = 3)
+    private void ShowSpareParts(int yPosition, int xPosition)
+    {
+        int wheelsCount = 0;
+        int engineCount = 0;
+        int steeringWheelCount = 0;
+        int seatsCount = 0;
+        int windowsCount = 0;
+        int somethingElseCount = 0;
+
+        foreach (Part part in _spareParts)
+        {
+            switch (part.Type)
+            {
+                case PartType.Wheels:
+                    wheelsCount++;
+                    break;
+                case PartType.Engine:
+                    engineCount++;
+                    break;
+                case PartType.SteeringWheel:
+                    steeringWheelCount++;
+                    break;
+                case PartType.Seats:
+                    seatsCount++;
+                    break;
+                case PartType.Windows:
+                    windowsCount++;
+                    break;
+                case PartType.SomethingElseCarsHave:
+                    somethingElseCount++;
+                    break;
+            }
+        }
+
+        Helper.WriteAt("Spare parts in stock: ", yPosition, xPosition);
+        Helper.WriteAt($"Wheels - {wheelsCount}", yPosition + 1, xPosition);
+        Helper.WriteAt($"Engine - {engineCount}", yPosition + 2, xPosition);
+        Helper.WriteAt($"Steering Wheel - {steeringWheelCount}", yPosition + 3, xPosition);
+        Helper.WriteAt($"Seats - {seatsCount}", yPosition + 4, xPosition);
+        Helper.WriteAt($"Windows - {windowsCount}", yPosition + 5, xPosition);
+        Helper.WriteAt($"Something Else Cars Have - {somethingElseCount}", yPosition + 6, xPosition);
+    }
+
+    private void StockUp()
     {
         _spareParts = new Stack<Part>();
 
-        for (int i = 0; i < uniquePartsQuantity; i++)
+        foreach (PartType partType in Enum.GetValues(typeof(PartType)))
         {
-            _spareParts.Push(PartFactory.Create(false));
+            int quantity = 3;
+            
+            for (int i = 0; i < quantity; i++)
+            {
+                _spareParts.Push(PartFactory.Create(partType, false));
+            }
         }
     }
-    
-    private void BuyParts(string name)
 }
 
 static class CarFactory
@@ -444,8 +490,8 @@ class Helper
 
         WriteAt($" {title} ", foregroundColor: ConsoleColor.Black, backgroundColor: backgroundColor);
 
-        if (isSecondary == false)
-            Console.WriteLine();
+         if (isSecondary == false)
+             Console.WriteLine();
     }
 
     public static void WaitForKeyPress(bool shouldClearAfter = true)
