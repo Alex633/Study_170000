@@ -15,6 +15,8 @@ namespace CsLearning;
 //При необходимости можно создать дополнительный класс для конкретной детали и работе с количеством.
 
 //debug 
+//create new cs files inside solution
+//connect repo
 
 internal enum PartType
 {
