@@ -14,11 +14,13 @@ namespace CsLearning;
 //Класс Деталь не может содержать значение “количество”. Деталь всего одна, за количество отвечает тот, кто хранит детали.
 //При необходимости можно создать дополнительный класс для конкретной детали и работе с количеством.
 
+//use partsStorage in cars and all other (if any) part collections
+
 internal enum PartType
 {
     Wheels,
     Engine,
-    SteeringWheel,  
+    SteeringWheel,
     Seats,
     Windows,
     SomethingElseCarsHave
@@ -40,21 +42,23 @@ public class RepairServiceTask
 internal class RepairService
 {
     private int _balance;
-    private bool _isRunOutOfSpareParts;
 
     private readonly Queue<Car> _cars;
-    private readonly List<Part> _spareParts;
+    private readonly PartsStorage _spareParts;
+
+    private readonly PartFactory _partFactory;
 
     public RepairService()
     {
-        _spareParts = [];
+        _partFactory = new PartFactory();
+        CarFactory carFactory = new(_partFactory);
 
-        StockUp();
+        _spareParts = new PartsStorage();
+        Restock();
 
         _balance = 0;
-        _isRunOutOfSpareParts = false;
 
-        _cars = CarFactory.CreateFew(4);
+        _cars = carFactory.CreateFew(4);
     }
 
     private static bool TryReplace()
@@ -64,10 +68,10 @@ internal class RepairService
 
         bool isSuccessful = Helper.GetRandomInt(MinDice, MaxDice + 1) == 2;
 
-        if (isSuccessful) return true;
-        
-        Helper.WriteAt($"You failed the replacement process T_T \n",
-            foregroundColor: ConsoleColor.DarkRed);
+        if (isSuccessful)
+            return true;
+
+        Helper.WriteAt($"You failed the replacement process T_T \n", foregroundColor: ConsoleColor.DarkRed);
         Helper.WaitForKeyPress();
 
         return false;
@@ -79,7 +83,8 @@ internal class RepairService
 
         for (int i = 0; i < car.Parts.Count; i++)
         {
-            if (car.Parts[i].IsBroken == false) continue;
+            if (car.Parts[i].IsBroken == false)
+                continue;
 
             brokenPartIndex = i;
             return true;
@@ -90,7 +95,7 @@ internal class RepairService
 
     public void Open()
     {
-        while (_cars.Count != 0 && _spareParts.Count > 0)
+        while (_cars.Count != 0 && _spareParts.HasParts)
         {
             ShowHud();
             ShowCars();
@@ -104,8 +109,7 @@ internal class RepairService
 
     private void RepairCar(Car car)
     {
-        if (TryProceedFixing(
-                $"My car is not working ({car.BrokenPartsQuantity}). Can you fix it?",
+        if (TryProceedFixing($"My car is not working ({car.BrokenPartsQuantity}). Can you fix it?",
                 "Negotiating with a client") == false)
         {
             PayFine(true);
@@ -113,31 +117,30 @@ internal class RepairService
         }
 
         Console.Clear();
-        
-        while (_isRunOutOfSpareParts == false && TryFindBrokenPartInCar(car, out int brokenPartIndex))
+
+        while (_spareParts.HasParts && TryFindBrokenPartInCar(car, out int brokenPartIndex))
         {
             PartType brokenPartType = car.Parts[brokenPartIndex].Type;
 
             Helper.WriteTitle($"Repairing a broken part at {brokenPartIndex}");
 
             if (TryProceedFixing(
-                    $"So you found broken {brokenPartType} ({car.BrokenPartsQuantity} total broken parts left). Maybe you can fix it",
-                    $"Thinking if you are in the mood to repair some {brokenPartType} today") ==
-                false)
+                    $"So you found broken {brokenPartType} ({car.BrokenPartsQuantity} total broken parts left). " +
+                    $"Maybe you can fix it",
+                    $"Thinking if you are in the mood to repair some {brokenPartType} today") == false)
             {
                 PayFine(false, car.BrokenPartsQuantity);
                 return;
             }
 
-            if (TryFindReplacementPart(brokenPartType, out Part? replacementPart) == false)
+            if (_spareParts.TryGetPart(brokenPartType, out Part? replacementPart) == false)
             {
-                _isRunOutOfSpareParts = _spareParts.Count <= 0;
                 PayFine(false, car.BrokenPartsQuantity);
 
-                if (_isRunOutOfSpareParts == false) return;
+                if (_spareParts.HasParts == false)
+                    return;
 
-                Helper.WriteAt($"You are out of the spare parts.",
-                    foregroundColor: ConsoleColor.Red);
+                Helper.WriteAt($"You are out of the spare parts.", foregroundColor: ConsoleColor.Red);
                 Helper.WaitForKeyPress();
             }
 
@@ -154,9 +157,8 @@ internal class RepairService
     {
         if (_balance > 0)
         {
-            if (_isRunOutOfSpareParts == false)
-                Helper.WriteAt(
-                    $"No more cars left. You win ({_balance}). Bye-bye",
+            if (_spareParts.HasParts)
+                Helper.WriteAt($"No cars left. You win ({_balance}). Bye-bye",
                     foregroundColor: ConsoleColor.Yellow);
             else
                 Helper.WriteAt(
@@ -165,7 +167,7 @@ internal class RepairService
         }
         else
         {
-            if (_isRunOutOfSpareParts == false)
+            if (_spareParts.HasParts)
                 Helper.WriteAt($"You are in debt ({_balance}) and alone",
                     foregroundColor: ConsoleColor.Magenta);
             else
@@ -187,9 +189,8 @@ internal class RepairService
         const int NoCommand = 2;
         const string YesCommandDescription = "i guess i can try";
         const string NoCommandDescription = "but i don't wanna";
-        int userInput =
-            Helper.ReadInt(
-                $"What you say? ({YesCommand} - {YesCommandDescription}, {NoCommand} - {NoCommandDescription})");
+        int userInput = Helper.ReadInt(
+            $"What you say? ({YesCommand} - {YesCommandDescription}, {NoCommand} - {NoCommandDescription})");
 
         return userInput == 1;
     }
@@ -197,15 +198,13 @@ internal class RepairService
     private void PayFine(bool isStaticFine, int brokenPartsQuantity = 1)
     {
         const int PenaltyPerPart = 4;
-        int fineValue =
-            isStaticFine ? 10 : PenaltyPerPart * brokenPartsQuantity;
+        int fineValue = isStaticFine ? 10 : PenaltyPerPart * brokenPartsQuantity;
 
         _balance -= fineValue;
         ShowHud();
 
         if (isStaticFine == false)
-            Console.WriteLine(
-                $"Broken parts left in this car: {brokenPartsQuantity}");
+            Console.WriteLine($"Broken parts left in this car: {brokenPartsQuantity}");
 
         Console.WriteLine($"Client left. You paid ${fineValue} fine");
 
@@ -218,194 +217,211 @@ internal class RepairService
 
         Helper.WriteAt($"Replacing {brokenPartType}...");
 
-        if (TryReplace() == false || car.TryReplacePartAt(brokenPartIndex, replacementPart) == false) return;
+        if (TryReplace() == false || car.TryReplacePartAt(brokenPartIndex, replacementPart) == false)
+            return;
 
         const int RepairPrice = 10;
 
         _balance += RepairPrice + replacementPart.Price;
 
         ShowHud();
-        Helper.WriteAt(
-            $"Success. You got ${RepairPrice} for work and ${replacementPart.Price} for the part\n",
+        Helper.WriteAt($"Success. You got ${RepairPrice} for work and ${replacementPart.Price} for the part\n",
             foregroundColor: ConsoleColor.DarkGreen);
         Helper.WaitForKeyPress();
-    }
-
-    private bool TryFindReplacementPart(PartType type, out Part? replacementPart)
-    {
-        replacementPart = null;
-
-        foreach (Part part in _spareParts)
-        {
-            if (part.Type != type)
-                continue;
-
-            Helper.WriteAt(
-                $"You still have some {type} in your inventory. That's good\n",
-                foregroundColor: ConsoleColor.DarkGreen);
-            Helper.WaitForKeyPress();
-
-            replacementPart = part;
-            _spareParts.Remove(replacementPart);
-
-            return true;
-        }
-
-        Helper.WriteAt(
-            $"No replacement {type} found in your inventory. Aborting repair process\n",
-            foregroundColor: ConsoleColor.DarkRed);
-        Helper.WaitForKeyPress();
-
-        return false;
     }
 
     private void ShowCars()
     {
         Helper.WriteTitle("Garage");
 
-        foreach (Car car in _cars) car.ShowInfo();
+        foreach (Car car in _cars)
+            car.ShowInfo();
 
         Helper.WaitForKeyPress();
     }
 
     private void ShowHud()
-    { 
-        int xPosition = Console.WindowWidth - 32;;
+    {
+        int xPosition = Console.WindowWidth - 32;
 
         Helper.WriteAt($"Balance: ${_balance}", 0, xPosition);
         Helper.WriteAt($"Cars: {_cars.Count}", 2, xPosition);
-        ShowSpareParts(4, xPosition);
+
+        _spareParts.Show(4, xPosition, "Spare parts in stock: ");
     }
 
-    private void ShowSpareParts(int yPosition, int xPosition)
+    private void Restock(int eachPartTypeQuantity = 3)
     {
-        int wheelsCount = 0;
-        int engineCount = 0;
-        int steeringWheelCount = 0;
-        int seatsCount = 0;
-        int windowsCount = 0;
-        int somethingElseCount = 0;
-
-        foreach (Part part in _spareParts)
+        foreach (PartType partType in Enum.GetValues<PartType>())
         {
-            switch (part.Type)
+            for (int i = 0; i < eachPartTypeQuantity; i++)
             {
-                case PartType.Wheels:
-                    wheelsCount++;
-                    break;
-                case PartType.Engine:
-                    engineCount++;
-                    break;
-                case PartType.SteeringWheel:
-                    steeringWheelCount++;
-                    break;
-                case PartType.Seats:
-                    seatsCount++;
-                    break;
-                case PartType.Windows:
-                    windowsCount++;
-                    break;
-                case PartType.SomethingElseCarsHave:
-                    somethingElseCount++;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                Part part = _partFactory.Create(partType, false);
+                _spareParts.AddPart(part);
             }
-        }
-
-        Helper.WriteAt("Spare parts in stock: ", yPosition, xPosition);
-        Helper.WriteAt($"Wheels - {wheelsCount}", yPosition + 1, xPosition);
-        Helper.WriteAt($"Engine - {engineCount}", yPosition + 2, xPosition);
-        Helper.WriteAt($"Steering Wheel - {steeringWheelCount}", yPosition + 3,
-            xPosition);
-        Helper.WriteAt($"Seats - {seatsCount}", yPosition + 4, xPosition);
-        Helper.WriteAt($"Windows - {windowsCount}", yPosition + 5, xPosition);
-        Helper.WriteAt($"Something Else Cars Have - {somethingElseCount}",
-            yPosition + 6, xPosition);
-    }
-
-    private void StockUp()
-    {
-        foreach (PartType partType in Enum.GetValues(typeof(PartType)))
-        {
-            const int Quantity = 3;
-
-            for (int i = 0; i < Quantity; i++)
-                _spareParts.Add(PartFactory.Create(partType, false));
         }
     }
 }
 
-internal static class CarFactory
+internal class CarFactory
 {
-    public static Queue<Car> CreateFew(int amount = 1)
+    private readonly PartFactory _partFactory;
+
+    public CarFactory(PartFactory partFactory)
+    {
+        _partFactory = partFactory ?? throw new ArgumentNullException(nameof(partFactory));
+    }
+
+    public Queue<Car> CreateFew(int amount = 1)
     {
         Queue<Car> newCars = [];
 
-        for (int i = 0; i < amount; i++) newCars.Enqueue(Create());
+        for (int i = 0; i < amount; i++)
+            newCars.Enqueue(Create());
 
         return newCars;
     }
 
-    private static Car Create()
+    private Car Create()
     {
-        List<Part> parts = PartFactory.CreateFew(CreateNewCarSet());
+        List<Part> parts = _partFactory.CreateFew(CreateNewCarSet());
 
         return new Car(parts);
     }
 
     private static Queue<PartType> CreateNewCarSet()
     {
-        Queue<PartType> partTypes = new();
-
-        partTypes.Enqueue(PartType.Wheels);
-        partTypes.Enqueue(PartType.Engine);
-        partTypes.Enqueue(PartType.SteeringWheel);
-        partTypes.Enqueue(PartType.Seats);
-        partTypes.Enqueue(PartType.Windows);
-        partTypes.Enqueue(PartType.SomethingElseCarsHave);
-
-        return partTypes;
+        return new Queue<PartType>([
+            PartType.Wheels,
+            PartType.Engine,
+            PartType.SteeringWheel,
+            PartType.Seats,
+            PartType.Windows,
+            PartType.SomethingElseCarsHave
+        ]);
     }
 }
 
-internal static class PartFactory
+internal class PartFactory
 {
-    public static List<Part> CreateFew(Queue<PartType> partTypes, int quantity = 6)
+    public List<Part> CreateFew(Queue<PartType> partTypes)
     {
-        List<Part> parts = [];
+        ArgumentNullException.ThrowIfNull(partTypes);
+
+        int quantity = partTypes.Count;
+
+        if (quantity == 0)
+            return [];
 
         const int BrokenPartValue = 0;
         const int GoodPartValue = 1;
-        bool hasManufacturingDefect = false;
+
+        Queue<PartType> partTypesCopy = new(partTypes);
+        List<Part> parts = [];
+
+        bool hasAtLeastOneBroken = false;
 
         for (int i = 0; i < quantity; i++)
         {
-            bool isBrokenPart =
-                Convert.ToBoolean(Helper.GetRandomInt(BrokenPartValue,
-                    GoodPartValue + 1));
+            bool isBrokenPart = Convert.ToBoolean(Helper.GetRandomInt(BrokenPartValue, GoodPartValue + 1));
 
-            if (isBrokenPart && hasManufacturingDefect == false)
-                hasManufacturingDefect = true;
+            if (isBrokenPart && hasAtLeastOneBroken == false)
+                hasAtLeastOneBroken = true;
 
-            if (hasManufacturingDefect == false && quantity == i + 1)
+            if (hasAtLeastOneBroken == false && i == quantity - 1)
                 isBrokenPart = true;
 
-            parts.Add(Create(partTypes.Dequeue(), isBrokenPart));
+            parts.Add(Create(partTypesCopy.Dequeue(), isBrokenPart));
         }
 
         return parts;
     }
 
-    public static Part Create(PartType type, bool isBroken, int? price = null)
+    public Part Create(PartType type, bool isBroken, int? price = null)
     {
-        if (price.HasValue) return new Part(type, isBroken, price.Value);
+        if (price.HasValue)
+            return new Part(type, isBroken, price.Value);
 
         const int MinPrice = 0;
         const int MaxPrice = 10;
         price = Helper.GetRandomInt(MinPrice, MaxPrice + 1);
 
         return new Part(type, isBroken, price.Value);
+    }
+}
+
+internal class PartsStorage
+{
+    private readonly List<Part> _parts;
+
+    public PartsStorage(List<Part> parts)
+    {
+        _parts = parts;
+    }
+
+    public PartsStorage()
+    {
+        _parts = [];
+    }
+
+    public bool HasParts => _parts.Count > 0;
+
+    public void Show(int yPosition, int xPosition, string title)
+    {
+        Dictionary<PartType, int> partsCounter = new()
+        {
+            [PartType.Wheels] = 0,
+            [PartType.Engine] = 0,
+            [PartType.SteeringWheel] = 0,
+            [PartType.Seats] = 0,
+            [PartType.Windows] = 0,
+            [PartType.SomethingElseCarsHave] = 0
+        };
+
+        foreach (Part part in _parts)
+            partsCounter[part.Type]++;
+
+        Helper.WriteAt(title, yPosition, xPosition);
+
+        foreach (KeyValuePair<PartType, int> keyValuePair in partsCounter)
+        {
+            yPosition++;
+            Helper.WriteAt($"{keyValuePair.Key} - {keyValuePair.Value}", yPosition, xPosition);
+        }
+    }
+    
+    public bool TryGetPart(PartType type, out Part? part)
+    {
+        part = null;
+
+        if (HasParts == false)
+            return false;
+
+        for (int i = 0; i < _parts.Count; i++)
+        {
+            if (_parts[i].Type != type)
+                continue;
+
+            Helper.WriteAt($"{type} found. That's good\n",
+                foregroundColor: ConsoleColor.DarkGreen);
+            Helper.WaitForKeyPress();
+            
+            part = _parts[i];
+            _parts.RemoveAt(i);
+            return true;
+        }
+
+        Helper.WriteAt($"No {type} left.\n",
+            foregroundColor: ConsoleColor.DarkRed);
+        Helper.WaitForKeyPress();
+        return false;
+    }
+
+    public void AddPart(Part part)
+    {
+        ArgumentNullException.ThrowIfNull(part);
+
+        _parts.Add(part);
     }
 }
 
@@ -422,7 +438,7 @@ internal class Car
         _id = Guid.NewGuid();
     }
 
-    public int BrokenPartsQuantity => CalculateBrokenParts();
+    public int BrokenPartsQuantity => CountBrokenParts();
 
     public IReadOnlyList<Part> Parts => _parts.AsReadOnly();
 
@@ -451,19 +467,21 @@ internal class Car
 
         for (int i = 0; i < _parts.Count; i++)
         {
-            if (_parts[i].IsBroken == false) continue;
+            if (_parts[i].IsBroken == false)
+                continue;
 
             Helper.WriteAt($"Broken part at ({i})",
                 foregroundColor: ConsoleColor.DarkMagenta);
             haveBrokenPart = true;
         }
 
-        if (haveBrokenPart == false) Helper.WriteAt("In good condition");
+        if (haveBrokenPart == false)
+            Helper.WriteAt("In good condition");
 
         Console.WriteLine();
     }
 
-    private int CalculateBrokenParts()
+    private int CountBrokenParts()
     {
         int brokenParts = 0;
 
@@ -543,11 +561,9 @@ internal static class Helper
 
     public static void WriteTitle(string title, bool isSecondary = false)
     {
-        ConsoleColor backgroundColor =
-            isSecondary ? ConsoleColor.DarkGray : ConsoleColor.Gray;
+        ConsoleColor backgroundColor = isSecondary ? ConsoleColor.DarkGray : ConsoleColor.Gray;
 
-        WriteAt($" {title} ", foregroundColor: ConsoleColor.Black,
-            backgroundColor: backgroundColor);
+        WriteAt($" {title} ", foregroundColor: ConsoleColor.Black, backgroundColor: backgroundColor);
 
         if (isSecondary == false)
             Console.WriteLine();
